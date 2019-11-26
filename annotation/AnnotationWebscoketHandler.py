@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-10-31 11:57:58
-@LastEditTime: 2019-11-26 10:27:48
+@LastEditTime: 2019-11-26 11:19:33
 @Description:负责标注页面的websocket连接的handler,在收到连接请求后，会先进行连接验证,如果验证通过，
     则创建连接并把连接管理交给模块控制器, 如果验证不通过，则会拒绝创建连接请求。
     在收到任何的消息后，都不会进行处理，而是直接发送给模块控制器。
@@ -170,10 +170,10 @@ class AnnotationWebscoketHandler(tornado.websocket.WebSocketHandler):
 
             opened_result["projectLabel"] = {}
 
-            count_sql = """select count(1) as total from `AnnotationlProjectLabelTemplate` where projectId = %s"""
+            count_sql = """select count(1) as total from `AnnotationlProjectLabelTemplate` where projectId = %s and `enabled` = 1"""
             total_lable_number = mysql.selectOne(count_sql, (project.id, ))[1]['total']
 
-            sql_start = """select * from `AnnotationlProjectLabelTemplate` where projectId = %s order by name asc"""
+            sql_start = """select * from `AnnotationlProjectLabelTemplate` where projectId = %s and `enabled` = 1 order by name asc"""
             sql_end = """ limit %s, %s"""
 
             mate_label_list = []
