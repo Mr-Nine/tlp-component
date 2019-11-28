@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-14 18:37:16
-@LastEditTime: 2019-11-25 21:29:34
+@LastEditTime: 2019-11-27 11:32:08
 @Description:
 '''
 import sys
@@ -103,13 +103,12 @@ def main():
 
         # region.to_dict()["id"] = "A1"
         # print(region.id)
-
-    region2 = AnnotationProjectImageRegion.create_by_database_result({"id":"A","imageId":"B", "index":0})
-
-    print(region2.id)
-    print(region2.imageId)
-    print(region2.index)
-
+    arr = []
+    if arr:
+        print("A")
+    arr.append("A")
+    if arr:
+        print("A")
 
 if __name__ == "__main__":
     main()

@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2019-11-26 10:49:47
+@LastEditTime: 2019-11-26 11:41:36
 @Description:
 '''
 
@@ -35,14 +35,14 @@ class AnnotationMateLabelHandler(AbstractHandler):
         logging.debug("'AnnotationMateLabelHandler' receive message %s", message.to_json())
 
         if message.data is None:
-            return self.replyMessage(message, state=False, msg='40101')
+            return self.replyMessage(message, state=False, msg='50101')
 
         data = message.data
         if 'projectId' not in data or 'imageId' not in data or 'action' not in data:
-            return self.replyMessage(message, state=False, msg="40102", data=None)
+            return self.replyMessage(message, state=False, msg="50102", data=None)
 
         if data['projectId'] != self.user.projectId:
-            return self.replyMessage(message, state=False, msg="40103")
+            return self.replyMessage(message, state=False, msg="50103")
 
         context = TLPContext()
         project =context.get_project(self.user.projectId)
@@ -54,13 +54,13 @@ class AnnotationMateLabelHandler(AbstractHandler):
             target_image_result = mysql.selectOne("""select * from """ + image_table_name + """ where id = %s""", (data['imageId'], ))
             if target_image_result[0] == 0:
                 # 目标图片不存在
-                return self.replyMessage(message, state=False, msg="40104")
+                return self.replyMessage(message, state=False, msg="50104")
 
             image = AnnotationlProjectImage.create_by_database_result(target_image_result[1])
 
             if image.annotationUserId != self.user.userId:
                 # 当前用户没有锁定图片
-                return self.replyMessage(message, state=False, msg="40105")
+                return self.replyMessage(message, state=False, msg="50105")
 
             action = data['action']
 
@@ -71,7 +71,7 @@ class AnnotationMateLabelHandler(AbstractHandler):
 
                 if 'labelId' not in data:
                     # 要增加的label关联不存在
-                    return self.replyMessage(message, state=False, msg="40106")
+                    return self.replyMessage(message, state=False, msg="50106")
 
                 labelId = data['labelId']
                 attribute = data['attribute'] if ('attribute' in data and data['attribute'] is not None) else None
@@ -85,14 +85,14 @@ class AnnotationMateLabelHandler(AbstractHandler):
                 if count:
                     return self.replyMessage(message, state=True, msg="add mate label success.", id=newId, imageId=image.id, labelId=labelId)
                 else:
-                    return self.replyMessage(message, state=False, msg="40107", imageId=image.id, labelId=labelId) # 插入为写入数据库
+                    return self.replyMessage(message, state=False, msg="50107", imageId=image.id, labelId=labelId) # 插入为写入数据库
 
             elif action == 'delete':
                 # 为图片取消一个mate标签
 
                 if 'id' not in data:
                     # 要删除的ID不存在
-                    return self.replyMessage(message, state=False, msg="40107")
+                    return self.replyMessage(message, state=False, msg="50107")
 
                 delete_id = data['id']
 
@@ -102,7 +102,28 @@ class AnnotationMateLabelHandler(AbstractHandler):
                 if count:
                     return self.replyMessage(message, state=True, msg="delete mate label success.", id=delete_id, imageId=image.id)
                 else:
-                    return self.replyMessage(message, state=False, msg="40108", id=delete_id, imageId=image.id) # 删除未成功执行
+                    return self.replyMessage(message, state=False, msg="50108", id=delete_id, imageId=image.id) # 删除未成功执行
+
+            elif action == 'update':
+                # 为图像的Mate修改属性
+                if 'id' not in data:
+                    # 要删除的ID不存在
+                    return self.replyMessage(message, state=False, msg="50107")
+
+                update_id = data['id']
+                attribute = data['attribute'] if ('attribute' in data and data['attribute'] is not None) else None
+
+                sql = """update from """ + mate_label_table_name + """ set attribute = %s where id = %s"""
+                count = mysql.update(sql, (attribute, update_id))
+
+                if count:
+                    return self.replyMessage(message, state=True, msg="update mate label attribute success.", id=update_id, imageId=image.id)
+                else:
+                    return self.replyMessage(message, state=False, msg="50108", id=update_id, imageId=image.id) # 删除未成功执行
+
+            else:
+                # 未知的mate操作
+                return self.replyMessage(message, state=False, msg="50109", imageId=image.id) # 未知的Action操作目标
 
         finally:
             mysql.destory()

@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-25 10:08:44
-@LastEditTime: 2019-11-26 10:33:49
+@LastEditTime: 2019-11-26 17:09:47
 @Description:
 '''
 
@@ -66,3 +66,11 @@ class GenericEntity(metaclass=ABCMeta):
     @abstractclassmethod
     def convert_database_result_2_dict(cls, data_result):
         pass
+
+    def to_value_list(self, property_list):
+        value_list = []
+
+        for property_name in property_list:
+            value_list.append(self.__dict__[property_name])
+
+        return value_list

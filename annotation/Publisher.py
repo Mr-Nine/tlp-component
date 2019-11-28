@@ -7,17 +7,19 @@ __author__ = 'dcp team dujiujun - tlp-agent'
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 10:58:00
-@LastEditTime: 2019-11-25 21:24:17
+@LastEditTime: 2019-11-27 13:50:25
 @Description:
 '''
 
 import sys
 import datetime
+import traceback
 import logging
 
 from core import TLPDBException, Message
 from annotation.model import AbstractModel
 from tlp.error import *
+
 
 class Publisher(object):
 
@@ -59,6 +61,14 @@ class Publisher(object):
                 # 数据转换错误
                 e2.print_exception_stack()
                 return self.create_global_message(message.senderMid, "10002").to_json()
+            except RunTimeException as e3:
+                e3.print_exception_stack()
+                return self.create_global_message(message.senderMid, "10003").to_json()
+            except BaseException as e4:
+                # 运行时异常
+                logging.error("Error info {}".format(e4))
+                traceback.print_exc(file=sys.stdout)
+                return self.create_global_message(message.senderMid, "10004").to_json()
 
             return response_message
         else:
@@ -88,8 +98,8 @@ class Publisher(object):
     def create_global_message(self, targetMid, exception):
         message = Message()
         message.senderMid = 'global'
-        message.senderMid = targetMid
-        message.messageType = 'try-exception'
+        message.targetMid = targetMid
+        message.messageType = 'error'
         message.createTime = datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
         message.senderTime = message.createTime
         message.tnsNumber = 0

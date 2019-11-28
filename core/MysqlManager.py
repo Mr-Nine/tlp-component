@@ -6,7 +6,7 @@ __author__ = 'dcp team dujiujun - tlp-agent'
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-07 09:56:37
-@LastEditTime: 2019-11-26 10:55:06
+@LastEditTime: 2019-11-27 13:12:53
 @Description:
 注意，所有方法不提供主动关闭连接得方式，因为所有的连接都是可以服用的，需要调用后手动关闭
 '''
@@ -173,8 +173,17 @@ class MysqlManager(object):
             self._conn.rollback()
             raise DataBaseException(message=("insert many data to database error, error sql:\n %s."%(sql)))
 
+    def close_transaction_insert_many(self, sql, values):
+        try:
+            result = self._cursor.executemany(sql, values)
+            return result
+        except DatabaseError as e:
+            # print ('Error : {}'.format(e))
+            self._conn.rollback()
+            raise DataBaseException(message=("insert many data to database error, error sql:\n %s."%(sql)))
 
-    def __query(self, sql, parameter=None):
+
+    def __query(self, sql, auto_commit, parameter=None):
         '''
         @description:执行非select的语句
         @param {string} sql:需要执行的SQL
@@ -188,7 +197,8 @@ class MysqlManager(object):
             else:
                 count = self._cursor.execute(sql, parameter)
 
-            self._conn.commit()
+            if auto_commit:
+                self._conn.commit()
 
             return count
         except Exception as e:
@@ -197,24 +207,24 @@ class MysqlManager(object):
             raise DataBaseException(message=("execute sql error, error message, error sql:\n %s."%(sql)))
 
 
-    def update(self, sql, parameter=None):
+    def update(self, sql, parameter=None, auto_commit=True):
         '''
         @description:更新数据
         @param {string} sql:需要执行的SQL
         @param {tuple} parameter:要替换到SQL语句中的占位符中的参数，会按索引进行替换
         @return:数据库的变化结果数量
         '''
-        return self.__query(sql, parameter)
+        return self.__query(sql, auto_commit, parameter)
 
 
-    def delete(self, sql, param=None):
+    def delete(self, sql, parameter=None, auto_commit=True):
         '''
         @description:删除数据
         @param {string} sql:需要执行的SQL
         @param {tuple} parameter:要替换到SQL语句中的占位符中的参数，会按索引进行替换
         @return:数据库的变化结果数量
         '''
-        return self.__query(sql, param)
+        return self.__query(sql, auto_commit, parameter)
 
     def begin(self):
         '''

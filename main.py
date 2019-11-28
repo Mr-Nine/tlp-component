@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-10-31 09:56:39
-@LastEditTime: 2019-11-22 17:19:01
+@LastEditTime: 2019-11-28 15:12:12
 @Description:程序启动入口,负责启动tornado服务，实例化模块管理器
 '''
 __author__ = 'dcp team dujiujun - tlp - agent'
@@ -38,11 +38,11 @@ sys.path.append(os.path.dirname(__file__) + os.sep + '../')
 
 define('port', default=7878)
 
-options.log_file_prefix = os.path.join(os.path.dirname(__file__), 'logs/tlp.log')
-options.logging = "debug"
-options.log_to_stderr = True
-options.log_file_max_size = 2*1024*1024*1024
-options.log_file_num_backups = 7
+# options.log_file_prefix = os.path.join(os.path.dirname(__file__), 'logs/tlp.log')
+# options.logging = "debug"
+# options.log_to_stderr = True
+# options.log_file_max_size = 2*1024*1024*1024
+# options.log_file_num_backups = 7
 
 settings = dict(
     template_path=os.path.join(os.path.dirname(__file__), "templates"),
@@ -136,7 +136,8 @@ def main():
     except BaseException as e:
         logging.error(e)
     finally:
-        web_loop.close()
+        web_loop.stop()       # might be redundant, the loop has already stopped
+        web_loop.close(True)  # needed to close all open sockets
 
 if __name__ == "__main__":
     main()
