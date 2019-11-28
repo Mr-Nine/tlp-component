@@ -5,11 +5,9 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-10-31 10:55:31
-@LastEditTime: 2019-11-22 15:09:13
+@LastEditTime: 2019-11-28 15:42:56
 @Description:
 '''
-
-from .TLPDBException import TLPDBException
 
 from .Config import Config
 from .Message import Message

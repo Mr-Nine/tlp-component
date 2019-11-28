@@ -7,7 +7,7 @@ __author__ = 'dcp team dujiujun - tlp-agent'
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 10:58:00
-@LastEditTime: 2019-11-27 13:50:25
+@LastEditTime: 2019-11-28 15:42:49
 @Description:
 '''
 
@@ -16,7 +16,7 @@ import datetime
 import traceback
 import logging
 
-from core import TLPDBException, Message
+from core import Message
 from annotation.model import AbstractModel
 from tlp.error import *
 
