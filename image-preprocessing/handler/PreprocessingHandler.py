@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-28 16:58:42
-@LastEditTime: 2019-11-29 16:27:42
+@LastEditTime: 2019-11-29 17:03:02
 @Description:
 '''
 
@@ -122,7 +122,9 @@ class PreprocessingHandler(tornado.websocket.WebSocketHandler):
 
         images = msg['data']
 
-
+        # 图片应该包含的信息：ID(仓库的ID，不是项目的)，路径(一个绝对路径？)，
+        for image in images:
+            print(image)
 
         pass
 
