@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-10-31 09:56:39
-@LastEditTime: 2019-11-28 16:34:54
+@LastEditTime: 2019-11-29 14:53:07
 @Description:程序启动入口,负责启动tornado服务，实例化模块管理器
 '''
 __author__ = 'dcp team dujiujun - tlp - agent'
@@ -27,19 +27,13 @@ import tornado.web
 from datetime import datetime
 from tornado.options import define, options, parse_config_file
 
-from core.utils import *
-from core import Message, MessageMid, MysqlManager
-from annotation import AnnotationWebscoketHandler
+from core import PreprocessingContext
+from handler import MainHandler, PreprocessingHandler
+
 
 sys.path.append(os.path.dirname(__file__) + os.sep + '../')
 
 define('port', default=7979)
-
-# options.log_file_prefix = os.path.join(os.path.dirname(__file__), 'logs/tlp.log')
-# options.logging = "debug"
-# options.log_to_stderr = True
-# options.log_file_max_size = 2*1024*1024*1024
-# options.log_file_num_backups = 7
 
 settings = dict(
     template_path=os.path.join(os.path.dirname(__file__), "templates"),
@@ -71,30 +65,20 @@ def get_server_settings(options=None):
     return service_settings
 
 
-def get_trusted_downstream(tdstream):
-    result = set()
-    for ip in tdstream.split(','):
-        ip = ip.strip()
-        if ip:
-            to_ip_address(ip)
-            result.add(ip)
-    return result
-
-class MainHandler(tornado.web.RequestHandler):
-    def get(self):
-        self.write("Hello, world")
-
 class Application(tornado.web.Application):
     """Configure the service started by agent.
     """
 
-    def __init__(self):
+    def __init__(self, loop):
 
-        init_parameter = {}
+        init_parameter = {"loop":loop}
 
         handlers = [
             (r"/", MainHandler),
-            (r"/annotation", AnnotationWebscoketHandler, init_parameter)
+            (r"/index.html", MainHandler),
+            (r"/index", MainHandler),
+            (r"/preprocessing", PreprocessingHandler, init_parameter)
+            # (r"/annotation", AnnotationWebscoketHandler, init_parameter)
         ]
 
         tornado.web.Application.__init__(self, handlers, **settings)
@@ -114,7 +98,7 @@ def main():
     web_loop = tornado.ioloop.IOLoop.instance()
 
     # create handler
-    app = Application()
+    app = Application(loop=web_loop)
 
     # get server custom settings
     server_settings = get_server_settings()
@@ -124,6 +108,8 @@ def main():
 
     # print welcome info
     welcome()
+
+    context = PreprocessingContext()
 
     try:
         # start tornado ioloop
