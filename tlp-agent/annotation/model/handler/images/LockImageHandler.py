@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2019-11-26 10:59:12
+@LastEditTime: 2019-12-02 19:39:01
 @Description:
 '''
 
@@ -65,15 +65,37 @@ class LockImageHandler(AbstractHandler):
 
             result = 0
             if action == "annotation":
-                result = mysql.update(sql_start + """`annotation` = 1, `annotationUserId` = %s, `updateVersion` = `updateVersion` + 1 """ + sql_end, (self.user.userId, data['imageId'], target_image['updateVersion']))
+                select_result = mysql.selectOne("""select `id`, `updateVersion` from """ + image_table_name + """ where annotation = 1 and annotationUserId = %s""", (self.user.userId, ))
+                if select_result[0]:
+                    unlock_image_id = select_result[1]['id'].decode("utf-8")
+                    update_version= select_result[1]['updateVersion'].decode("utf-8")
+                    result = mysql.update(sql_start + """ `annotation` = 0, `annotationUserId` = null, `updateVersion` = `updateVersion` + 1 """ + sql_end, (unlock_image_id, update_version))
+                    if result > 0:
+                        notice_msg = self.replyMessage(message, state=True, msg="notice", type="unlock-image", action=action, userId=self.user.userId, projectId=project.id, imageId=unlock_image_id)
+                        notice_msg.senderMid = MessageMid.IMAGES()
+                        context.notice(notice_msg, project.id) # 发送自动解锁的通知
+                        result = mysql.update(sql_start + """`annotation` = 1, `annotationUserId` = %s, `updateVersion` = `updateVersion` + 1 """ + sql_end, (self.user.userId, data['imageId'], target_image['updateVersion']))
+                else:
+                    result = mysql.update(sql_start + """`annotation` = 1, `annotationUserId` = %s, `updateVersion` = `updateVersion` + 1 """ + sql_end, (self.user.userId, data['imageId'], target_image['updateVersion']))
             elif action == "review":
-                result = mysql.update(sql_start + """`review` = 1, `reviewUserId` = %s, `updateVersion` = `updateVersion` + 1 """ + sql_end, (self.user.userId, data['imageId'], target_image['updateVersion']))
+                select_result = mysql.selectOne("""select `id`, `updateVersion` from """ + image_table_name + """ where `review` = 1 and `reviewUserId` = %s""", (self.user.userId, ))
+                if select_result[0]:
+                    unlock_image_id = select_result[1]['id'].decode("utf-8")
+                    update_version= select_result[1]['updateVersion'].decode("utf-8")
+                    result = mysql.update(sql_start + """ `review` = 0, `reviewUserId` = null, `updateVersion` = `updateVersion` + 1 """ + sql_end, (unlock_image_id, update_version))
+                    if result > 0:
+                        notice_msg = self.replyMessage(message, state=True, msg="notice", type="unlock-image", action=action, userId=self.user.userId, projectId=project.id, imageId=unlock_image_id)
+                        notice_msg.senderMid = MessageMid.IMAGES()
+                        context.notice(notice_msg, project.id) # 发送自动解锁的通知
+                        result = mysql.update(sql_start + """`review` = 1, `reviewUserId` = %s, `updateVersion` = `updateVersion` + 1 """ + sql_end, (self.user.userId, data['imageId'], target_image['updateVersion']))
+                else:
+                    result = mysql.update(sql_start + """`review` = 1, `reviewUserId` = %s, `updateVersion` = `updateVersion` + 1 """ + sql_end, (self.user.userId, data['imageId'], target_image['updateVersion']))
             elif action == 'completed':
                 result = mysql.update(sql_start + """`completed` = 1, `completedUserId` = %s, `completedTime` = %s, `updateVersion` = `updateVersion` + 1 """ + sql_end, (self.user.userId, datetime.datetime.today(), data['imageId'], target_image['updateVersion']))
 
             if not result:
                 # 更新行数小于1,数据异常(id, userId等), 乐观锁
-                return self.replyMessage(message, state=False, msg="30106")
+                return self.replyMessage(message, state=False, msg="操作出现冲突，请重试")
 
             notice_msg = self.replyMessage(message, state=True, msg="notice", type="lock-image", action=action, userId=self.user.userId, projectId=project.id, imageId=data["imageId"])
 

@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2019-11-26 10:49:04
+@LastEditTime: 2019-12-02 14:27:34
 @Description:
 '''
 
@@ -53,13 +53,13 @@ class UnlocakImageHandler(AbstractHandler):
             target_image_result = mysql.selectOne("""select * from """ + image_table_name + """ where id = %s""", (data['imageId'], ))
             if target_image_result[0] == 0:
                 # 目标图片不存在
-                return self.replyMessage(message, state=False, msg="30204", data=None)
+                return self.replyMessage(message, state=False, msg="指定的图片不存在，请确认。", data=None)
 
             image = AnnotationlProjectImage.create_by_database_result(target_image_result[1])
 
             if image.annotationUserId != self.user.userId and image.reviewUserId != self.user.userId and image.completedUserId != self.user.userId:
                 # 当前用户没有锁定图片
-                return self.replyMessage(message, state=False, msg="30205", data=None)
+                return self.replyMessage(message, state=False, msg="您还没有锁定这张图片，无权解锁。", data=None)
 
             action = data['action']
 

@@ -5,16 +5,19 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-28 16:58:42
-@LastEditTime: 2019-11-29 17:03:02
+@LastEditTime: 2019-12-02 17:26:51
 @Description:
 '''
 
+import os
 import sys
 import json
 import time
+import types
 import logging
 import asyncio
 import traceback
+# import copyreg
 
 import tornado.web
 import tornado.websocket
@@ -23,7 +26,16 @@ from concurrent.futures import ThreadPoolExecutor
 from tornado.concurrent import run_on_executor
 
 from core import PreprocessingContext
-from handler import HeartCheck
+from handler import HeartCheck, PreprocessingThread
+
+
+def _pickle_method(m):
+    if m.im_self is None:
+        return getattr, (m.im_class, m.im_func.func_name)
+    else:
+        return getattr, (m.im_self, m.im_func.func_name)
+
+# copyreg.pickle(types.MethodType, _pickle_method)
 
 class PreprocessingHandler(tornado.websocket.WebSocketHandler):
 
@@ -32,6 +44,7 @@ class PreprocessingHandler(tornado.websocket.WebSocketHandler):
 
     def initialize(self, loop):
         self.loop = loop
+        self._preprocessingThread = None
 
     def _id(self):
         '''
@@ -110,23 +123,38 @@ class PreprocessingHandler(tornado.websocket.WebSocketHandler):
     def on_message(self, msg):
         """websocket接收到客户端发送的消息时的处理函数
         """
+        message = json.loads(msg)
+
+        if 'senderMid' in message:
+            return
+
         logging.debug(u"Receive message: %s, self id: %s" % (msg, self._id()))
 
         # 检查接收到的消息是否是要处理图片的要求
-        if 'action' not in msg or msg['action'] != 'preprocessing':
+        if 'action' not in message or message['action'] != 'preprocessing':
             self.write_message(self._create_ws_base_message({'state':False, 'message':'requests not accepted.'}))
 
         # 拆分要求处理的图片信息
-        if 'data' not in msg or not msg['data']:
+        if 'data' not in message or not message['data']:
             self.write_message(self._create_ws_base_message({'state':False, 'message':'no picture information found to process.'}))
 
-        images = msg['data']
+        # images = msg['data']
+        if self._preprocessingThread is None:
+            self._preprocessingThread = PreprocessingThread(self)
+            self._preprocessingThread.name = "ImagePreprocessingThread"
+            self._preprocessingThread.start()
+        else:
+            if self._preprocessingThread.isAlive():
+                self._preprocessingThread.stop()
+            print(self._preprocessingThread.isAlive())
 
         # 图片应该包含的信息：ID(仓库的ID，不是项目的)，路径(一个绝对路径？)，
-        for image in images:
-            print(image)
+        # for image in images:
+        #     print(image)
 
-        pass
+
+    def send_msg(self, msg):
+        self.write_message(msg)
 
 
     def on_ping(self, data):
@@ -142,11 +170,16 @@ class PreprocessingHandler(tornado.websocket.WebSocketHandler):
 
 
     def on_close(self, transfer=True):
+        # TODO:通道关闭后的程序执行问题
         connection_info = self.__context.get_connect(self._id())
         if connection_info is not None:
-            connection_info["publisher"].destroy()
             del self.__context.get_connect_dict()[self._id()]
             logging.debug("client close the connection id:%s, current connection count:%s" % (self._id(), str(len(self.__context.get_connect_dict().keys()))))
+
+        if len(self.__context.get_connect_dict()) == 0:
+            # self._preprocessingProcess.close()
+            # TODO:暂停的问题
+            pass
 
 
     def check_origin(self, origin):
@@ -165,4 +198,3 @@ class PreprocessingHandler(tornado.websocket.WebSocketHandler):
         while True:
             self.write_message(self._create_ws_base_message({'message':'heart check'}))
             time.sleep(20)
-
