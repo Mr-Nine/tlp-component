@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-28 16:58:42
-@LastEditTime: 2019-12-02 17:26:51
+@LastEditTime: 2019-12-04 10:07:23
 @Description:
 '''
 
@@ -18,6 +18,7 @@ import logging
 import asyncio
 import traceback
 # import copyreg
+import queue
 
 import tornado.web
 import tornado.websocket
@@ -26,25 +27,30 @@ from concurrent.futures import ThreadPoolExecutor
 from tornado.concurrent import run_on_executor
 
 from core import PreprocessingContext
-from handler import HeartCheck, PreprocessingThread
+from handler import HeartCheck, PreprocessingControllerThread
 
 
+'''
+# python的腌制问题还没弄好
 def _pickle_method(m):
     if m.im_self is None:
         return getattr, (m.im_class, m.im_func.func_name)
     else:
         return getattr, (m.im_self, m.im_func.func_name)
 
-# copyreg.pickle(types.MethodType, _pickle_method)
+copyreg.pickle(types.MethodType, _pickle_method)
+'''
 
 class PreprocessingHandler(tornado.websocket.WebSocketHandler):
 
-    executor = ThreadPoolExecutor(2)
     __context = PreprocessingContext()
+    pending_image_queue = queue.Queue()
+    controller_thread_state_queue = queue.Queue()
 
     def initialize(self, loop):
         self.loop = loop
-        self._preprocessingThread = None
+        self._controllerThread = None
+        self.__working = True
 
     def _id(self):
         '''
@@ -108,6 +114,12 @@ class PreprocessingHandler(tornado.websocket.WebSocketHandler):
                 self.hc.start()
             # self.loop.add_callback(self.heart_check)
 
+            if self._controllerThread is None:
+                # 如果控制进程没有启动，则启动预处理切图进程
+                self._controllerThread = PreprocessingControllerThread(ws=self, pending_queue=self.pending_image_queue, state_queue=self.controller_thread_state_queue)
+                self._controllerThread.name = "ImagePreprocessingThread"
+                self._controllerThread.start()
+
             opened_result = {}
             opened_result["state"] = True
             opened_result["message"] = 'connection image preprocessing agent success.'
@@ -131,22 +143,37 @@ class PreprocessingHandler(tornado.websocket.WebSocketHandler):
         logging.debug(u"Receive message: %s, self id: %s" % (msg, self._id()))
 
         # 检查接收到的消息是否是要处理图片的要求
-        if 'action' not in message or message['action'] != 'preprocessing':
+        if 'action' not in message:
             self.write_message(self._create_ws_base_message({'state':False, 'message':'requests not accepted.'}))
 
-        # 拆分要求处理的图片信息
-        if 'data' not in message or not message['data']:
-            self.write_message(self._create_ws_base_message({'state':False, 'message':'no picture information found to process.'}))
+        action = message['action']
 
-        # images = msg['data']
-        if self._preprocessingThread is None:
-            self._preprocessingThread = PreprocessingThread(self)
-            self._preprocessingThread.name = "ImagePreprocessingThread"
-            self._preprocessingThread.start()
-        else:
-            if self._preprocessingThread.isAlive():
-                self._preprocessingThread.stop()
-            print(self._preprocessingThread.isAlive())
+        if  action == 'preprocessing' and self.__working:
+            # 拆分要求处理的图片信息
+            if 'data' not in message or not message['data']:
+                self.write_message(self._create_ws_base_message({'state':False, 'message':'no picture information found to process.'}))
+
+            if self._controllerThread.isAlive():
+                # TODO:整理图片信息，发给处理线程，有请求来就处理图片，发过去，那边处理具体的高可用性
+                print("向队列里填充待处理的图片信息")
+                images = message['data']
+                for image in images:
+                    '''{
+                        "id":"图片在仓库的ID",
+                        "path":"图片的具体路径"
+                    }
+                    '''
+                    self.pending_image_queue.put(image)
+            else:
+                # 错误了，线程没或者就没办法处理，应该告诉DCP那边
+                self.write_message(self._create_ws_base_message({'state':False, 'message':'Preprocessor does not start.'}))
+                return
+
+        elif action == 'stop':
+            self.__working = False # 关闭接受
+            if self._controllerThread.isAlive():
+                self._controllerThread.stop()
+
 
         # 图片应该包含的信息：ID(仓库的ID，不是项目的)，路径(一个绝对路径？)，
         # for image in images:
@@ -170,16 +197,23 @@ class PreprocessingHandler(tornado.websocket.WebSocketHandler):
 
 
     def on_close(self, transfer=True):
-        # TODO:通道关闭后的程序执行问题
+        '''
+        @description: 当本条ws被关闭的时候被调用，要处理工作的子线程回收
+        '''
         connection_info = self.__context.get_connect(self._id())
         if connection_info is not None:
             del self.__context.get_connect_dict()[self._id()]
+            self.hc.close()
             logging.debug("client close the connection id:%s, current connection count:%s" % (self._id(), str(len(self.__context.get_connect_dict().keys()))))
 
         if len(self.__context.get_connect_dict()) == 0:
-            # self._preprocessingProcess.close()
-            # TODO:暂停的问题
-            pass
+            self._controllerThread.stop() # 结束处理控制器线程
+
+            close_result = self.controller_thread_state_queue.get() # 阻塞等待处理控制作为收尾工作
+            if close_result[0]:
+                logging.info("线程回收完毕")
+            else:
+                logging.error("线程回收失败，错误原因:%s" % close_result[1])
 
 
     def check_origin(self, origin):
@@ -195,6 +229,4 @@ class PreprocessingHandler(tornado.websocket.WebSocketHandler):
 
     # @run_on_executor
     def heart_check(self):
-        while True:
-            self.write_message(self._create_ws_base_message({'message':'heart check'}))
-            time.sleep(20)
+        self.write_message(self._create_ws_base_message({'message':'heart check'}))
