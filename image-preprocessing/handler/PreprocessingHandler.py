@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-28 16:58:42
-@LastEditTime: 2019-12-04 10:07:23
+@LastEditTime: 2019-12-04 17:21:58
 @Description:
 '''
 
@@ -47,8 +47,8 @@ class PreprocessingHandler(tornado.websocket.WebSocketHandler):
     pending_image_queue = queue.Queue()
     controller_thread_state_queue = queue.Queue()
 
-    def initialize(self, loop):
-        self.loop = loop
+    def initialize(self):
+        # , loop self.loop = loop
         self._controllerThread = None
         self.__working = True
 
@@ -154,8 +154,7 @@ class PreprocessingHandler(tornado.websocket.WebSocketHandler):
                 self.write_message(self._create_ws_base_message({'state':False, 'message':'no picture information found to process.'}))
 
             if self._controllerThread.isAlive():
-                # TODO:整理图片信息，发给处理线程，有请求来就处理图片，发过去，那边处理具体的高可用性
-                print("向队列里填充待处理的图片信息")
+                logging.debug("add pending pictrue 2 queue.")
                 images = message['data']
                 for image in images:
                     '''{
@@ -173,11 +172,6 @@ class PreprocessingHandler(tornado.websocket.WebSocketHandler):
             self.__working = False # 关闭接受
             if self._controllerThread.isAlive():
                 self._controllerThread.stop()
-
-
-        # 图片应该包含的信息：ID(仓库的ID，不是项目的)，路径(一个绝对路径？)，
-        # for image in images:
-        #     print(image)
 
 
     def send_msg(self, msg):
@@ -200,16 +194,16 @@ class PreprocessingHandler(tornado.websocket.WebSocketHandler):
         '''
         @description: 当本条ws被关闭的时候被调用，要处理工作的子线程回收
         '''
-        connection_info = self.__context.get_connect(self._id())
-        if connection_info is not None:
+        connection = self.__context.get_connect(self._id())
+        if connection is not None:
             del self.__context.get_connect_dict()[self._id()]
             self.hc.close()
             logging.debug("client close the connection id:%s, current connection count:%s" % (self._id(), str(len(self.__context.get_connect_dict().keys()))))
 
-        if len(self.__context.get_connect_dict()) == 0:
+        if self._controllerThread.isAlive():
             self._controllerThread.stop() # 结束处理控制器线程
-
             close_result = self.controller_thread_state_queue.get() # 阻塞等待处理控制作为收尾工作
+
             if close_result[0]:
                 logging.info("线程回收完毕")
             else:
@@ -227,6 +221,5 @@ class PreprocessingHandler(tornado.websocket.WebSocketHandler):
         return json.dumps(data)
 
 
-    # @run_on_executor
     def heart_check(self):
-        self.write_message(self._create_ws_base_message({'message':'heart check'}))
+        self.write_message(self._create_ws_base_message())

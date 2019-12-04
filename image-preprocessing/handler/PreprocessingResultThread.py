@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-02 11:10:52
-@LastEditTime: 2019-12-03 17:43:07
+@LastEditTime: 2019-12-04 17:32:48
 @Description:要做的事情：
 等待图片处理work线程的运行，知道队列中有了返回值，就组织返回值发送给前端
 '''
@@ -14,8 +14,12 @@
 import os
 import sys
 import time
+import json
+import queue
 import signal
+import pickle
 import asyncio
+import logging
 import threading
 import traceback
 
@@ -23,17 +27,21 @@ import multiprocessing
 
 from core import PreprocessingContext
 
-
 class PreprocessingResultThread(threading.Thread):
 
-    def __init__(self, name, ws, result_queue):
+    def __init__(self, name, ws, result_queue, over_queue):
         super(PreprocessingResultThread, self).__init__()
 
         self.name = name
         self.__ws = ws
+
         self.__result_queue = result_queue
+        self.__over_queue = over_queue
+
         self.__running = threading.Event()
         self.__waiting = threading.Event()
+
+        self.__save_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pending_message_list.data")
 
 
     def run(self):
@@ -42,20 +50,68 @@ class PreprocessingResultThread(threading.Thread):
         @param {type}
         @return:
         '''
-        self.loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.loop)
+        logging.info("preprocessing result thread start, name:%s" % self.name)
 
-        self.__running.set()
-        self.__waiting.set()
+        try:
+            try:
+                pending_message_list = []
+                if os.path.exists(self.__save_file_path):
+                    with open(self.__save_file_path, 'rb+') as load_file:
+                        pending_message_list = pickle.load(load_file)
+                        load_file.truncate()
 
-        while self.__running.isSet():
+                    if pending_message_list:
+                        for message in pending_message_list:
+                            self.__result_queue.put(message)
+                logging.info("%s:recover unsent messages to a thread." % self.name)
+            except Exception as e:
+                logging.error("%s:recovery of unsent messages failed, error:%s" % (self.name, str(e)))
 
-            self.__waiting.wait() # 检查是否暂停(前端断开)
+            time.sleep(3) # TODO:为了两次连接等待ws的正式建立，具体sleep的时间应该看
 
-            result = self.__result_queue.get()
+            self.loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(self.loop)
 
-            print(result)
-            # TODO:发送返回结果到前端
+            self.__running.set()
+            self.__waiting.set()
+
+            while self.__running.isSet():
+                self.__waiting.wait()
+
+                next_result_wati_count = 1
+                result = None
+                while True:
+                    try:
+                        result = self.__result_queue.get_nowait()
+                        break
+                    except queue.Empty as e:
+                        if self.__running.isSet():
+                            time.sleep(next_result_wati_count)
+                            if next_result_wati_count < 30:
+                                next_result_wati_count += 1
+                        else:
+                            break
+
+                if self.__running.isSet() and self.__ws.ws_connection and result:
+                    # 在运行，有ws连接，有需要发送的返回值
+                    self.loop.run_until_complete(self.__ws.write_message(json.dumps(result)))
+                else:
+                    pending_message_list = []
+                    if result:
+                        pending_message_list.append(result)
+
+                    while not self.__result_queue.empty():
+                        pending_message_list.append(self.__result_queue.get())
+
+                    # 将未处理的数据保存到本地文件，等待再启动的时候恢复回来
+                    with open(self.__save_file_path, 'wb') as save_file:
+                        pickle.dump(pending_message_list, save_file)
+
+                    self.__over_queue.put({"state":True})
+
+        finally:
+            if self.loop:
+                self.loop.close()
 
 
     def stop(self):
@@ -76,3 +132,12 @@ class PreprocessingResultThread(threading.Thread):
 
     def is_pause(self):
         return self.__waiting.isSet()
+
+
+    '''
+    if not self.__running.isSet():
+        # 如果当前线程已经不运行了，则让loop等到发送返回值的消息完成后才继续(阻塞解释，直到都发出去)
+        loop.run_until_complete(self.__ws.write_message("监控数据:%d"%count))
+    else:
+        self.__ws.write_message("监控数据:%d"%count)
+    '''

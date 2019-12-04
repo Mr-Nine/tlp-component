@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2019-12-04 15:33:40
+@LastEditTime: 2019-12-04 17:22:32
 @Description:
 '''
 
@@ -45,7 +45,7 @@ class AnnotationRegionLabelHandler(AbstractHandler):
         if data['projectId'] != self.user.projectId:
             return self.replyMessage(message, state=False, msg="40103")
 
-        if 'regions' not in data or not data['regions']:
+        if 'regions' not in data:
             return self.replyMessage(message, state=False, msg="40109")
 
         regions = data['regions']
@@ -80,8 +80,8 @@ class AnnotationRegionLabelHandler(AbstractHandler):
 
                 (insert_region_list, insert_region_lable_list, update_region_list, update_region_label_list) = self.__create_region_and_region_label_data(regions, image.id, userId, now)
 
-                if not insert_region_list and not update_region_list and not update_region_label_list:
-                    return self.replyMessage(message, state=False, msg="40110") # 没有可以写入的数据
+                # if not insert_region_list and not update_region_list and not update_region_label_list:
+                #     return self.replyMessage(message, state=False, msg="40110") # 没有可以写入的数据
 
                 if insert_region_list:
                     insert_region_sql = """insert into """ + region_table_name + """ (`id`, `imageId`, `index`, `shape`, `shapeData`, `userId`, `createTime`, `updateTime`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"""

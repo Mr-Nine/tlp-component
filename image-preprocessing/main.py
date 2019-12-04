@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-10-31 09:56:39
-@LastEditTime: 2019-11-29 14:53:07
+@LastEditTime: 2019-12-04 15:26:25
 @Description:程序启动入口,负责启动tornado服务，实例化模块管理器
 '''
 __author__ = 'dcp team dujiujun - tlp - agent'
@@ -77,8 +77,7 @@ class Application(tornado.web.Application):
             (r"/", MainHandler),
             (r"/index.html", MainHandler),
             (r"/index", MainHandler),
-            (r"/preprocessing", PreprocessingHandler, init_parameter)
-            # (r"/annotation", AnnotationWebscoketHandler, init_parameter)
+            (r"/preprocessing", PreprocessingHandler) # , init_parameter
         ]
 
         tornado.web.Application.__init__(self, handlers, **settings)
@@ -106,7 +105,7 @@ def main():
     # http_server = tornado.httpserver.HTTPServer(app)
     # http_server.listen(options.port)
 
-    # print welcome info
+    # welcome info
     welcome()
 
     context = PreprocessingContext()

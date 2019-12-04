@@ -5,28 +5,36 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-29 11:47:07
-@LastEditTime: 2019-12-03 19:59:26
+@LastEditTime: 2019-12-04 16:56:58
 @Description:
 '''
 
 import time
+import json
 import asyncio
 
 from threading import Thread
 
 class HeartCheck(Thread):
 
-    def __init__(self, parameter1):
+    def __init__(self, ws):
         Thread.__init__(self)
-        self.parameter1 = parameter1
+        self.__ws = ws
         self.__running = True
 
     def run(self):
-        asyncio.set_event_loop(asyncio.new_event_loop())
-        while self.__running:
-            if self.parameter1 and self.parameter1.ws_connection:
-                self.parameter1.heart_check()
-            time.sleep(20)
+
+        try:
+            self.loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(self.loop)
+            while self.__running:
+                if self.__ws and self.__ws.ws_connection:
+                    self.loop.run_until_complete(self.__ws.write_message(json.dumps({'message':'heart check'})))
+                time.sleep(20)
+        finally:
+            if self.loop:
+                self.loop.close()
+
 
     def close(self):
         self.__running = False

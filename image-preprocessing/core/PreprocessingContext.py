@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-29 11:10:10
-@LastEditTime: 2019-12-02 15:44:09
+@LastEditTime: 2019-12-04 17:10:59
 @Description:
 '''
 
@@ -20,7 +20,6 @@ class PreprocessingContext(object):
             cls.__instance = object.__new__(cls)
             cls.__connections = {}
 
-        print(id(cls.__instance))
         return cls.__instance
 
 
