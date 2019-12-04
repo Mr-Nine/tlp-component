@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2019-12-02 19:39:01
+@LastEditTime: 2019-12-04 14:31:58
 @Description:
 '''
 
@@ -68,7 +68,7 @@ class LockImageHandler(AbstractHandler):
                 select_result = mysql.selectOne("""select `id`, `updateVersion` from """ + image_table_name + """ where annotation = 1 and annotationUserId = %s""", (self.user.userId, ))
                 if select_result[0]:
                     unlock_image_id = select_result[1]['id'].decode("utf-8")
-                    update_version= select_result[1]['updateVersion'].decode("utf-8")
+                    update_version= select_result[1]['updateVersion']
                     result = mysql.update(sql_start + """ `annotation` = 0, `annotationUserId` = null, `updateVersion` = `updateVersion` + 1 """ + sql_end, (unlock_image_id, update_version))
                     if result > 0:
                         notice_msg = self.replyMessage(message, state=True, msg="notice", type="unlock-image", action=action, userId=self.user.userId, projectId=project.id, imageId=unlock_image_id)
@@ -81,7 +81,7 @@ class LockImageHandler(AbstractHandler):
                 select_result = mysql.selectOne("""select `id`, `updateVersion` from """ + image_table_name + """ where `review` = 1 and `reviewUserId` = %s""", (self.user.userId, ))
                 if select_result[0]:
                     unlock_image_id = select_result[1]['id'].decode("utf-8")
-                    update_version= select_result[1]['updateVersion'].decode("utf-8")
+                    update_version= select_result[1]['updateVersion']
                     result = mysql.update(sql_start + """ `review` = 0, `reviewUserId` = null, `updateVersion` = `updateVersion` + 1 """ + sql_end, (unlock_image_id, update_version))
                     if result > 0:
                         notice_msg = self.replyMessage(message, state=True, msg="notice", type="unlock-image", action=action, userId=self.user.userId, projectId=project.id, imageId=unlock_image_id)

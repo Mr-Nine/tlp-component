@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2019-11-28 10:47:18
+@LastEditTime: 2019-12-04 15:33:40
 @Description:
 '''
 
@@ -196,10 +196,10 @@ class AnnotationRegionLabelHandler(AbstractHandler):
             if 'id' in region:
                 # update
                 region_id = region['id']
-                create_time = region['createTime']
-                if create_time:
-                    create_time = datetime.datetime.strptime(create_time, '%Y-%m-%d %H:%M:%S')
-                region_obj = AnnotationProjectImageRegion(id=region_id, imageId=imageId, index=index, shape=shape, shapeData=shapeData, userId=userId, createTime=create_time, updateTime=now)
+                # create_time = region['createTime']
+                # if create_time:
+                #     create_time = datetime.datetime.strptime(create_time, '%Y-%m-%d %H:%M:%S')
+                region_obj = AnnotationProjectImageRegion(id=region_id, imageId=imageId, index=index, shape=shape, shapeData=shapeData, userId=userId, updateTime=now)
                 update_region_list.append(region_obj)
 
                 if 'labels' in region and region['labels']:
