@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-04 17:52:11
-@LastEditTime: 2019-12-05 18:25:40
+@LastEditTime: 2019-12-05 18:47:54
 @Description:
 '''
 
@@ -25,7 +25,7 @@ class PreprocessingWorkProcess(Process):
         self.pending_image_id = image_id
         self.pending_image_path = image_path
         self.save_root_path = save_root_path
-        self.image_root_path = os.path.join(save_root_path, pending_image_id)
+        self.image_root_path = os.path.join(self.save_root_path, self.pending_image_id)
 
 
     def run(self):
