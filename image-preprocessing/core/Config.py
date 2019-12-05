@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-13 17:16:51
-@LastEditTime: 2019-12-05 16:54:49
+@LastEditTime: 2019-12-05 17:02:50
 @Description:
 '''
 
@@ -36,7 +36,6 @@ class Config(object):
         self.default_concurrent_processes_number = config_context['preprocessing'].getint('default_concurrent_processes_number', 2)
         self.tiles_save_root_path = config_context['preprocessing'].get('tiles_save_root_path', '/tmp/tile/')
         conversions = config_context['preprocessing'].get('path_conversion_list', '[]')
-        print(conversions)
         self.path_conversion_list = json.loads(conversions)
 
 

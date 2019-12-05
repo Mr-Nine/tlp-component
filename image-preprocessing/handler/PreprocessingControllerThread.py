@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-02 11:10:52
-@LastEditTime: 2019-12-05 16:33:35
+@LastEditTime: 2019-12-05 18:17:04
 @Description:
 '''
 
@@ -48,7 +48,7 @@ class PreprocessingControllerThread(threading.Thread):
         self.__save_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pending_image_list.data")
 
         self.__work_thread_count = self.config.default_max_processing_thread_number
-        if self.__work_thread_count:
+        if not self.__work_thread_count:
             self.__work_thread_count = int(multiprocessing.cpu_count() / self.config.default_concurrent_processes_number)
 
     def run(self):

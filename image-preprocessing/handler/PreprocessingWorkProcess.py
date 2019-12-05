@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-04 17:52:11
-@LastEditTime: 2019-12-05 16:39:02
+@LastEditTime: 2019-12-05 18:25:40
 @Description:
 '''
 
@@ -30,13 +30,8 @@ class PreprocessingWorkProcess(Process):
 
     def run(self):
 
-
-        print(os.getpid())
-
-        if not os.path.exists(self.pending_image['path']):
-            # TODO:告诉父进程这个处理不了
-            print("a")
-            return
+        if not os.path.exists(self.image_root_path):
+            os.makedirs(self.image_root_path)
 
         self.__generate_thumbnail()
 
@@ -59,9 +54,6 @@ class PreprocessingWorkProcess(Process):
         new_size = (int(size[0] * rate), 200)
 
         image_obj.thumbnail(new_size)
-
-        if not os.path.exists(self.image_root_path):
-            os.makedirs(self.image_root_path)
 
         thumbnail_path = os.path.join(os.path.join(self.save_root_path, self.pending_image["id"]), 'thumbnail.png')
         image_obj.save(thumbnail_path, 'PNG')
