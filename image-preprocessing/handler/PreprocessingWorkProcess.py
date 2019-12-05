@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-04 17:52:11
-@LastEditTime: 2019-12-05 18:47:54
+@LastEditTime: 2019-12-05 18:55:09
 @Description:
 '''
 
@@ -55,7 +55,7 @@ class PreprocessingWorkProcess(Process):
 
         image_obj.thumbnail(new_size)
 
-        thumbnail_path = os.path.join(os.path.join(self.save_root_path, self.pending_image["id"]), 'thumbnail.png')
+        thumbnail_path = os.path.join(self.image_root_path, 'thumbnail.png')
         image_obj.save(thumbnail_path, 'PNG')
 
 
