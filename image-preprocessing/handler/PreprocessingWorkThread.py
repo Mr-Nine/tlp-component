@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-02 11:10:52
-@LastEditTime: 2019-12-04 17:39:09
+@LastEditTime: 2019-12-05 16:34:13
 @Description:要做的事情：
 1)检查和生成存储目录
 2)生成缩略图
@@ -27,7 +27,7 @@ import multiprocessing
 
 from multiprocessing import Pool
 
-from core import PreprocessingContext
+from core import PreprocessingContext, Config
 
 
 class PreprocessingWorkThread(threading.Thread):
@@ -40,6 +40,7 @@ class PreprocessingWorkThread(threading.Thread):
         self.__image = image
         self.__thread_array = thread_array
         self.__result_queue = result_queue
+        self.__config = Config()
 
 
     def run(self):

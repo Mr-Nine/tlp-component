@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-28 16:58:42
-@LastEditTime: 2019-12-04 17:21:58
+@LastEditTime: 2019-12-04 17:44:56
 @Description:
 '''
 
@@ -169,9 +169,15 @@ class PreprocessingHandler(tornado.websocket.WebSocketHandler):
                 return
 
         elif action == 'stop':
-            self.__working = False # 关闭接受
+            self.__working = False # 关闭接收
             if self._controllerThread.isAlive():
                 self._controllerThread.stop()
+        elif action == 'pause':
+            if self._controllerThread.isAlive():
+                self._controllerThread.pause()
+        elif action == 'resume':
+            if self._controllerThread.isAlive():
+                self._controllerThread.resume()
 
 
     def send_msg(self, msg):

@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-02 11:10:52
-@LastEditTime: 2019-12-04 17:32:48
+@LastEditTime: 2019-12-05 16:33:58
 @Description:要做的事情：
 等待图片处理work线程的运行，知道队列中有了返回值，就组织返回值发送给前端
 '''

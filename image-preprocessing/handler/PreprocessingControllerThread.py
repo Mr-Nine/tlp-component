@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-02 11:10:52
-@LastEditTime: 2019-12-04 17:40:14
+@LastEditTime: 2019-12-05 16:33:35
 @Description:
 '''
 
@@ -23,13 +23,14 @@ import traceback
 import multiprocessing
 from multiprocessing import Queue
 
-from core import PreprocessingContext
+from core import PreprocessingContext, Config
 from handler import PreprocessingResultThread, PreprocessingWorkThread
 
 class PreprocessingControllerThread(threading.Thread):
 
     work_result_queue = queue.Queue()
     send_thread_over_queue = queue.Queue()
+    config = Config()
 
     def __init__(self, ws, pending_queue, state_queue):
         super(PreprocessingControllerThread, self).__init__()
@@ -46,12 +47,9 @@ class PreprocessingControllerThread(threading.Thread):
         self.__result_thread = None
         self.__save_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pending_image_list.data")
 
-        self.__process_count = int(multiprocessing.cpu_count() / 2)
-        if self.__process_count - 1 <= 0:
-            self.__process_count = 1
-        else:
-            self.__process_count -= 1
-
+        self.__work_thread_count = self.config.default_max_processing_thread_number
+        if self.__work_thread_count:
+            self.__work_thread_count = int(multiprocessing.cpu_count() / self.config.default_concurrent_processes_number)
 
     def run(self):
 
@@ -83,14 +81,15 @@ class PreprocessingControllerThread(threading.Thread):
             self.loop = asyncio.new_event_loop()
             asyncio.set_event_loop(self.loop)
 
+
             sub_thread_wati_count = 1
             while self.__running.isSet():
 
-                if len(self.__sub_thread_array) == self.__process_count:
+                if len(self.__sub_thread_array) == self.__work_thread_count:
                     logging.debug("%s:waiting for the work thread queue to be free." % self.name)
 
                     time.sleep(sub_thread_wati_count)
-                    if sub_thread_wati_count < 30:
+                    if sub_thread_wati_count < self.config.default_max_sleep_time:
                         sub_thread_wati_count += 1
 
                     continue
@@ -114,7 +113,7 @@ class PreprocessingControllerThread(threading.Thread):
                     except queue.Empty as e:
                         if self.__running.isSet():
                             time.sleep(next_image_wati_count)
-                            if next_image_wati_count < 30:
+                            if next_image_wati_count < self.config.default_max_sleep_time:
                                 next_image_wati_count += 1
                         else:
                             break
@@ -172,11 +171,14 @@ class PreprocessingControllerThread(threading.Thread):
 
     def pause(self):
         self.__waiting.clear()
+        if self.__result_thread.isAlive():
+            self.__result_thread.pause()
 
 
     def resume(self):
         self.__waiting.set()
-
+        if self.__result_thread.isAlive():
+            self.__result_thread.resume()
 
     def is_pause(self):
         return self.__waiting.isSet()
