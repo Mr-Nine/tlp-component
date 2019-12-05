@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-04 17:52:11
-@LastEditTime: 2019-12-05 21:31:24
+@LastEditTime: 2019-12-05 21:54:09
 @Description:
 '''
 
@@ -29,6 +29,7 @@ class PreprocessingWorkProcess(Process):
         self.save_root_path = save_root_path
         self.image_root_path = os.path.join(self.save_root_path, self.pending_image_id)
         self.processes = processes
+        print(id(progress_queue))
         self.progress_queue = progress_queue
 
 
