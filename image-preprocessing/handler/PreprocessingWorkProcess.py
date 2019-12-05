@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-04 17:52:11
-@LastEditTime: 2019-12-05 20:27:13
+@LastEditTime: 2019-12-05 20:27:59
 @Description:
 '''
 
@@ -64,7 +64,7 @@ class PreprocessingWorkProcess(Process):
 
     def __generate_tile_file(self):
         current_path = os.path.dirname(os.path.abspath(__file__))
-        command = "python2 " + os.path.join(current_path, "gdal2tiles-multiprocess2.py") + " -l -p raster -z 3-" + str(self.max_zoom) + " -w none --processes=" + str(self.processes) + " " + self.pending_image_path + " " + image_root_path
+        command = "python2 " + os.path.join(current_path, "gdal2tiles-multiprocess2.py") + " -l -p raster -z 3-" + str(self.max_zoom) + " -w none --processes=" + str(self.processes) + " " + self.pending_image_path + " " + self.image_root_path
         logging.info(command)
 
         tile_process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
