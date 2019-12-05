@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-02 11:10:52
-@LastEditTime: 2019-12-05 21:54:24
+@LastEditTime: 2019-12-05 22:05:13
 @Description:要做的事情：
 1)检查和生成存储目录
 2)生成缩略图
@@ -63,7 +63,6 @@ class PreprocessingWorkThread(threading.Thread):
             self.__delete_self_name_by_thread_list(lock)
             return
 
-        print(id(self.__result_queue))
         work_process = PreprocessingWorkProcess(
             name="preprocessing-work-thread-" + self.__image['id'],
             image_id=self.__image['id'],

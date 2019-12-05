@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-02 11:10:52
-@LastEditTime: 2019-12-05 18:17:04
+@LastEditTime: 2019-12-05 22:15:42
 @Description:
 '''
 
@@ -28,7 +28,7 @@ from handler import PreprocessingResultThread, PreprocessingWorkThread
 
 class PreprocessingControllerThread(threading.Thread):
 
-    work_result_queue = queue.Queue()
+    work_result_queue = Queue()
     send_thread_over_queue = queue.Queue()
     config = Config()
 
