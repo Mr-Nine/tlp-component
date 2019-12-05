@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-02 11:10:52
-@LastEditTime: 2019-12-05 20:22:02
+@LastEditTime: 2019-12-05 21:06:00
 @Description:要做的事情：
 1)检查和生成存储目录
 2)生成缩略图
@@ -26,6 +26,7 @@ import traceback
 import multiprocessing
 
 from multiprocessing import Pool
+from multiprocessing import Queue
 
 from core import PreprocessingContext, Config
 from handler import PreprocessingWorkProcess
@@ -67,7 +68,8 @@ class PreprocessingWorkThread(threading.Thread):
             image_id=self.__image['id'],
             image_path=image_real_path,
             save_root_path=self.__config.tiles_save_root_path,
-            processes=self.__config.default_concurrent_processes_number
+            processes=self.__config.default_concurrent_processes_number,
+            progress_queue=self.__result_queue
         )
         work_process.start()
         work_process.join()

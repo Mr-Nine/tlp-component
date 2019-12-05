@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-04 17:52:11
-@LastEditTime: 2019-12-05 20:41:04
+@LastEditTime: 2019-12-05 21:31:24
 @Description:
 '''
 
@@ -21,7 +21,7 @@ from multiprocessing import Process
 Image.MAX_IMAGE_PIXELS = None
 
 class PreprocessingWorkProcess(Process):
-    def __init__(self, name, image_id, image_path, save_root_path, processes):
+    def __init__(self, name, image_id, image_path, save_root_path, processes, progress_queue):
         super(PreprocessingWorkProcess, self).__init__()
         self.name = name
         self.pending_image_id = image_id
@@ -29,6 +29,7 @@ class PreprocessingWorkProcess(Process):
         self.save_root_path = save_root_path
         self.image_root_path = os.path.join(self.save_root_path, self.pending_image_id)
         self.processes = processes
+        self.progress_queue = progress_queue
 
 
     def run(self):
@@ -61,6 +62,8 @@ class PreprocessingWorkProcess(Process):
         thumbnail_path = os.path.join(self.image_root_path, 'thumbnail.png')
         image_obj.save(thumbnail_path, 'PNG')
 
+        self.progress_queue.put({"state":True, "progress":"thumbnail", "imageId":self.pending_image_id})
+
 
     def __generate_tile_file(self):
         current_path = os.path.dirname(os.path.abspath(__file__))
@@ -71,5 +74,16 @@ class PreprocessingWorkProcess(Process):
 
         out = tile_process.stdout.readlines()
 
-        for line in out:
-            print(line)
+        '''
+        b'Generating Base Tiles:\n'
+        b'0...10...20...30...40...50...60...70...80...90...100 - done.\n'
+        b'Generating Overview Tiles:\n'
+        b'0...10...20...30...40...50...60...70...80...90...100 - done.\n'
+        '''
+        for i in range(len(out)):
+            if i == 1 or i == 3:
+                line = out[i].decode("utf-8")
+                if "100 - done." not in line:
+                    self.progress_queue.put({"state":False, "progress":"tiles", "imageId":self.pending_image_id})
+
+        self.progress_queue.put({"state":True, "progress":"tiles", "imageId":self.pending_image_id})
