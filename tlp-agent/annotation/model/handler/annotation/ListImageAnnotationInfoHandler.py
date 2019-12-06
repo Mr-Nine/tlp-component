@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2019-11-28 15:29:22
+@LastEditTime: 2019-12-06 14:01:56
 @Description:
 '''
 
@@ -154,6 +154,8 @@ class ListImageAnnotationInfoHandler(AbstractHandler):
                             if 'labels' not in region_obj:
                                 region_obj['labels'] = []
                             region_obj['labels'].append(region_label_obj)
+            else:
+                region_list['labels'] = []
 
         return region_list
 

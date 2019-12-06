@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2019-12-04 17:22:32
+@LastEditTime: 2019-12-06 14:47:05
 @Description:
 '''
 
@@ -146,9 +146,8 @@ class AnnotationRegionLabelHandler(AbstractHandler):
                     get_all_region_label_where_sql = ""
                     for region in image_all_region_result[1]:
                         get_all_region_label_where_sql += "regionId = '" + region["id"].decode("utf-8") + "' or "
-                    print(get_all_region_label_where_sql)
+
                     get_all_region_label_where_sql = get_all_region_label_where_sql[0:-3]
-                    print(get_all_region_label_where_sql)
                     get_all_region_label_sql = """select * from """ + region_label_table_name + """ where """ + get_all_region_label_where_sql
 
                     image_all_region_label_result = mysql.selectAll(get_all_region_label_sql)
@@ -159,10 +158,11 @@ class AnnotationRegionLabelHandler(AbstractHandler):
 
                         if image_all_region_label_result[0]:
                             for region_label in image_all_region_label_result[1]:
-                                if region_label["labelId"].decode("utf-8") == region_dict['id']:
+                                if region_label["regionId"].decode("utf-8") == region_dict['id']:
                                     region_dict["labels"].append(AnnotationProjectImageRegionLabel.convert_database_result_2_dict(region_label))
 
                         result_data.append(region_dict)
+
 
                     return self.replyMessage(message, state=True, msg="save all region lable success.", imageId=image.id, regions=result_data, action="save-all")
                 else:
