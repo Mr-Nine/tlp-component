@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2019-12-06 14:01:56
+@LastEditTime: 2019-12-06 14:51:29
 @Description:
 '''
 
@@ -148,14 +148,12 @@ class ListImageAnnotationInfoHandler(AbstractHandler):
                 for region_label in select_label_result[1]:
                     region_label_list.append(AnnotationProjectImageRegionLabel.convert_database_result_2_dict(region_label))
 
-                for region_obj in region_list:
-                    for region_label_obj in region_label_list:
-                        if region_obj['id'] == region_label_obj['regionId']:
-                            if 'labels' not in region_obj:
-                                region_obj['labels'] = []
-                            region_obj['labels'].append(region_label_obj)
-            else:
-                region_list['labels'] = []
+            for region_obj in region_list:
+                region_obj['labels'] = []
+
+                for region_label_obj in region_label_list:
+                    if region_obj['id'] == region_label_obj['regionId']:
+                        region_obj['labels'].append(region_label_obj)
 
         return region_list
 
