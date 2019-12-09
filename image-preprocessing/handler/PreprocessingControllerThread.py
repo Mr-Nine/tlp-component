@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-02 11:10:52
-@LastEditTime: 2019-12-05 22:15:42
+@LastEditTime: 2019-12-09 17:25:23
 @Description:
 '''
 
@@ -132,8 +132,9 @@ class PreprocessingControllerThread(threading.Thread):
                 time.sleep(3)
 
             logging.debug("%s:notify the send thread to end." % self.name)
-            self.__result_thread.stop()
-            send_thread_over_result = self.send_thread_over_queue.get() # 阻塞等待消息发送线程结束
+            if self.__result_thread.isAlive():
+                self.__result_thread.stop()
+                send_thread_over_result = self.send_thread_over_queue.get() # 阻塞等待消息发送线程结束
 
             # 都结束了，开始处理未完成的数据
             logging.debug("%s:start processing incomplete data." % self.name)

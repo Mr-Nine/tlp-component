@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-02 11:10:52
-@LastEditTime: 2019-12-05 16:33:58
+@LastEditTime: 2019-12-09 17:47:37
 @Description:要做的事情：
 等待图片处理work线程的运行，知道队列中有了返回值，就组织返回值发送给前端
 '''
@@ -41,6 +41,9 @@ class PreprocessingResultThread(threading.Thread):
         self.__running = threading.Event()
         self.__waiting = threading.Event()
 
+        self.__running.set()
+        self.__waiting.set()
+
         self.__save_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pending_message_list.data")
 
 
@@ -67,13 +70,18 @@ class PreprocessingResultThread(threading.Thread):
             except Exception as e:
                 logging.error("%s:recovery of unsent messages failed, error:%s" % (self.name, str(e)))
 
-            time.sleep(3) # TODO:为了两次连接等待ws的正式建立，具体sleep的时间应该看
+            # time.sleep(3) # TODO:为了两次连接等待ws的正式建立，具体sleep的时间应该看
 
             self.loop = asyncio.new_event_loop()
             asyncio.set_event_loop(self.loop)
 
-            self.__running.set()
-            self.__waiting.set()
+            if self.__running.isSet() and self.__ws.ws_connection:
+                # 在运行，有ws连接，有需要发送的返回值
+                opened_result = {}
+                opened_result["type"] = 'system'
+                opened_result["state"] = True
+                opened_result["message"] = 'connection image preprocessing agent success.'
+                self.loop.run_until_complete(self.__ws.write_message(json.dumps(opened_result)))
 
             while self.__running.isSet():
                 self.__waiting.wait()

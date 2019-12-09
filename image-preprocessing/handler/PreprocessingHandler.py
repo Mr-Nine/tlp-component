@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-28 16:58:42
-@LastEditTime: 2019-12-04 17:44:56
+@LastEditTime: 2019-12-09 17:56:27
 @Description:
 '''
 
@@ -117,14 +117,10 @@ class PreprocessingHandler(tornado.websocket.WebSocketHandler):
             if self._controllerThread is None:
                 # 如果控制进程没有启动，则启动预处理切图进程
                 self._controllerThread = PreprocessingControllerThread(ws=self, pending_queue=self.pending_image_queue, state_queue=self.controller_thread_state_queue)
-                self._controllerThread.name = "ImagePreprocessingThread"
+                self._controllerThread.name = "preprocessing-controller-thread"
                 self._controllerThread.start()
 
-            opened_result = {}
-            opened_result["state"] = True
-            opened_result["message"] = 'connection image preprocessing agent success.'
-
-            self.write_message(self._create_ws_base_message(opened_result))
+            # self.write_message(self._create_ws_base_message(opened_result))
 
         except BaseException as e:
             if self.__context.get_connect(self._id()):
