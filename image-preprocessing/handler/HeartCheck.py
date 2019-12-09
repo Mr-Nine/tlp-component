@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-29 11:47:07
-@LastEditTime: 2019-12-04 16:56:58
+@LastEditTime: 2019-12-06 15:41:27
 @Description:
 '''
 
@@ -23,7 +23,7 @@ class HeartCheck(Thread):
         self.__running = True
 
     def run(self):
-
+        time.sleep(10) # TODO:BufferError: Existing exports of data: object cannot be re-sized
         try:
             self.loop = asyncio.new_event_loop()
             asyncio.set_event_loop(self.loop)
