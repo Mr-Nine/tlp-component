@@ -1,0 +1,1 @@
+python .\steup.py bdist_wheel

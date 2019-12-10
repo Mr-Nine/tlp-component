@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-04 17:52:11
-@LastEditTime: 2019-12-07 20:07:32
+@LastEditTime: 2019-12-10 20:38:33
 @Description:
 '''
 
@@ -66,12 +66,12 @@ class PreprocessingWorkProcess(Process):
             thumbnail_path = os.path.join(self.image_root_path, 'thumbnail.png')
             image_obj.save(thumbnail_path, 'PNG')
 
-            self.progress_queue.put({"state":"true", "progress":"thumbnail", "imageId":self.pending_image_id})
+            self.progress_queue.put({"state":"true", "progress":"thumbnail", "imageId":self.pending_image_id, "imagePath":self.pending_image_path})
         except Exception as e:
             logging.error("%s:generate thumbnail error, error msg:%s" % (self.name, str(e)))
             import traceback
             traceback.print_exc()
-            self.progress_queue.put({"state":"error", "progress":"thumbnail", "imageId":self.pending_image_id})
+            self.progress_queue.put({"state":"error", "progress":"thumbnail", "imageId":self.pending_image_id, "imagePath":self.pending_image_path})
 
 
     def __generate_tile_file(self):
@@ -102,14 +102,15 @@ class PreprocessingWorkProcess(Process):
                 if i == 1 or i == 3:
                     line = out[i].decode("utf-8")
                     if "100 - done." not in line:
-                        self.progress_queue.put({"state":"false", "progress":"tiles", "imageId":self.pending_image_id})
+                        self.progress_queue.put({"state":"false", "progress":"tiles", "imageId":self.pending_image_id, "imagePath":self.pending_image_path})
+                        # TODO:清除垃圾文件
 
-            self.progress_queue.put({"state":"true", "progress":"tiles", "imageId":self.pending_image_id})
+            self.progress_queue.put({"state":"true", "progress":"tiles", "imageId":self.pending_image_id, "imagePath":self.pending_image_path})
         except Exception as e:
             logging.error("%s:generate tile file error, error msg:%s" % (self.name, str(e)))
             import traceback
             traceback.print_exc()
-            self.progress_queue.put({"state":"error", "progress":"tiles", "imageId":self.pending_image_id})
+            self.progress_queue.put({"state":"error", "progress":"tiles", "imageId":self.pending_image_id, "imagePath":self.pending_image_path})
 
 
 
