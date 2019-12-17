@@ -1,19 +1,19 @@
+from TLPLibrary.entity import *
 from TLPLibrary.core import *
 from TLPLibrary.error import *
-from TLPLibrary.entity import *
-from TLPLibrary.service import *
+from TLPLibrary.service import ImportLabelService
 
 
-def input_data():
+def input_data(runParameter):
     # entiry you input region and label code.
     pass
+    # importLabelService = ImportLabelService
+    # importLabelService.importManyImageLabel(runParameter, images)
 
 
 def main():
-    # handling startup parameters
-    # projectId...
-    # sourcePath...
-    input_data()
+    runParameter = RunParameter.get_run_parameter()
+    input_data(input_data)
 
 if __name__ == "__main__":
     main()

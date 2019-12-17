@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-14 18:37:16
-@LastEditTime: 2019-12-17 10:14:40
+@LastEditTime: 2019-12-17 15:07:01
 @Description:
 '''
 import sys
@@ -27,7 +27,7 @@ def main():
     type = 'MATE'
     source = 'MANUAL'
     heat = 0
-    reasoningMachineId = None
+    inferencerId = None
     icon = None
     shortcutKey = None
     enabled = 1
@@ -37,7 +37,7 @@ def main():
     updateTime = datetime.datetime.today()
 
     sql = '''INSERT INTO `AnnotationlProjectLabelTemplate` (
-        `id`, `projectId`, `name`, `labelGroupId`, `type`, `source`, `heat`, `reasoningMachineId`, `icon`, `backgroundColor`, `shortcutKey`, `enabled`, `required`, `defaulted`, `reviewed`, `attribute`, `creatorId`, `createTime`, `updateTime`
+        `id`, `projectId`, `name`, `labelGroupId`, `type`, `source`, `heat`, `inferencerId`, `icon`, `backgroundColor`, `shortcutKey`, `enabled`, `required`, `defaulted`, `reviewed`, `attribute`, `creatorId`, `createTime`, `updateTime`
         ) VALUES (
             %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
         )'''
@@ -58,7 +58,7 @@ def main():
         defaulted = random.randint(0, 1)
         reviewed = random.randint(0, 1)
 
-        values.append((id, projectId, name, labelGroupId, type, source, heat, reasoningMachineId, icon, backgroundColor, shortcutKey, enabled, required, defaulted, reviewed, attribute, creatorId, createTime, updateTime))
+        values.append((id, projectId, name, labelGroupId, type, source, heat, inferencerId, icon, backgroundColor, shortcutKey, enabled, required, defaulted, reviewed, attribute, creatorId, createTime, updateTime))
 
     # manager.insertMany(sql, values)
 
@@ -74,7 +74,7 @@ def main():
         defaulted = random.randint(0, 1)
         reviewed = random.randint(0, 1)
 
-        values.append((id, projectId, name, labelGroupId, type, source, heat, reasoningMachineId, icon, backgroundColor, shortcutKey, enabled, required, defaulted, reviewed, attribute, creatorId, createTime, updateTime))
+        values.append((id, projectId, name, labelGroupId, type, source, heat, inferencerId, icon, backgroundColor, shortcutKey, enabled, required, defaulted, reviewed, attribute, creatorId, createTime, updateTime))
 
     try:
         manager.insertMany(sql, values)

@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-10 18:25:40
-@LastEditTime: 2019-12-11 14:46:16
+@LastEditTime: 2019-12-17 11:49:17
 @Description:
 '''
 import setuptools
@@ -36,7 +36,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'tlpsg=TLPLibrary.tools.script_generator:main' # script-generator
+            'tlp_script_generator=TLPLibrary.tools.script_generator:main' # script-generator
         ],
     }
 )

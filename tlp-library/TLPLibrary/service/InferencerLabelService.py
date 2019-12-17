@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-12 20:45:34
-@LastEditTime: 2019-12-16 20:32:30
+@LastEditTime: 2019-12-17 15:08:43
 @Description:
 '''
 
@@ -34,7 +34,7 @@ class InferencerLabelService(BusinessService):
 
             projectInfo = self._findProjectInfo(runParameter)
             tableIndex = str(projectInfo['index'])
-            reasoningMachineId = runParameter.inferencerId
+            inferencerId = runParameter.inferencerId
 
             imageInfo = self._findProjectImageInfo(self._config.project_image_table_name + tableIndex, image.path)
             image.id = imageInfo['id']
@@ -58,7 +58,7 @@ class InferencerLabelService(BusinessService):
                 if not backgroundColor:
                     backgroundColor = self._generateRandomColors()
                 templateLabelAttribute = json.dumps(mateLabelTemplate["template_attributes"])
-                mateLabelTemplateValues.append((mateLabelTemplate['template_id'], runParameter.projectId, label_name, LabelType.MATE, TaggingType.AUTO, 1, reasoningMachineId, backgroundColor, 0, 0, 0, 0, templateLabelAttribute, runParameter.userId, now, now))
+                mateLabelTemplateValues.append((mateLabelTemplate['template_id'], runParameter.projectId, label_name, LabelType.MATE, TaggingType.AUTO, 1, inferencerId, backgroundColor, 0, 0, 0, 0, templateLabelAttribute, runParameter.userId, now, now))
 
             # 处理图片的MateLabel信息
             mateLabelValues = []
@@ -76,7 +76,7 @@ class InferencerLabelService(BusinessService):
                 if not backgroundColor:
                     backgroundColor = self._generateRandomColors()
                 templateLabelAttribute = json.dumps(regionLabelTemplate["template_attributes"])
-                regionLabelTemplateValues.append((regionLabelTemplate['template_id'], runParameter.projectId, label_name, LabelType.REGION, TaggingType.AUTO, 1, reasoningMachineId, backgroundColor, 0, 0, 0, 0, templateLabelAttribute, runParameter.userId, now, now))
+                regionLabelTemplateValues.append((regionLabelTemplate['template_id'], runParameter.projectId, label_name, LabelType.REGION, TaggingType.AUTO, 1, inferencerId, backgroundColor, 0, 0, 0, 0, templateLabelAttribute, runParameter.userId, now, now))
 
             # 处理Region、RegionLabel和他的模板信息
 
@@ -96,7 +96,7 @@ class InferencerLabelService(BusinessService):
                     regionLabelId = str(uuid.uuid4())
                     regionLabelValues.append((regionLabelId, image.id, regionId, labelTemplateId, TaggingType.AUTO, '1.0', regionLabelAttribute, runParameter.userId, now, now))
 
-            insert_label_template_sql = """insert into """ + self._config.project_label_template_table_name + """ (`id`, `projectId`, `name`, `type`, `source`, `heat`, `reasoningMachineId`, `backgroundColor`, `enabled`, `required`, `defaulted`, `reviewed`, `attribute`, `creatorId`, `createTime`, `updateTime`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) """
+            insert_label_template_sql = """insert into """ + self._config.project_label_template_table_name + """ (`id`, `projectId`, `name`, `type`, `source`, `heat`, `inferencerId`, `backgroundColor`, `enabled`, `required`, `defaulted`, `reviewed`, `attribute`, `creatorId`, `createTime`, `updateTime`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) """
             insert_result = self._mysql.close_transaction_insert_many(insert_label_template_sql, (mateLabelTemplateValues + regionLabelTemplateValues))
 
             if not insert_result:

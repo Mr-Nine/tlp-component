@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-13 17:16:51
-@LastEditTime: 2019-12-11 18:43:32
+@LastEditTime: 2019-12-17 14:59:50
 @Description:
 '''
 
@@ -44,7 +44,7 @@ class Config(object):
         self.image_depository_table_name=tlp_config['tlp-table'].get('image_depository_table_name', 'AnnotationlImageDepository')
         self.project_table_name=tlp_config['tlp-table'].get('project_table_name', 'AnnotationlProject')
         self.project_source_table_name=tlp_config['tlp-table'].get('project_source_table_name', 'AnnotationlProjectSource')
-        self.project_reasoning_machine_table_name=tlp_config['tlp-table'].get('project_reasoning_machine_table_name', 'AnnotationlProjectReasoningMachine')
+        self.project_reasoning_machine_table_name=tlp_config['tlp-table'].get('project_reasoning_machine_table_name', 'AnnotationlProjectInferencer')
         self.project_label_template_table_name=tlp_config['tlp-table'].get('project_label_template_table_name', 'AnnotationlProjectLabelTemplate')
         self.project_image_table_name=tlp_config['tlp-table'].get('project_image_table_name', 'AnnotationlProjectImage')
         self.project_mate_label_table_name=tlp_config['tlp-table'].get('project_mate_label_table_name', 'AnnotationProjectImageMateLabel')

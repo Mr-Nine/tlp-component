@@ -6,7 +6,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-21 21:07:14
-@LastEditTime: 2019-11-26 10:42:30
+@LastEditTime: 2019-12-17 15:07:12
 @Description:
 '''
 
@@ -25,7 +25,7 @@ class AnnotationlProjectLabelTemplate(GenericEntity):
         data_dict2["type"]               = data_dict["type"].decode("utf-8")
         data_dict2["source"]             = data_dict["source"].decode("utf-8")
         data_dict2["heat"]               = data_dict["heat"]
-        data_dict2["reasoningMachineId"] = data_dict["reasoningMachineId"].decode("utf-8") if data_dict["reasoningMachineId"] is not None else ""
+        data_dict2["inferencerId"]       = data_dict["inferencerId"].decode("utf-8") if data_dict["inferencerId"] is not None else ""
         data_dict2["icon"]               = data_dict["icon"].decode("utf-8") if data_dict["icon"] is not None else ""
         data_dict2["backgroundColor"]    = data_dict["backgroundColor"].decode("utf-8") if data_dict["backgroundColor"] is not None else ""
         data_dict2["shortcutKey"]        = data_dict["shortcutKey"].decode("utf-8") if data_dict["shortcutKey"] is not None else ""
