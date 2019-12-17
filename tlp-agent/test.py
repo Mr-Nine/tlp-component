@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-14 18:37:16
-@LastEditTime: 2019-11-27 11:32:08
+@LastEditTime: 2019-12-17 10:14:40
 @Description:
 '''
 import sys
@@ -42,7 +42,6 @@ def main():
             %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
         )'''
 
-    """
     manager = MysqlManager()
 
     # result = manager.selectAll("select * from User")
@@ -87,28 +86,6 @@ def main():
         print("==========================================================")
 
     manager.destory()
-    """
-
-
-        # region = AnnotationProjectImageRegion(id="A", imageId="B", index=0, shape="C", shapeData="{json:json}", userId="D", createTime=datetime.datetime.today(), updateTime=datetime.datetime.today())
-
-        # print(region.id)
-        # print(region.imageId)
-        # print(region.index)
-        # print(region.shape)
-        # print(region.shapeData)
-        # print(region.userId)
-        # print(region.createTime)
-        # print(region.updateTime)
-
-        # region.to_dict()["id"] = "A1"
-        # print(region.id)
-    arr = []
-    if arr:
-        print("A")
-    arr.append("A")
-    if arr:
-        print("A")
 
 if __name__ == "__main__":
     main()
