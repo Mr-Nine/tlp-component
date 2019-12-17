@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2019-11-26 11:41:36
+@LastEditTime: 2019-12-12 10:42:49
 @Description:
 '''
 
@@ -113,7 +113,7 @@ class AnnotationMateLabelHandler(AbstractHandler):
                 update_id = data['id']
                 attribute = data['attribute'] if ('attribute' in data and data['attribute'] is not None) else None
 
-                sql = """update from """ + mate_label_table_name + """ set attribute = %s where id = %s"""
+                sql = """update """ + mate_label_table_name + """ set attribute = %s where id = %s"""
                 count = mysql.update(sql, (attribute, update_id))
 
                 if count:

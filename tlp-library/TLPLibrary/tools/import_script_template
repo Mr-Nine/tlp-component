@@ -1,0 +1,19 @@
+from TLPLibrary.core import *
+from TLPLibrary.error import *
+from TLPLibrary.entity import *
+from TLPLibrary.service import *
+
+
+def input_data():
+    # entiry you input region and label code.
+    pass
+
+
+def main():
+    # handling startup parameters
+    # projectId...
+    # sourcePath...
+    input_data()
+
+if __name__ == "__main__":
+    main()

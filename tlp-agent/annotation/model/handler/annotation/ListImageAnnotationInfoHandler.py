@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2019-12-06 14:51:29
+@LastEditTime: 2019-12-12 10:52:11
 @Description:
 '''
 
@@ -60,9 +60,9 @@ class ListImageAnnotationInfoHandler(AbstractHandler):
 
             image = AnnotationlProjectImage.create_by_database_result(target_image_result[1])
 
-            if image.annotationUserId != self.user.userId:
-                # 当前用户没有锁定图片
-                return self.replyMessage(message, state=False, msg="您并没有锁定要操作的图片，请确认信息")
+            # if image.annotationUserId != self.user.userId:
+            #     # 当前用户没有锁定图片
+            #     return self.replyMessage(message, state=False, msg="您并没有锁定要操作的图片，请确认信息")
 
             action = data['action']
 
