@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2019-12-17 17:19:35
+@LastEditTime: 2019-12-17 18:13:04
 @Description:
 '''
 
@@ -19,6 +19,7 @@ import datetime
 from annotation.model.handler import AbstractHandler
 from core import Config, MysqlManager, TLPContext, MessageMid
 from core.utils import mysql_dict_2_dict
+from annotation.model.handler.annotation import AutoAnnotationLabelThread
 
 from tlp.entity import AnnotationlProjectImage
 
@@ -74,7 +75,7 @@ class AutoAnnotationLabelHandler(AbstractHandler):
             if not os.path.exists(script_path):
                 return self.replyMessage(message, state=False, msg="指定的自动标注脚本没有找到")
 
-            autoAnnotationLabelThread = AutoAnnotationLabelThread(ws=self, message=message, image_path=image.path, script_path=script_path)
+            autoAnnotationLabelThread = AutoAnnotationLabelThread(ws=self.websocket, message=message, image_path=image.path, script_path=script_path, project_id=project.id, user_id=self.user.userId, inferencer_id=inferencer_dict["id"])
             autoAnnotationLabelThread.start()
 
         finally:

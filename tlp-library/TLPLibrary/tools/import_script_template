@@ -17,7 +17,7 @@ def input_data(runParameter):
 
 def main():
     runParameter = RunParameter.get_run_parameter()
-    input_data(input_data)
+    input_data(runParameter)
 
 if __name__ == "__main__":
     main()
