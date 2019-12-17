@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2019-12-17 17:03:53
+@LastEditTime: 2019-12-17 17:27:03
 @Description:负责处理获取图片列表的请求数据，会根据当前用户和所标注的项目去获取对应的图片信息,
 消息格式：
 send-message:{
@@ -150,7 +150,7 @@ class ImagesListHandler(AbstractHandler):
             sql = """SELECT i1.* FROM """ + image_table_name + """ AS i1 INNER JOIN (SELECT id FROM """ + image_table_name + """ ORDER BY `name` ASC, `id` DESC LIMIT %s, %s) i2 ON i1.id = i2.id"""
             page_result = mysql.selectAll(sql, ((page * page_size), page_size))
 
-            if page_result[0]:
+            if not page_result[0]:
                 return self.replyMessage(message, state=False, msg='当前项目还没有可标注的图片')
 
             # 组织返回的数据

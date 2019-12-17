@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-02 11:10:52
-@LastEditTime: 2019-12-17 16:41:56
+@LastEditTime: 2019-12-17 17:15:44
 @Description:
 '''
 
@@ -16,7 +16,7 @@ import logging
 import threading
 import subprocess
 
-from core import PreprocessingContext, Config
+from core import Config
 
 class AutoAnnotationLabelThread(threading.Thread):
 

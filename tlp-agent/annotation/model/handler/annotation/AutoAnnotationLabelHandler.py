@@ -5,10 +5,11 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2019-12-17 16:58:21
+@LastEditTime: 2019-12-17 17:19:35
 @Description:
 '''
 
+import os
 import sys
 import uuid
 import logging
@@ -64,77 +65,17 @@ class AutoAnnotationLabelHandler(AbstractHandler):
                 return self.replyMessage(message, state=False, msg="请先标记此图片为要标注图片")
 
             inferencer_result = mysql.selectOne("""select * from AnnotationlProjectInferencer where id = %s""", (data['inferencerId'],))
-            if inferencer_result[0]:
-                return self.replyMessage(message, state=False, msg="指定的标注器找不到")
+            if not inferencer_result[0]:
+                return self.replyMessage(message, state=False, msg="指定的标注器没有找到")
 
-            inferencer = mysql_dict_2_dict(inferencer_result[1])
+            inferencer_dict = mysql_dict_2_dict(inferencer_result[1])
 
+            script_path = inferencer_dict['script']
+            if not os.path.exists(script_path):
+                return self.replyMessage(message, state=False, msg="指定的自动标注脚本没有找到")
 
-
-            autoAnnotationLabelThread = AutoAnnotationLabelThread(ws=self, pending_queue=self.pending_image_queue, state_queue=self.controller_thread_state_queue)
-
-            action = data['action']
-
-            mate_label_table_name = '`AnnotationProjectImageMateLabel' + str(project.index) + '`'
-
-            if action == 'add':
-                # 为图片增加新的mate标签
-
-                if 'labelId' not in data:
-                    # 要增加的label关联不存在
-                    return self.replyMessage(message, state=False, msg="50106")
-
-                labelId = data['labelId']
-                attribute = data['attribute'] if ('attribute' in data and data['attribute'] is not None) else None
-
-                sql = """insert into """ + mate_label_table_name + """ (`id`, `imageId`, `labelId`, `type`, `version`, `attribute`, `userId`, `createTime`, `updateTime`) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-
-                now = datetime.datetime.today()
-                newId = str(uuid.uuid4())
-
-                count = mysql.insertOne(sql, (newId, image.id, labelId, 'MANUAL', '0', attribute, self.user.userId, now, now))
-                if count:
-                    return self.replyMessage(message, state=True, msg="add mate label success.", id=newId, imageId=image.id, labelId=labelId)
-                else:
-                    return self.replyMessage(message, state=False, msg="50107", imageId=image.id, labelId=labelId) # 插入为写入数据库
-
-            elif action == 'delete':
-                # 为图片取消一个mate标签
-
-                if 'id' not in data:
-                    # 要删除的ID不存在
-                    return self.replyMessage(message, state=False, msg="50107")
-
-                delete_id = data['id']
-
-                sql = """delete from """ + mate_label_table_name + """ where id = %s"""
-
-                count = mysql.delete(sql, (delete_id, ))
-                if count:
-                    return self.replyMessage(message, state=True, msg="delete mate label success.", id=delete_id, imageId=image.id)
-                else:
-                    return self.replyMessage(message, state=False, msg="50108", id=delete_id, imageId=image.id) # 删除未成功执行
-
-            elif action == 'update':
-                # 为图像的Mate修改属性
-                if 'id' not in data:
-                    # 要删除的ID不存在
-                    return self.replyMessage(message, state=False, msg="50107")
-
-                update_id = data['id']
-                attribute = data['attribute'] if ('attribute' in data and data['attribute'] is not None) else None
-
-                sql = """update """ + mate_label_table_name + """ set attribute = %s where id = %s"""
-                count = mysql.update(sql, (attribute, update_id))
-
-                if count:
-                    return self.replyMessage(message, state=True, msg="update mate label attribute success.", id=update_id, imageId=image.id)
-                else:
-                    return self.replyMessage(message, state=False, msg="50108", id=update_id, imageId=image.id) # 删除未成功执行
-
-            else:
-                # 未知的mate操作
-                return self.replyMessage(message, state=False, msg="50109", imageId=image.id) # 未知的Action操作目标
+            autoAnnotationLabelThread = AutoAnnotationLabelThread(ws=self, message=message, image_path=image.path, script_path=script_path)
+            autoAnnotationLabelThread.start()
 
         finally:
             mysql.destory()
