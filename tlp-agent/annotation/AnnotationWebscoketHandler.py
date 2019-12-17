@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-10-31 11:57:58
-@LastEditTime: 2019-11-29 17:10:28
+@LastEditTime: 2019-12-17 19:45:39
 @Description:负责标注页面的websocket连接的handler,在收到连接请求后，会先进行连接验证,如果验证通过，
     则创建连接并把连接管理交给模块控制器, 如果验证不通过，则会拒绝创建连接请求。
     在收到任何的消息后，都不会进行处理，而是直接发送给模块控制器。
@@ -165,8 +165,16 @@ class AnnotationWebscoketHandler(tornado.websocket.WebSocketHandler):
             opened_result["state"] = True
             opened_result["message"] = 'user connection tlp agent success.'
             opened_result["projectId"] = user.projectId
+            opened_result["projectId"] = user.projectId
             opened_result["projectName"] = project.name
             opened_result["projectLock"] = project.locked
+
+            select_inferencer_sql = """select * from AnnotationlProjectInferencer where projectId = %s and `activity` = 1"""
+            select_inferencer_result = mysql.selectOne(select_inferencer_sql, (user.projectId, ))
+            if select_inferencer_result[0]:
+                opened_result["inferencerId"] = select_inferencer_result[1]['id'].decode("utf-8")
+            else:
+                opened_result["inferencerId"] = ''
 
             opened_result["projectLabel"] = {}
 
