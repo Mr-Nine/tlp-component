@@ -8,7 +8,11 @@ def input_data(runParameter):
     # entiry you input region and label code.
     pass
     # inferencerLabelService = InferencerLabelService
-    # inferencerLabelService.inferencerOneImageLabel(runParameter, image)
+    # result = inferencerLabelService.inferencerOneImageLabel(runParameter, image)
+    # if result:
+    #     print(result)
+    # else:
+    #     print(False)
 
 
 def main():
