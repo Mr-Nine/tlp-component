@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-10-31 11:57:58
-@LastEditTime: 2019-12-18 14:51:20
+@LastEditTime: 2019-12-18 14:57:39
 @Description:负责标注页面的websocket连接的handler,在收到连接请求后，会先进行连接验证,如果验证通过，
     则创建连接并把连接管理交给模块控制器, 如果验证不通过，则会拒绝创建连接请求。
     在收到任何的消息后，都不会进行处理，而是直接发送给模块控制器。
@@ -191,8 +191,8 @@ class AnnotationWebscoketHandler(tornado.websocket.WebSocketHandler):
                     else:
                         region_label_list.append(AnnotationlProjectLabelTemplate.convert_database_result_2_dict(result))
 
-            opened_result["mateLabel"] = mate_label_list
-            opened_result["regionLabel"] = region_label_list
+            opened_result["mateLabels"] = mate_label_list
+            opened_result["regionLabels"] = region_label_list
             self.write_message(self._create_ws_base_message("opened", opened_result))
 
             '''

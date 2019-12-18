@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2019-12-18 14:54:26
+@LastEditTime: 2019-12-18 14:57:22
 @Description:
 '''
 
@@ -78,7 +78,7 @@ class ImageLabelsHandler(AbstractHandler):
                     state=True,
                     msg='',
                     projectId=project_id,
-                    mateLabel=mate_label_list
+                    mateLabes=mate_label_list
                 )
             elif action == 'region':
                 region_label_list = []
@@ -93,8 +93,8 @@ class ImageLabelsHandler(AbstractHandler):
                     state=True,
                     msg='',
                     projectId=project_id,
-                    mateLabel=mate_label_list,
-                    regionLabel=region_label_list
+                    mateLabels=mate_label_list,
+                    regionLabels=region_label_list
                 )
             else:
                 mate_label_list = []
@@ -109,15 +109,12 @@ class ImageLabelsHandler(AbstractHandler):
                         else:
                             region_label_list.append(AnnotationlProjectLabelTemplate.convert_database_result_2_dict(result))
 
-                opened_result["projectLabel"]["mateLabel"] = mate_label_list
-                opened_result["projectLabel"]["regionLabel"] = region_label_list
-
                 return self.replyMessage(message,
                     state=True,
                     msg='',
                     projectId=project_id,
-                    mateLabel=mate_label_list,
-                    regionLabel=region_label_list
+                    mateLabels=mate_label_list,
+                    regionLabels=region_label_list
                 )
         finally:
             mysql.destory()
