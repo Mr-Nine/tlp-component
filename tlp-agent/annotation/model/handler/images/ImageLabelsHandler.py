@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2019-12-18 14:57:22
+@LastEditTime: 2019-12-18 16:22:48
 @Description:
 '''
 
@@ -59,8 +59,6 @@ class ImageLabelsHandler(AbstractHandler):
             context = TLPContext()
             current_project = context.get_project(self.user.projectId)
             project_index = current_project.index
-
-            opened_result["projectLabel"] = {}
 
             sql_start = """select * from `AnnotationlProjectLabelTemplate` where projectId = %s """
             sql_end = """ order by name asc"""
