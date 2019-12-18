@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-13 11:48:14
-@LastEditTime: 2019-12-16 18:10:07
+@LastEditTime: 2019-12-18 18:16:34
 @Description:
 '''
 import os
@@ -163,7 +163,7 @@ class BusinessService(object):
                         for template_attribute in template_attributes:
                             if attribute['key'] == template_attribute['key']:
                                 find = True
-                                template_attribute['valueType'] = attribute['valueType'] # 覆盖
+                                template_attribute['type'] = attribute['type'] # 覆盖
 
                     if not find:
                         label_template["backgroundColor"] = label.backgroundColor

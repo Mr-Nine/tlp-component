@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-12 13:52:40
-@LastEditTime: 2019-12-16 17:12:39
+@LastEditTime: 2019-12-18 18:14:10
 @Description:
 '''
 
@@ -27,7 +27,7 @@ class Label(GenericEntity):
     def addAttribute(self, key, valueType, value):
         if not ValueType.check_type(valueType):
             valueType = ValueType.TEXT
-        self.attributes[key] = {"valueType":valueType, "value":value}
+        self.attributes[key] = {"type":valueType, "value":value}
 
 
     def removeAttribute(self, key):
@@ -41,10 +41,7 @@ class Label(GenericEntity):
     def generateAttributeData(self):
         attribute_data = []
         for key in self.attributes:
-            attributeMap = {}
-            attributeMap['key'] = key
-            attributeMap['value'] = self.attributes[key]["value"]
-
+            attributeMap = {key:self.attributes[key]["value"]}
             attribute_data.append(attributeMap)
 
         return attribute_data
@@ -59,7 +56,9 @@ class Label(GenericEntity):
         for key in self.attributes:
             template = {}
             template['key'] = key
-            template['valueType'] = self.attributes[key]["valueType"]
+            template['name'] = key
+            template['type'] = self.attributes[key]["type"]
+            template['default'] = ''
             template_data.append(template)
 
         return template_data

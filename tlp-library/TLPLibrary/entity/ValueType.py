@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-11 19:03:30
-@LastEditTime: 2019-12-16 17:02:42
+@LastEditTime: 2019-12-18 18:31:43
 @Description:
 '''
 
@@ -14,6 +14,7 @@ class ValueType():
     INT = "INT"
     FLOAT = "FLOAT"
     DOUBLE = "DOUBLE"
+    NUMBER = "NUMBER"
     TEXT = "TEXT"
 
     @staticmethod
@@ -21,4 +22,4 @@ class ValueType():
         if not isinstance(type, str):
             return False
 
-        return (type == ValueType.INT or type == ValueType.FLOAT or type == ValueType.DOUBLE or type == ValueType.TEXT)
+        return (type == ValueType.NUMBER or type == ValueType.TEXT)

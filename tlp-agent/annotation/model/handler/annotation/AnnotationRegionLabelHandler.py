@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2019-12-18 17:18:57
+@LastEditTime: 2019-12-18 17:44:03
 @Description:
 '''
 
@@ -95,7 +95,7 @@ class AnnotationRegionLabelHandler(AbstractHandler):
 
                 if insert_region_lable_list:
                     # 继续写入需要新的label数据
-                    insert_region_label_sql = """insert into """ + region_label_table_name + """(`id`, `imageId`, `regionId`, `labelId`, `type`, `version`, `attribute`, `userId`, `createTime`, `updateTime`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+                    insert_region_label_sql = """insert into """ + region_label_table_name + """(`id`, `imageId`, `regionId`, `labelId`, `type`, `version`, `attribute`, `userId`, `createTime`, `updateTime`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
                     insert_region_label_data = []
 
                     for label_object in insert_region_lable_list:

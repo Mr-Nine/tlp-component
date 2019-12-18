@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-04 17:52:11
-@LastEditTime: 2019-12-10 20:38:33
+@LastEditTime: 2019-12-18 19:04:33
 @Description:
 '''
 
@@ -56,6 +56,7 @@ class PreprocessingWorkProcess(Process):
             size = image_obj.size
             if size[0] <= 200:
                 self.__copy_image_to_target('thumbnail.png')
+                self.progress_queue.put({"state":"true", "progress":"thumbnail", "imageId":self.pending_image_id, "imagePath":self.pending_image_path})
                 return
 
             rate = float(200) / float(size[1])
@@ -77,12 +78,14 @@ class PreprocessingWorkProcess(Process):
     def __generate_tile_file(self):
 
         try:
-            if (self.max_zoom <= 3):
+            if (self.max_zoom < 3):
                 '''
                 如果目标图片的不需要切图(图片可以切的层数小于等于3，则直接将图片复制到目标路径)
                 '''
                 file_path, file_name = os.path.split(self.pending_image_path)
                 self.__copy_image_to_target(file_name)
+                self.progress_queue.put({"state":"ORIGINAL", "progress":"tiles", "imageId":self.pending_image_id, "imagePath":self.pending_image_path})
+                return
 
             current_path = os.path.dirname(os.path.abspath(__file__))
             command = "python2 " + os.path.join(current_path, "gdal2tiles-multiprocess.py") + " -l -p raster -z 3-" + str(self.max_zoom) + " -w none --processes=" + str(self.processes) + " " + self.pending_image_path + " " + self.image_root_path
@@ -103,6 +106,7 @@ class PreprocessingWorkProcess(Process):
                     line = out[i].decode("utf-8")
                     if "100 - done." not in line:
                         self.progress_queue.put({"state":"false", "progress":"tiles", "imageId":self.pending_image_id, "imagePath":self.pending_image_path})
+                        return
                         # TODO:清除垃圾文件
 
             self.progress_queue.put({"state":"true", "progress":"tiles", "imageId":self.pending_image_id, "imagePath":self.pending_image_path})
