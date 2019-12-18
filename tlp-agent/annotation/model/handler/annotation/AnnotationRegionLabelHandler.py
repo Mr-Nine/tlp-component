@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2019-12-06 14:47:05
+@LastEditTime: 2019-12-18 17:18:57
 @Description:
 '''
 
@@ -95,11 +95,11 @@ class AnnotationRegionLabelHandler(AbstractHandler):
 
                 if insert_region_lable_list:
                     # 继续写入需要新的label数据
-                    insert_region_label_sql = """insert into """ + region_label_table_name + """(`id`, `regionId`, `labelId`, `type`, `version`, `attribute`, `userId`, `createTime`, `updateTime`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+                    insert_region_label_sql = """insert into """ + region_label_table_name + """(`id`, `imageId`, `regionId`, `labelId`, `type`, `version`, `attribute`, `userId`, `createTime`, `updateTime`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
                     insert_region_label_data = []
 
                     for label_object in insert_region_lable_list:
-                        insert_region_label_data.append(label_object.to_value_list(('id', 'regionId', 'labelId', 'type', 'version', 'attribute', 'userId', 'createTime', 'updateTime')))
+                        insert_region_label_data.append(label_object.to_value_list(('id', 'imageId', 'regionId', 'labelId', 'type', 'version', 'attribute', 'userId', 'createTime', 'updateTime')))
 
                     # 新的标注属性
                     mysql.close_transaction_insert_many(insert_region_label_sql, insert_region_label_data)
@@ -215,12 +215,12 @@ class AnnotationRegionLabelHandler(AbstractHandler):
                         if 'id' in label:
                             # 已经存在的图形也可能有2种情况，就是update-label和insert-label
                             region_label_id = label['id']
-                            label_obj = AnnotationProjectImageRegionLabel(id=region_label_id, regionId=region_id, labelId=labelId, type="", version="0", attribute=attribute, userId=userId, createTime=now, updateTime=now)
+                            label_obj = AnnotationProjectImageRegionLabel(id=region_label_id, imageId=imageId, regionId=region_id, labelId=labelId, type="", version="0", attribute=attribute, userId=userId, createTime=now, updateTime=now)
                             update_region_label_list.append(label_obj)
                         else:
                             region_label_id = str(uuid.uuid4())
 
-                            label_obj = AnnotationProjectImageRegionLabel(id=region_label_id, regionId=region_id, labelId=labelId, type="", version="0", attribute=attribute, userId=userId, createTime=now, updateTime=now)
+                            label_obj = AnnotationProjectImageRegionLabel(id=region_label_id, imageId=imageId, regionId=region_id, labelId=labelId, type="", version="0", attribute=attribute, userId=userId, createTime=now, updateTime=now)
                             insert_region_label_list.append(label_obj)
             else:
                 # insert 如果矩形没有ID，那就说明他是新得，那它的label也都按新得处理
@@ -239,7 +239,7 @@ class AnnotationRegionLabelHandler(AbstractHandler):
                         attribute = label['attribute']
                         region_label_id = str(uuid.uuid4())
 
-                        label_obj = AnnotationProjectImageRegionLabel(id=region_label_id, regionId=region_id, labelId=labelId, type="", version="0", attribute=attribute, userId=userId, createTime=now, updateTime=now)
+                        label_obj = AnnotationProjectImageRegionLabel(id=region_label_id, imageId=imageId, regionId=region_id, labelId=labelId, type="", version="0", attribute=attribute, userId=userId, createTime=now, updateTime=now)
                         insert_region_label_list.append(label_obj)
 
         return (insert_region_list, insert_region_label_list, update_region_list, update_region_label_list)

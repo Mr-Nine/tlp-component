@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-25 11:21:03
-@LastEditTime: 2019-11-26 11:17:58
+@LastEditTime: 2019-12-18 17:12:36
 @Description:
 '''
 
@@ -20,6 +20,7 @@ class AnnotationProjectImageRegionLabel(GenericEntity):
         data_dict = dict()
 
         data_dict['id']         = data_result['id'].decode("utf-8") if data_result["id"] else ""
+        data_dict['imageId']   = data_result['imageId'].decode("utf-8") if data_result["imageId"] else ""
         data_dict['regionId']   = data_result['regionId'].decode("utf-8") if data_result["regionId"] else ""
         data_dict['labelId']    = data_result['labelId'].decode("utf-8") if data_result["labelId"] else ""
         data_dict['type']       = data_result['type'].decode("utf-8") if data_result["type"] else ""
