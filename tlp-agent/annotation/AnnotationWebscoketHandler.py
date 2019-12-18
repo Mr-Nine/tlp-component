@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-10-31 11:57:58
-@LastEditTime: 2019-12-18 12:05:33
+@LastEditTime: 2019-12-18 14:51:20
 @Description:负责标注页面的websocket连接的handler,在收到连接请求后，会先进行连接验证,如果验证通过，
     则创建连接并把连接管理交给模块控制器, 如果验证不通过，则会拒绝创建连接请求。
     在收到任何的消息后，都不会进行处理，而是直接发送给模块控制器。
@@ -176,32 +176,34 @@ class AnnotationWebscoketHandler(tornado.websocket.WebSocketHandler):
             else:
                 opened_result["inferencerId"] = ''
 
-            opened_result["projectLabel"] = {}
-
-            count_sql = """select count(1) as total from `AnnotationlProjectLabelTemplate` where projectId = %s"""
-            total_lable_number = mysql.selectOne(count_sql, (project.id, ))[1]['total']
-
             sql_start = """select * from `AnnotationlProjectLabelTemplate` where projectId = %s order by name asc"""
             sql_end = """ limit %s, %s"""
 
             mate_label_list = []
             region_label_list = []
 
-            if total_lable_number > 0 and total_lable_number < 500:
-                # 数据量较小，部分也直接发送全部到前端
-                lable_result = mysql.selectAll(sql_start,(project.id, ))
+            lable_result = mysql.selectAll(sql_start,(project.id, ))
 
+            if lable_result[0]:
                 for result in lable_result[1]:
                     if result["type"].decode("utf-8") == 'MATE':
                         mate_label_list.append(AnnotationlProjectLabelTemplate.convert_database_result_2_dict(result))
                     else:
                         region_label_list.append(AnnotationlProjectLabelTemplate.convert_database_result_2_dict(result))
 
-                opened_result["projectLabel"]["mateLabel"] = mate_label_list
-                opened_result["projectLabel"]["regionLabel"] = region_label_list
-                opened_result["labelMessageCount"] = 1
+            opened_result["mateLabel"] = mate_label_list
+            opened_result["regionLabel"] = region_label_list
+            self.write_message(self._create_ws_base_message("opened", opened_result))
 
-                self.write_message(self._create_ws_base_message("opened", opened_result))
+            '''
+            # 废弃掉的分页逻辑
+
+            count_sql = """select count(1) as total from `AnnotationlProjectLabelTemplate` where projectId = %s"""
+            total_lable_number = mysql.selectOne(count_sql, (project.id, ))[1]['total']
+
+            # 数据量较小，部分也直接发送全部到前端
+            if total_lable_number > 0 and total_lable_number < 500:
+                pass
             elif total_lable_number > 500:
                 # 数据量不可控，分页查询多此返回
                 total_page = math.ceil(total_lable_number / 500)
@@ -229,7 +231,7 @@ class AnnotationWebscoketHandler(tornado.websocket.WebSocketHandler):
                 opened_result["projectLabel"]["regionLabel"] = []
                 opened_result["labelMessageCount"] = 0
                 self.write_message(self._create_ws_base_message("opened", opened_result))
-
+            '''
         except BaseException as e:
             if self._id() in self.__context.get_connect_dict():
                 connection_info = self.__context.get_connect(self._id())
