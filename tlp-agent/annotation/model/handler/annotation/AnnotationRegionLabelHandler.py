@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2019-12-19 14:52:13
+@LastEditTime: 2019-12-19 15:18:51
 @Description:
 '''
 
@@ -88,7 +88,7 @@ class AnnotationRegionLabelHandler(AbstractHandler):
                     insert_region_data = []
 
                     for region_obj in insert_region_list:
-                        insert_region_data.append(region_obj.to_value_list(('id', 'imageId', 'index', 'shape', 'shapeData', 'userId', 'createTime', 'updateTime')))
+                        insert_region_data.append(region_obj.to_value_list(('id', 'imageId', 'type', 'index', 'shape', 'shapeData', 'userId', 'createTime', 'updateTime')))
 
                     # 新的标注形状写入
                     mysql.close_transaction_insert_many(insert_region_sql, insert_region_data)
