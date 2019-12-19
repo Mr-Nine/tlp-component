@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2019-12-19 14:36:18
+@LastEditTime: 2019-12-19 14:52:13
 @Description:
 '''
 
@@ -84,7 +84,7 @@ class AnnotationRegionLabelHandler(AbstractHandler):
                 #     return self.replyMessage(message, state=False, msg="40110") # 没有可以写入的数据
 
                 if insert_region_list:
-                    insert_region_sql = """insert into """ + region_table_name + """ (`id`, `imageId`, `index`, `shape`, `shapeData`, `userId`, `createTime`, `updateTime`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"""
+                    insert_region_sql = """insert into """ + region_table_name + """ (`id`, `imageId`, `type`, `index`, `shape`, `shapeData`, `userId`, `createTime`, `updateTime`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
                     insert_region_data = []
 
                     for region_obj in insert_region_list:
