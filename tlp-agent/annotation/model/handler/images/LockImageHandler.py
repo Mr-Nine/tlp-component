@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2019-12-04 14:31:58
+@LastEditTime: 2019-12-19 19:41:41
 @Description:
 '''
 
@@ -73,6 +73,7 @@ class LockImageHandler(AbstractHandler):
                     if result > 0:
                         notice_msg = self.replyMessage(message, state=True, msg="notice", type="unlock-image", action=action, userId=self.user.userId, projectId=project.id, imageId=unlock_image_id)
                         notice_msg.senderMid = MessageMid.IMAGES()
+                        notice_msg.messageType = 'unlock-image'
                         context.notice(notice_msg, project.id) # 发送自动解锁的通知
                         result = mysql.update(sql_start + """`annotation` = 1, `annotationUserId` = %s, `updateVersion` = `updateVersion` + 1 """ + sql_end, (self.user.userId, data['imageId'], target_image['updateVersion']))
                 else:
@@ -86,6 +87,7 @@ class LockImageHandler(AbstractHandler):
                     if result > 0:
                         notice_msg = self.replyMessage(message, state=True, msg="notice", type="unlock-image", action=action, userId=self.user.userId, projectId=project.id, imageId=unlock_image_id)
                         notice_msg.senderMid = MessageMid.IMAGES()
+                        notice_msg.messageType = 'unlock-image'
                         context.notice(notice_msg, project.id) # 发送自动解锁的通知
                         result = mysql.update(sql_start + """`review` = 1, `reviewUserId` = %s, `updateVersion` = `updateVersion` + 1 """ + sql_end, (self.user.userId, data['imageId'], target_image['updateVersion']))
                 else:
