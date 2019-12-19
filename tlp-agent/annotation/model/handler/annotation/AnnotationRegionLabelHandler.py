@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2019-12-18 17:44:03
+@LastEditTime: 2019-12-19 14:36:18
 @Description:
 '''
 
@@ -199,7 +199,7 @@ class AnnotationRegionLabelHandler(AbstractHandler):
                 # create_time = region['createTime']
                 # if create_time:
                 #     create_time = datetime.datetime.strptime(create_time, '%Y-%m-%d %H:%M:%S')
-                region_obj = AnnotationProjectImageRegion(id=region_id, imageId=imageId, index=index, shape=shape, shapeData=shapeData, userId=userId, updateTime=now)
+                region_obj = AnnotationProjectImageRegion(id=region_id, imageId=imageId, type='MANUAL', index=index, shape=shape, shapeData=shapeData, userId=userId, updateTime=now)
                 update_region_list.append(region_obj)
 
                 if 'labels' in region and region['labels']:
@@ -225,7 +225,7 @@ class AnnotationRegionLabelHandler(AbstractHandler):
             else:
                 # insert 如果矩形没有ID，那就说明他是新得，那它的label也都按新得处理
                 region_id = str(uuid.uuid4())
-                region_obj = AnnotationProjectImageRegion(id=region_id, imageId=imageId, index=index, shape=shape, shapeData=shapeData, userId=userId, createTime=now, updateTime=now)
+                region_obj = AnnotationProjectImageRegion(id=region_id, imageId=imageId, type='MANUAL', index=index, shape=shape, shapeData=shapeData, userId=userId, createTime=now, updateTime=now)
                 insert_region_list.append(region_obj)
 
                 if 'labels' in region and region['labels']:

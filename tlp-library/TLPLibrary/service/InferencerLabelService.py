@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-12 20:45:34
-@LastEditTime: 2019-12-19 11:55:19
+@LastEditTime: 2019-12-19 14:38:51
 @Description:
 '''
 
@@ -84,7 +84,7 @@ class InferencerLabelService(BusinessService):
             index = 0
             for region in image.regions:
                 regionId = str(uuid.uuid4())
-                regionValues.append((regionId, image.id, index, region.shape, region.getShapeDataJson(), runParameter.userId, now, now))
+                regionValues.append((regionId, image.id, 'AUTO', index, region.shape, region.getShapeDataJson(), runParameter.userId, now, now))
                 index += 1
 
                 for regionLabel in region.labels:
@@ -109,7 +109,7 @@ class InferencerLabelService(BusinessService):
                 raise DataBaseException("写入图片的Mate标签信息失败")
 
             # 处理并写入Region信息,关联图片
-            insert_region_sql = """insert into """ + self._config.project_image_region_table_name + tableIndex + """ (`id`, `imageId`, `index`, `shape`, `shapeData`, `userId`, `createTime`, `updateTime`) values (%s, %s, %s, %s, %s, %s, %s, %s)"""
+            insert_region_sql = """insert into """ + self._config.project_image_region_table_name + tableIndex + """ (`id`, `imageId`, `type`, `index`, `shape`, `shapeData`, `userId`, `createTime`, `updateTime`) values (%s, %s, %s, %s, %s, %s, %s, %s)"""
             insert_result = self._mysql.close_transaction_insert_many(insert_region_sql, regionValues)
 
             if not insert_result:
