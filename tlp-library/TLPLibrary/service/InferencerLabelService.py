@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-12 20:45:34
-@LastEditTime: 2019-12-19 14:55:44
+@LastEditTime: 2019-12-19 15:08:36
 @Description:
 '''
 
@@ -109,7 +109,7 @@ class InferencerLabelService(BusinessService):
                 raise DataBaseException("写入图片的Mate标签信息失败")
 
             # 处理并写入Region信息,关联图片
-            insert_region_sql = """insert into """ + self._config.project_image_region_table_name + tableIndex + """ (`id`, `imageId`, `type`, `index`, `shape`, `shapeData`, `userId`, `createTime`, `updateTime`) values (%s, %s, %s, %s, %s, %s, %s, %s)"""
+            insert_region_sql = """insert into """ + self._config.project_image_region_table_name + tableIndex + """ (`id`, `imageId`, `type`, `index`, `shape`, `shapeData`, `userId`, `createTime`, `updateTime`) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
             insert_result = self._mysql.close_transaction_insert_many(insert_region_sql, regionValues)
 
             if not insert_result:
