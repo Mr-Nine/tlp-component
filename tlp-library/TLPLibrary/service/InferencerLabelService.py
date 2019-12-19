@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-12 20:45:34
-@LastEditTime: 2019-12-17 15:08:43
+@LastEditTime: 2019-12-19 11:55:19
 @Description:
 '''
 
@@ -79,7 +79,6 @@ class InferencerLabelService(BusinessService):
                 regionLabelTemplateValues.append((regionLabelTemplate['template_id'], runParameter.projectId, label_name, LabelType.REGION, TaggingType.AUTO, 1, inferencerId, backgroundColor, 0, 0, 0, 0, templateLabelAttribute, runParameter.userId, now, now))
 
             # 处理Region、RegionLabel和他的模板信息
-
             regionValues = []
             regionLabelValues = []
             index = 0

@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-04 17:52:11
-@LastEditTime: 2019-12-18 19:20:22
+@LastEditTime: 2019-12-19 12:08:33
 @Description:
 '''
 
@@ -56,7 +56,7 @@ class PreprocessingWorkProcess(Process):
             size = image_obj.size
             if size[0] <= 200:
                 self.__copy_image_to_target('thumbnail.png')
-                self.progress_queue.put({"state":"true", "progress":"thumbnail", "imageId":self.pending_image_id, "imagePath":self.pending_image_path})
+                self.progress_queue.put({"state":"true", "progress":"thumbnail", "imageId":self.pending_image_id, "imagePath":self.pending_image_path, "width":size[0], "heigth":size[1], "minZoom":3, "maxZoom":self.max_zoom})
                 return
 
             rate = float(200) / float(size[1])
@@ -67,12 +67,12 @@ class PreprocessingWorkProcess(Process):
             thumbnail_path = os.path.join(self.image_root_path, 'thumbnail.png')
             image_obj.save(thumbnail_path, 'PNG')
 
-            self.progress_queue.put({"state":"true", "progress":"thumbnail", "imageId":self.pending_image_id, "imagePath":self.pending_image_path})
+            self.progress_queue.put({"state":"true", "progress":"thumbnail", "imageId":self.pending_image_id, "imagePath":self.pending_image_path, "width":size[0], "heigth":size[1], "minZoom":3, "maxZoom":self.max_zoom})
         except Exception as e:
             logging.error("%s:generate thumbnail error, error msg:%s" % (self.name, str(e)))
             import traceback
             traceback.print_exc()
-            self.progress_queue.put({"state":"ERROR", "progress":"thumbnail", "imageId":self.pending_image_id, "imagePath":self.pending_image_path})
+            self.progress_queue.put({"state":"ERROR", "progress":"thumbnail", "imageId":self.pending_image_id, "imagePath":self.pending_image_path, "width":size[0], "heigth":size[1], "minZoom":3, "maxZoom":self.max_zoom})
 
 
     def __generate_tile_file(self):

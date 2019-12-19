@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-12 13:52:40
-@LastEditTime: 2019-12-18 18:14:10
+@LastEditTime: 2019-12-19 11:58:08
 @Description:
 '''
 
@@ -39,10 +39,11 @@ class Label(GenericEntity):
 
 
     def generateAttributeData(self):
-        attribute_data = []
+        attribute_data = {}
         for key in self.attributes:
-            attributeMap = {key:self.attributes[key]["value"]}
-            attribute_data.append(attributeMap)
+            attribute_data[key] = self.attributes[key]["value"]
+            # attributeMap = {key:self.attributes[key]["value"]}
+            # attribute_data.append(attributeMap)
 
         return attribute_data
 
