@@ -3,9 +3,9 @@
 @Project:
 @Team:
 @Author: jerome.du
-@LastEditors: jerome.du
+@LastEditors  : jerome.du
 @Date: 2019-11-28 16:58:42
-@LastEditTime: 2019-12-09 17:56:27
+@LastEditTime : 2019-12-22 16:35:22
 @Description:
 '''
 
@@ -183,13 +183,15 @@ class PreprocessingHandler(tornado.websocket.WebSocketHandler):
     def on_ping(self, data):
         """心跳包响应, data是`.ping`发出的数据
         """
-        logging.info('Into on_ping the data is |%s|' % data)
+        pass
+        # logging.info('Into on_ping the data is |%s|' % data)
 
 
     def on_pong(self, data):
         """ 心跳包响应, data是`.ping`发出的数据
         """
-        logging.info('Into on_pong the data is |%s|' % data)
+        pass
+        # logging.info('Into on_pong the data is |%s|' % data)
 
 
     def on_close(self, transfer=True):

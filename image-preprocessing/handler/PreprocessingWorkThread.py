@@ -3,9 +3,9 @@
 @Project:
 @Team:
 @Author: jerome.du
-@LastEditors: jerome.du
+@LastEditors  : jerome.du
 @Date: 2019-12-02 11:10:52
-@LastEditTime: 2019-12-05 22:05:13
+@LastEditTime : 2019-12-22 19:05:42
 @Description:要做的事情：
 1)检查和生成存储目录
 2)生成缩略图
@@ -59,7 +59,8 @@ class PreprocessingWorkThread(threading.Thread):
                 break
 
         if not os.path.exists(image_real_path):
-            self.__result_queue.put({"message":"图片不存在，无法执行"})
+            logging.warn("image not fond, image id: %s, path: %s." % (self.__image['id'], self.__image['path']))
+            self.__result_queue.put({'state':False, "message":"图片不存在，无法执行", 'imageId':self.__image['id'], 'path':self.__image['path']})
             self.__delete_self_name_by_thread_list(lock)
             return
 
@@ -74,7 +75,7 @@ class PreprocessingWorkThread(threading.Thread):
         work_process.start()
         work_process.join()
 
-        self.__result_queue.put({"message":"子进程干完了"})
+        self.__result_queue.put({"message":"子进程干完了", 'imageId':self.__image['id'], 'path':self.__image['path']})
 
         self.__delete_self_name_by_thread_list(lock)
 
