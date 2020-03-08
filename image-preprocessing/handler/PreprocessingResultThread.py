@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-02 11:10:52
-@LastEditTime: 2019-12-09 17:47:37
+@LastEditTime: 2020-03-06 18:52:13
 @Description:要做的事情：
 等待图片处理work线程的运行，知道队列中有了返回值，就组织返回值发送给前端
 '''
@@ -102,7 +102,9 @@ class PreprocessingResultThread(threading.Thread):
 
                 if self.__running.isSet() and self.__ws.ws_connection and result:
                     # 在运行，有ws连接，有需要发送的返回值
-                    self.loop.run_until_complete(self.__ws.write_message(json.dumps(result)))
+                    reply_message = json.dumps(result)
+                    logging.debug("--- reply client:%s"%reply_message)
+                    self.loop.run_until_complete(self.__ws.write_message(reply_message))
                 else:
                     pending_message_list = []
                     if result:
@@ -116,7 +118,8 @@ class PreprocessingResultThread(threading.Thread):
                         pickle.dump(pending_message_list, save_file)
 
                     self.__over_queue.put({"state":True})
-
+        except Exception as e2:
+            logging.error("%s:preprocessing result thread error:%s" % (self.name, str(e2)))
         finally:
             if self.loop:
                 self.loop.close()

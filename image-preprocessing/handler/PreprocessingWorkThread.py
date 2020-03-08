@@ -3,9 +3,9 @@
 @Project:
 @Team:
 @Author: jerome.du
-@LastEditors  : jerome.du
+@LastEditors: jerome.du
 @Date: 2019-12-02 11:10:52
-@LastEditTime : 2019-12-22 19:05:42
+@LastEditTime: 2020-03-06 18:30:34
 @Description:要做的事情：
 1)检查和生成存储目录
 2)生成缩略图
@@ -65,7 +65,7 @@ class PreprocessingWorkThread(threading.Thread):
             return
 
         work_process = PreprocessingWorkProcess(
-            name="preprocessing-work-thread-" + self.__image['id'],
+            name="preprocessing-work-process-" + self.__image['id'],
             image_id=self.__image['id'],
             image_path=image_real_path,
             save_root_path=self.__config.tiles_save_root_path,
