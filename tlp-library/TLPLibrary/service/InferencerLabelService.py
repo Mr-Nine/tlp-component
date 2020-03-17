@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-12 20:45:34
-@LastEditTime: 2020-03-17 17:43:37
+@LastEditTime: 2020-03-17 19:50:59
 @Description:
 '''
 
@@ -68,6 +68,8 @@ class InferencerLabelService(BusinessService):
                 # 是否有这个推理器的version的区域信息，meta标签信息，区域标签信息
                 last_version = self._getRegionAndLabelInferencerLastVersionFromImage(image.id, table_index)
 
+                print("last version:%d"%last_version)
+
                 # 已经存在了推理的结果在DB中
                 if last_version > 0:
                     # 图片已经被这个推理器推理过结果，跳过
@@ -103,6 +105,8 @@ class InferencerLabelService(BusinessService):
                 print(merged_meta_label_template_list)
                 print("B")
                 for meta_label_template in merged_meta_label_template_list:
+                    print("megred item:")
+                    print(meta_label_template)
                     template_label_attribute = json.dumps(meta_label_template["attribute"])
                     if "id" in meta_label_template and meta_label_template["id"]:
                         # 处理要更新的元数据标签模板数据
@@ -130,6 +134,8 @@ class InferencerLabelService(BusinessService):
 
                 # 提取需要创建或更新的区域标签模板信息
                 for region_label_template in merged_region_label_template_list:
+                    print("megred item:")
+                    print(region_label_template)
                     template_label_attribute = json.dumps(region_label_template["attribute"])
                     if "id" in region_label_template and region_label_template["id"]:
                         # 处理要更新的区域数据标签模板数据
@@ -148,7 +154,7 @@ class InferencerLabelService(BusinessService):
                 for region in image.regions:
                     region_id = str(uuid.uuid4())
                     # 提取需要写入的区域信息
-                    region_values.append((region_id, image.id, index, region.shape, region.getShapeDataJson(), run_parameter.user_id, now, now))
+                    region_values.append((region_id, image.id, index, region.shape, region.getShapeDataJson(), run_parameter.user_id, now, now, 1))
                     index += 1
 
                     for region_label in region.labels:
@@ -251,10 +257,19 @@ class InferencerLabelService(BusinessService):
 
                     select_label_contact_result_sql = "select labelId, COUNT(1) count_num from " + region_label_table_name + " where labelId in (" + wait_delete_label_template_ids_str + ") group by labelId UNION select labelId, COUNT(1) count_num from " + meta_label_table_name + " where labelId in (" + wait_delete_label_template_ids_str + ") group by labelId;"
                     select_label_contact_result = self._mysql.selectAll(sql=select_label_contact_result_sql)
+                    print("?")
+                    print(select_label_contact_result)
+                    print("?")
                     if select_label_contact_result[0]:
                         for result in select_label_contact_result[1]:
                             if result["count_num"] > 0:
+                                print(result['labelId'])
+                                print(result['labelId'] in wait_delete_label_template_ids)
                                 wait_delete_label_template_ids.remove(result['labelId'])
+
+                    print("!")
+                    print(wait_delete_label_template_ids)
+                    print("!")
 
                     # 没有关联的单独的模板信息
                     if len(wait_delete_label_template_ids) > 0:

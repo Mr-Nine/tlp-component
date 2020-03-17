@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2020-03-16 15:00:25
+@LastEditTime: 2020-03-17 19:56:47
 @Description:
 '''
 
@@ -215,12 +215,12 @@ class AnnotationRegionLabelHandler(AbstractHandler):
                         if 'id' in label:
                             # 已经存在的图形也可能有2种情况，就是update-label和insert-label
                             region_label_id = label['id']
-                            label_obj = AnnotationProjectImageRegionLabel(id=region_label_id, imageId=imageId, regionId=region_id, labelId=labelId, type="", version="0", attribute=attribute, userId=userId, createTime=now, updateTime=now)
+                            label_obj = AnnotationProjectImageRegionLabel(id=region_label_id, imageId=imageId, regionId=region_id, labelId=labelId, type="MANUAL", version="0", attribute=attribute, userId=userId, createTime=now, updateTime=now)
                             update_region_label_list.append(label_obj)
                         else:
                             region_label_id = str(uuid.uuid4())
 
-                            label_obj = AnnotationProjectImageRegionLabel(id=region_label_id, imageId=imageId, regionId=region_id, labelId=labelId, type="", version="0", attribute=attribute, userId=userId, createTime=now, updateTime=now)
+                            label_obj = AnnotationProjectImageRegionLabel(id=region_label_id, imageId=imageId, regionId=region_id, labelId=labelId, type="MANUAL", version="0", attribute=attribute, userId=userId, createTime=now, updateTime=now)
                             insert_region_label_list.append(label_obj)
             else:
                 # insert 如果矩形没有ID，那就说明他是新得，那它的label也都按新得处理
