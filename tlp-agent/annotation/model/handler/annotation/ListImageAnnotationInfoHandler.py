@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2020-03-16 15:01:12
+@LastEditTime: 2020-03-17 15:38:54
 @Description:
 '''
 
@@ -88,7 +88,7 @@ class ListImageAnnotationInfoHandler(AbstractHandler):
                 meta_label_list = self.__select_meta_label(mysql, meta_label_table_name, image.id)
                 region_label_list = self.__select_region_and_region_label(mysql, image_region_table_name, image_region_label_table_name, image.id)
 
-                return self.replyMessage(message, state=False, msg="region id not found.", metaLabels= meta_label_list, regionLabels=region_label_list, action=action)
+                return self.replyMessage(message, state=True, msg="select all label success.", metaLabels= meta_label_list, regionLabels=region_label_list, action=action)
             else:
                 return self.replyMessage(message, state=False, msg="不明确得动作定义，请指定查询内容")
 
