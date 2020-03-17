@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-12 20:45:34
-@LastEditTime: 2020-03-17 16:09:41
+@LastEditTime: 2020-03-17 17:43:37
 @Description:
 '''
 
@@ -182,7 +182,7 @@ class InferencerLabelService(BusinessService):
                     print(update_region_label_template_values)
                     if update_region_label_template_values:
                         for u_r_l_t_v in update_region_label_template_values:
-                            update_result += self._mysql.update(sql=update_label_template_sql, parameter=(u_m_l_t_v, ), auto_commit=False)
+                            update_result += self._mysql.update(sql=update_label_template_sql, parameter=u_r_l_t_v, auto_commit=False)
 
                     # update_result = self._mysql.update(sql=update_label_template_sql, parameter=update_meta_label_template_values + update_region_label_template_values, auto_commit=False)
                     print("update " + str(update_result) + " entries.")
@@ -197,9 +197,9 @@ class InferencerLabelService(BusinessService):
 
                 # 写入新增的region信息并关联图片
                 if region_values:
-                    print("insert new imagee region info.")
+                    print("insert new image region info.")
                     print(region_values)
-                    insert_region_sql = """insert into """ + region_table_name + """ (`id`, `imageId`, `index`, `shape`, `shapeData`, `userId`, `createTime`, `updateTime`) values (%s, %s, %s, %s, %s, %s, %s, %s)"""
+                    insert_region_sql = """insert into """ + region_table_name + """ (`id`, `imageId`, `index`, `shape`, `shapeData`, `userId`, `createTime`, `updateTime`, `version`) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
                     insert_result = self._mysql.close_transaction_insert_many(insert_region_sql, region_values)
                     print("insert " + str(insert_result) + " entries.")
 
@@ -223,8 +223,8 @@ class InferencerLabelService(BusinessService):
 
                     # 删除meta标签信息,记录模板ids
                     # select labelId from AnnotationProjectImageMateLabel1 where imageId = ? and last_version = ? and type = 'AUTO'
-                    meta_label_template_ids_result = self._mysql.selectAll("select labelId from " + meta_label_table_name + " where imageId = %s and last_version = %s and type = 'AUTO' group by labelId", (image.id, last_version, ))
-                    delete_meta_label_result = self._mysql.delete(sql="delete from " + meta_label_table_name + " where imageId = %s and last_version = %s and type = 'AUTO'", parameter=(image.id, last_version, ), auto_commit=False)
+                    meta_label_template_ids_result = self._mysql.selectAll("select labelId from " + meta_label_table_name + " where imageId = %s and version = %s and type = 'AUTO' group by labelId", (image.id, last_version, ))
+                    delete_meta_label_result = self._mysql.delete(sql="delete from " + meta_label_table_name + " where imageId = %s and version = %s and type = 'AUTO'", parameter=(image.id, last_version, ), auto_commit=False)
 
                     # 删除区域标签信息,记录模板的ids
                     region_label_template_ids_result = self._mysql.selectAll("select labelId from " + region_label_table_name + " where imageId = %s and version = %s and type = 'AUTO' group by labelId", (image.id, last_version, ))
@@ -244,7 +244,8 @@ class InferencerLabelService(BusinessService):
 
                     wait_delete_label_template_ids_str = ""
                     for template_id in wait_delete_label_template_ids:
-                        wait_delete_label_template_ids_str += "'" + template_id + "',"
+                        print(template_id)
+                        wait_delete_label_template_ids_str += "'" + str(template_id, encoding="utf-8") + "',"
 
                     wait_delete_label_template_ids_str = wait_delete_label_template_ids_str[:-1]
 
@@ -259,9 +260,11 @@ class InferencerLabelService(BusinessService):
                     if len(wait_delete_label_template_ids) > 0:
                         delete_label_template_ids_str = ""
                         for template_id in wait_delete_label_template_ids:
-                            delete_label_template_ids_str += "'" + template_id + "',"
+                            delete_label_template_ids_str += "'" + str(template_id, encoding="utf-8") + "',"
 
                         delete_label_template_ids_str = delete_label_template_ids_str[:-1]
+
+                        print("deleted label template ids : %s" % delete_label_template_ids_str)
 
                         self._mysql.delete(sql="delete from " + self._config.project_label_template_table_name + " where id in (" + delete_label_template_ids_str +")")
 

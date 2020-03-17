@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-12 20:44:56
-@LastEditTime: 2020-03-17 16:49:13
+@LastEditTime: 2020-03-17 17:43:14
 @Description:
 '''
 
@@ -170,9 +170,9 @@ class ImportLabelService(BusinessService):
 
                 # 写入新增的region信息并关联图片
                 if region_values:
-                    print("insert new imagee region info.")
+                    print("insert new image region info.")
                     print(region_values)
-                    insert_region_sql = """insert into """ + self._config.project_image_region_table_name + table_index + """ (`id`, `imageId`, `index`, `shape`, `shapeData`, `userId`, `createTime`, `updateTime`, `version`) values (%s, %s, %s, %s, %s, %s, %s, %s)"""
+                    insert_region_sql = """insert into """ + self._config.project_image_region_table_name + table_index + """ (`id`, `imageId`, `index`, `shape`, `shapeData`, `userId`, `createTime`, `updateTime`, `version`) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
                     insert_result = self._mysql.close_transaction_insert_many(insert_region_sql, region_values)
                     print("insert " + str(insert_result) + " entries.")
 
