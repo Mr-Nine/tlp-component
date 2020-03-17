@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-12 20:45:34
-@LastEditTime: 2020-03-17 19:50:59
+@LastEditTime: 2020-03-17 20:13:55
 @Description:
 '''
 
@@ -126,7 +126,7 @@ class InferencerLabelService(BusinessService):
                         raise NotFoundException("运行异常，没有找到标签所属的模板信息")
                     meta_label_id = str(uuid.uuid4())
                     meta_label_attribute = meta_label.generateAttributeJson()
-                    meta_label_values.append((meta_label_id, image.id, label_template_id, TaggingType.AUTO, '1', meta_label_attribute, run_parameter.user_id, now, now))
+                    meta_label_values.append((meta_label_id, image.id, label_template_id, TaggingType.AUTO, inferencer_version, meta_label_attribute, run_parameter.user_id, now, now))
 
                 # 提取这张图片的区域标签模板信息
                 for region in image.regions:
@@ -154,7 +154,7 @@ class InferencerLabelService(BusinessService):
                 for region in image.regions:
                     region_id = str(uuid.uuid4())
                     # 提取需要写入的区域信息
-                    region_values.append((region_id, image.id, index, region.shape, region.getShapeDataJson(), run_parameter.user_id, now, now, 1))
+                    region_values.append((region_id, image.id, index, region.shape, region.getShapeDataJson(), run_parameter.user_id, now, now, inferencer_version))
                     index += 1
 
                     for region_label in region.labels:
@@ -164,7 +164,7 @@ class InferencerLabelService(BusinessService):
                         if label_template_id is None:
                             raise NotFoundException("运行异常，没有找到标签所属的模板信息")
                         region_label_id = str(uuid.uuid4())
-                        region_label_values.append((region_label_id, image.id, region_id, label_template_id, TaggingType.AUTO, '1.0', region_label_attribute, run_parameter.user_id, now, now))
+                        region_label_values.append((region_label_id, image.id, region_id, label_template_id, TaggingType.AUTO, inferencer_version, region_label_attribute, run_parameter.user_id, now, now))
 
                 # 写入新增的标签模板
                 if insert_meta_label_template_values or insert_region_label_template_values:
@@ -257,19 +257,11 @@ class InferencerLabelService(BusinessService):
 
                     select_label_contact_result_sql = "select labelId, COUNT(1) count_num from " + region_label_table_name + " where labelId in (" + wait_delete_label_template_ids_str + ") group by labelId UNION select labelId, COUNT(1) count_num from " + meta_label_table_name + " where labelId in (" + wait_delete_label_template_ids_str + ") group by labelId;"
                     select_label_contact_result = self._mysql.selectAll(sql=select_label_contact_result_sql)
-                    print("?")
-                    print(select_label_contact_result)
-                    print("?")
+
                     if select_label_contact_result[0]:
                         for result in select_label_contact_result[1]:
                             if result["count_num"] > 0:
-                                print(result['labelId'])
-                                print(result['labelId'] in wait_delete_label_template_ids)
                                 wait_delete_label_template_ids.remove(result['labelId'])
-
-                    print("!")
-                    print(wait_delete_label_template_ids)
-                    print("!")
 
                     # 没有关联的单独的模板信息
                     if len(wait_delete_label_template_ids) > 0:
