@@ -5,17 +5,17 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-11 19:03:30
-@LastEditTime: 2019-12-18 18:31:43
+@LastEditTime: 2020-03-17 16:37:22
 @Description:
 '''
 
 class ValueType():
 
-    INT = "INT"
-    FLOAT = "FLOAT"
-    DOUBLE = "DOUBLE"
-    NUMBER = "NUMBER"
-    TEXT = "TEXT"
+    INT = "int"
+    FLOAT = "float"
+    DOUBLE = "double"
+    NUMBER = "number"
+    TEXT = "text"
 
     @staticmethod
     def check_type(type):

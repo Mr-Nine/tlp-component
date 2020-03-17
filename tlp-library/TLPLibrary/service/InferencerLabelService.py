@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-12 20:45:34
-@LastEditTime: 2020-03-16 20:44:17
+@LastEditTime: 2020-03-17 16:09:41
 @Description:
 '''
 
@@ -113,7 +113,7 @@ class InferencerLabelService(BusinessService):
                         if not background_color:
                             background_color = self._generateRandomColors()
                         meta_label_template['id'] = str(uuid.uuid4())
-                        insert_meta_label_template_values.append((meta_label_template['id'], run_parameter.project_id, meta_label_template['name'], LabelType.META, TaggingType.IMPORT, 1, background_color, 0, 0, 0, 0, template_label_attribute, run_parameter.user_id, now, now))
+                        insert_meta_label_template_values.append((meta_label_template['id'], run_parameter.project_id, meta_label_template['name'], LabelType.META, TaggingType.AUTO, 1, background_color, 0, 0, 0, 0, template_label_attribute, run_parameter.user_id, now, now))
 
                 # 提取并组织图片要写入的元数据标签
                 for meta_label in image.meta_labels:
@@ -140,7 +140,7 @@ class InferencerLabelService(BusinessService):
                         if not background_color:
                             background_color = self._generateRandomColors()
                         region_label_template['id'] = str(uuid.uuid4())
-                        insert_region_label_template_values.append((region_label_template['id'], run_parameter.project_id, region_label_template['name'], LabelType.REGION, TaggingType.IMPORT, 1, background_color, 0, 0, 0, 0, template_label_attribute, run_parameter.user_id, now, now))
+                        insert_region_label_template_values.append((region_label_template['id'], run_parameter.project_id, region_label_template['name'], LabelType.REGION, TaggingType.AUTO, 1, background_color, 0, 0, 0, 0, template_label_attribute, run_parameter.user_id, now, now))
 
 
                 # 处理Region、RegionLabel和他的模板信息
@@ -279,4 +279,4 @@ class InferencerLabelService(BusinessService):
         if not isinstance(image, Image):
             raise ClassCastException("请指定要写入标签的图片对象")
 
-        self.importManyImageLabel(run_parameter=run_parameter, images=(image))
+        self.inferencerManyImageLabel(run_parameter=run_parameter, images=(image,))

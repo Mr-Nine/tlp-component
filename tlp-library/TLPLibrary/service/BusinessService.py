@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-13 11:48:14
-@LastEditTime: 2020-03-17 15:08:18
+@LastEditTime: 2020-03-17 16:32:31
 @Description:
 '''
 import os
@@ -190,7 +190,7 @@ class BusinessService(object):
         @param {type}
         @return:
         '''
-        inferencer_result = self._mytsql.selectOne("""select * from """ + self._config.project_reasoning_machine_table_name + """ where id = %s""", (inferencer_id, ))
+        inferencer_result = self._mysql.selectOne("""select * from """ + self._config.project_reasoning_machine_table_name + """ where id = %s""", (inferencer_id, ))
         if inferencer_result[0]:
             return Utils.transform_database_result_2_dict(inferencer_result[1])
 
@@ -213,8 +213,6 @@ class BusinessService(object):
             max_version = int(last_version_result[1]["region_last_version"])
             if max_version < int(last_version_result[1]["meta_label_last_version"]):
                 max_version = int(last_version_result[1]["meta_label_last_version"])
-            if max_version < int(last_version_result[1]["region_label_last_version"]):
-                max_version = int(last_version_result[1]["region_label_last_version"])
 
             return max_version
 

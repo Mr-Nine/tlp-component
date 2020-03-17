@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-12 20:44:56
-@LastEditTime: 2020-03-16 18:09:12
+@LastEditTime: 2020-03-17 16:49:13
 @Description:
 '''
 
@@ -155,7 +155,7 @@ class ImportLabelService(BusinessService):
                     print(update_region_label_template_values)
                     if update_region_label_template_values:
                         for u_r_l_t_v in update_region_label_template_values:
-                            update_result += self._mysql.update(sql=update_label_template_sql, parameter=(u_m_l_t_v, ), auto_commit=False)
+                            update_result += self._mysql.update(sql=update_label_template_sql, parameter=u_r_l_t_v, auto_commit=False)
 
                     # update_result = self._mysql.update(sql=update_label_template_sql, parameter=update_meta_label_template_values + update_region_label_template_values, auto_commit=False)
                     print("update " + str(update_result) + " entries.")
