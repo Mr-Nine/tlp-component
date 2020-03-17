@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2019-12-02 14:27:34
+@LastEditTime: 2020-03-16 15:02:45
 @Description:
 '''
 
@@ -17,7 +17,7 @@ import datetime
 from annotation.model.handler import AbstractHandler
 from core import Config, MysqlManager, TLPContext, MessageMid
 
-from tlp.entity import AnnotationlProjectImage
+from tlp.entity import AnnotationProjectImage
 
 class UnlocakImageHandler(AbstractHandler):
 
@@ -48,14 +48,14 @@ class UnlocakImageHandler(AbstractHandler):
         mysql = MysqlManager()
 
         try:
-            image_table_name = '`AnnotationlProjectImage' + str(project.index) + '`'
+            image_table_name = '`AnnotationProjectImage' + str(project.index) + '`'
 
             target_image_result = mysql.selectOne("""select * from """ + image_table_name + """ where id = %s""", (data['imageId'], ))
             if target_image_result[0] == 0:
                 # 目标图片不存在
                 return self.replyMessage(message, state=False, msg="指定的图片不存在，请确认。", data=None)
 
-            image = AnnotationlProjectImage.create_by_database_result(target_image_result[1])
+            image = AnnotationProjectImage.create_by_database_result(target_image_result[1])
 
             if image.annotationUserId != self.user.userId and image.reviewUserId != self.user.userId and image.completedUserId != self.user.userId:
                 # 当前用户没有锁定图片

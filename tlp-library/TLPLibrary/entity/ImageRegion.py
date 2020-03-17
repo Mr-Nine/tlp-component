@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-12 15:28:16
-@LastEditTime: 2019-12-14 00:20:14
+@LastEditTime: 2020-03-12 11:02:24
 @Description:
 '''
 import json
@@ -16,17 +16,17 @@ from TLPLibrary.error import ClassCastException
 
 class ImageRegion(GenericEntity):
 
-    def __init__(self, points, boundingBox):
+    def __init__(self, points, bounding_box):
 
         super(ImageRegion, self).__init__()
 
         if not isinstance(points, list):
             raise ClassCastException()
-        if not isinstance(boundingBox, list) or len(boundingBox) != 4:
+        if not isinstance(bounding_box, list) or len(bounding_box) != 4:
             raise ClassCastException()
 
-        self.shapeData = points
-        self.boundingBox = boundingBox
+        self.shape_data = points
+        self.bounding_box = bounding_box
         self.labels = []
 
 
@@ -41,21 +41,21 @@ class ImageRegion(GenericEntity):
         self.labels.append(label)
 
     def getShapeDataJson(self):
-        if self.shapeData:
-            return json.dumps(self.shapeData)
+        if self.shape_data:
+            return json.dumps(self.shape_data)
 
         return "[]"
 
 
 class ImagePolygonRegion(ImageRegion):
 
-    def __init__(self, points, boundingBox):
-        super(ImagePolygonRegion, self).__init__(points, boundingBox)
+    def __init__(self, points, bounding_box):
+        super(ImagePolygonRegion, self).__init__(points, bounding_box)
         self.shape = RegionType.POLYGON
 
 
 class ImageRectangleRegion(ImageRegion):
 
-    def __init__(self, points, boundingBox):
-        super(ImageRectangleRegion, self).__init__(points, boundingBox)
+    def __init__(self, points, bounding_box):
+        super(ImageRectangleRegion, self).__init__(points, bounding_box)
         self.shape = RegionType.RECTANGLE

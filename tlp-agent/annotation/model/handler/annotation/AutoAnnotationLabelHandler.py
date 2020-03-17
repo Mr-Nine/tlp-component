@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2019-12-17 18:13:04
+@LastEditTime: 2020-03-16 15:00:51
 @Description:
 '''
 
@@ -21,7 +21,7 @@ from core import Config, MysqlManager, TLPContext, MessageMid
 from core.utils import mysql_dict_2_dict
 from annotation.model.handler.annotation import AutoAnnotationLabelThread
 
-from tlp.entity import AnnotationlProjectImage
+from tlp.entity import AnnotationProjectImage
 
 class AutoAnnotationLabelHandler(AbstractHandler):
 
@@ -52,20 +52,20 @@ class AutoAnnotationLabelHandler(AbstractHandler):
         mysql = MysqlManager()
 
         try:
-            image_table_name = '`AnnotationlProjectImage' + str(project.index) + '`'
+            image_table_name = '`AnnotationProjectImage' + str(project.index) + '`'
 
             target_image_result = mysql.selectOne("""select * from """ + image_table_name + """ where id = %s""", (data['imageId'], ))
             if target_image_result[0] == 0:
                 # 目标图片不存在
                 return self.replyMessage(message, state=False, msg="指定的图片没有找到")
 
-            image = AnnotationlProjectImage.create_by_database_result(target_image_result[1])
+            image = AnnotationProjectImage.create_by_database_result(target_image_result[1])
 
             if image.annotationUserId != self.user.userId:
                 # 当前用户没有锁定图片
                 return self.replyMessage(message, state=False, msg="请先标记此图片为要标注图片")
 
-            inferencer_result = mysql.selectOne("""select * from AnnotationlProjectInferencer where id = %s""", (data['inferencerId'],))
+            inferencer_result = mysql.selectOne("""select * from AnnotationProjectInferencer where id = %s""", (data['inferencerId'],))
             if not inferencer_result[0]:
                 return self.replyMessage(message, state=False, msg="指定的标注器没有找到")
 
@@ -83,5 +83,5 @@ class AutoAnnotationLabelHandler(AbstractHandler):
 
 
     def destroy(self):
-        logging.info("AnnotationMateLabelHandler destroy.")
+        logging.info("AutoAnnotationLabelHandler destroy.")
         return True

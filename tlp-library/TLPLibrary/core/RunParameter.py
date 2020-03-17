@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-11 20:54:31
-@LastEditTime: 2019-12-13 17:48:39
+@LastEditTime: 2020-03-12 11:07:31
 @Description:
 '''
 
@@ -24,13 +24,13 @@ class RunParameter(object):
 
         args = parse.parse_args()
 
-        runParameter = RunParameter()
+        run_parameter = RunParameter()
 
-        runParameter.projectId = args.projectId
-        runParameter.path = args.path
-        runParameter.type = args.type
-        runParameter.userId = args.userId
-        runParameter.inferencerId = args.inferencerId
+        run_parameter.project_id = args.projectId
+        run_parameter.path = args.path
+        run_parameter.type = args.type
+        run_parameter.user_id = args.userId
+        run_parameter.inferencer_id = args.inferencerId
 
-        return runParameter
+        return run_parameter
 

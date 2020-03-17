@@ -5,13 +5,13 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-20 13:54:20
-@LastEditTime: 2019-11-26 10:25:31
+@LastEditTime: 2020-03-16 15:03:23
 @Description:
 '''
 
 from tlp.entity import GenericEntity
 
-class AnnotationlProject(GenericEntity):
+class AnnotationProject(GenericEntity):
 
     @classmethod
     def convert_database_result_2_dict(cls, data_result):

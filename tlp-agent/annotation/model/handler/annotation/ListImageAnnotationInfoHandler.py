@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2019-12-12 10:52:11
+@LastEditTime: 2020-03-16 15:01:12
 @Description:
 '''
 
@@ -18,7 +18,7 @@ import uuid
 from annotation.model.handler import AbstractHandler
 from core import Config, MysqlManager, TLPContext, MessageMid
 
-from tlp.entity import AnnotationlProjectImage, AnnotationProjectImageMateLabel, AnnotationProjectImageRegion, AnnotationProjectImageRegionLabel
+from tlp.entity import AnnotationProjectImage, AnnotationProjectImageMetaLabel, AnnotationProjectImageRegion, AnnotationProjectImageRegionLabel
 from tlp.error import RunTimeException
 
 class ListImageAnnotationInfoHandler(AbstractHandler):
@@ -51,14 +51,14 @@ class ListImageAnnotationInfoHandler(AbstractHandler):
         mysql = MysqlManager()
 
         try:
-            image_table_name = '`AnnotationlProjectImage' + project_index_str + '`'
+            image_table_name = '`AnnotationProjectImage' + project_index_str + '`'
 
             target_image_result = mysql.selectOne("""select * from """ + image_table_name + """ where id = %s""", (data['imageId'], ))
             if target_image_result[0] == 0:
                 # 目标图片不存在
                 return self.replyMessage(message, state=False, msg="要操作的图片没有找到")
 
-            image = AnnotationlProjectImage.create_by_database_result(target_image_result[1])
+            image = AnnotationProjectImage.create_by_database_result(target_image_result[1])
 
             # if image.annotationUserId != self.user.userId:
             #     # 当前用户没有锁定图片
@@ -66,13 +66,13 @@ class ListImageAnnotationInfoHandler(AbstractHandler):
 
             action = data['action']
 
-            mate_label_table_name = '`AnnotationProjectImageMateLabel' + project_index_str + '`'
+            meta_label_table_name = '`AnnotationProjectImageMetaLabel' + project_index_str + '`'
             image_region_table_name = '`AnnotationProjectImageRegion' + project_index_str + '`'
             image_region_label_table_name = '`AnnotationProjectImageRegionLabel' + project_index_str + '`'
 
-            if action == 'image-mate-label':
-                # 查询图片得mate信息
-                return self.replyMessage(message, state=True, msg="select mate lable success.", mateLabels=self.__select_meta_label(mysql, mate_label_table_name, image.id), action=action)
+            if action == 'image-meta-label':
+                # 查询图片得meta信息
+                return self.replyMessage(message, state=True, msg="select meta lable success.", metaLabels=self.__select_meta_label(mysql, meta_label_table_name, image.id), action=action)
             elif action == 'image-region-label':
                 # 查询图片得区域和区域得label信息
                 return self.replyMessage(message, state=True, msg="select region lable success.", regions=self.__select_region_and_region_label(mysql, image_region_table_name, image_region_label_table_name, image.id), action=action)
@@ -85,10 +85,10 @@ class ListImageAnnotationInfoHandler(AbstractHandler):
                 return self.replyMessage(message, state=True, msg="select region label success.", regionLabels=self.__select_one_region_label(mysql, image_region_label_table_name, regionId), action=action)
             elif action == 'all':
                 # 查询所有信息
-                mate_label_list = self.__select_meta_label(mysql, mate_label_table_name, image.id)
+                meta_label_list = self.__select_meta_label(mysql, meta_label_table_name, image.id)
                 region_label_list = self.__select_region_and_region_label(mysql, image_region_table_name, image_region_label_table_name, image.id)
 
-                return self.replyMessage(message, state=False, msg="region id not found.", mateLabels= mate_label_list, regionLabels=region_label_list, action=action)
+                return self.replyMessage(message, state=False, msg="region id not found.", metaLabels= meta_label_list, regionLabels=region_label_list, action=action)
             else:
                 return self.replyMessage(message, state=False, msg="不明确得动作定义，请指定查询内容")
 
@@ -104,21 +104,21 @@ class ListImageAnnotationInfoHandler(AbstractHandler):
         return True
 
 
-    def __select_meta_label(self, mysql, mate_label_table_name, imageId):
+    def __select_meta_label(self, mysql, meta_label_table_name, imageId):
         '''
         @description:
         @param {type}
         @return:
         '''
-        select_sql = """select * from """ + mate_label_table_name + """ where imageId = %s"""
+        select_sql = """select * from """ + meta_label_table_name + """ where imageId = %s"""
         select_result = mysql.selectAll(select_sql, (imageId, ))
-        mate_lable_list = []
+        meta_lable_list = []
 
         if select_result[0]:
-            for mate in select_result[1]:
-                mate_lable_list.append(AnnotationProjectImageMateLabel.convert_database_result_2_dict(mate))
+            for meta in select_result[1]:
+                meta_lable_list.append(AnnotationProjectImageMetaLabel.convert_database_result_2_dict(meta))
 
-        return mate_lable_list
+        return meta_lable_list
 
 
     def __select_region_and_region_label(self, mysql, image_region_table_name, image_region_label_table_name, imageId):

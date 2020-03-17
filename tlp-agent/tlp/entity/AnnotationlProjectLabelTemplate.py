@@ -12,7 +12,7 @@
 
 from tlp.entity import GenericEntity
 
-class AnnotationlProjectLabelTemplate(GenericEntity):
+class AnnotationProjectLabelTemplate(GenericEntity):
 
     @classmethod
     def convert_database_result_2_dict(cls, data_dict):

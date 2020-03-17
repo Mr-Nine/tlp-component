@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-13 17:16:51
-@LastEditTime: 2019-12-17 14:59:50
+@LastEditTime: 2020-03-16 15:04:10
 @Description:
 '''
 
@@ -41,12 +41,13 @@ class Config(object):
         self.database_maxshared = tlp_config['tlp-library'].getint('database_maxshared', 20)
         self.database_maxconnections = tlp_config['tlp-library'].getint('database_maxconnections', 20)
 
-        self.image_depository_table_name=tlp_config['tlp-table'].get('image_depository_table_name', 'AnnotationlImageDepository')
-        self.project_table_name=tlp_config['tlp-table'].get('project_table_name', 'AnnotationlProject')
-        self.project_source_table_name=tlp_config['tlp-table'].get('project_source_table_name', 'AnnotationlProjectSource')
-        self.project_reasoning_machine_table_name=tlp_config['tlp-table'].get('project_reasoning_machine_table_name', 'AnnotationlProjectInferencer')
-        self.project_label_template_table_name=tlp_config['tlp-table'].get('project_label_template_table_name', 'AnnotationlProjectLabelTemplate')
-        self.project_image_table_name=tlp_config['tlp-table'].get('project_image_table_name', 'AnnotationlProjectImage')
-        self.project_mate_label_table_name=tlp_config['tlp-table'].get('project_mate_label_table_name', 'AnnotationProjectImageMateLabel')
+        self.image_depository_table_name=tlp_config['tlp-table'].get('image_depository_table_name', 'AnnotationImageDepository')
+        self.project_table_name=tlp_config['tlp-table'].get('project_table_name', 'AnnotationProject')
+        self.project_source_table_name=tlp_config['tlp-table'].get('project_source_table_name', 'AnnotationProjectSource')
+        self.project_reasoning_machine_table_name=tlp_config['tlp-table'].get('project_reasoning_machine_table_name', 'AnnotationProjectInferencer')
+        self.project_label_template_table_name=tlp_config['tlp-table'].get('project_label_template_table_name', 'AnnotationProjectLabelTemplate')
+        self.project_image_table_name=tlp_config['tlp-table'].get('project_image_table_name', 'AnnotationProjectImage')
+        self.project_meta_label_table_name=tlp_config['tlp-table'].get('project_meta_label_table_name', 'AnnotationProjectImageMetaLabel')
         self.project_image_region_table_name=tlp_config['tlp-table'].get('project_image_region_table_name', 'AnnotationProjectImageRegion')
         self.project_image_region_label_table_name=tlp_config['tlp-table'].get('project_image_region_label_table_name', 'AnnotationProjectImageRegionLabel')
+        # self.project_inferencer_table_name=tlp_config['tlp-table'].get('project_annotation_inferencer_table_name', 'AnnotationProjectInferencer')

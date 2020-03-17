@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-14 18:37:16
-@LastEditTime: 2019-12-17 15:07:01
+@LastEditTime: 2020-03-16 14:56:37
 @Description:
 '''
 import sys
@@ -24,7 +24,7 @@ def main():
 
     projectId = '80882967-e342-4417-b002-8aeaf41cd6ea'
     labelGroupId = None
-    type = 'MATE'
+    type = 'META'
     source = 'MANUAL'
     heat = 0
     inferencerId = None
@@ -36,7 +36,7 @@ def main():
     createTime = datetime.datetime.today()
     updateTime = datetime.datetime.today()
 
-    sql = '''INSERT INTO `AnnotationlProjectLabelTemplate` (
+    sql = '''INSERT INTO `AnnotationProjectLabelTemplate` (
         `id`, `projectId`, `name`, `labelGroupId`, `type`, `source`, `heat`, `inferencerId`, `icon`, `backgroundColor`, `shortcutKey`, `enabled`, `required`, `defaulted`, `reviewed`, `attribute`, `creatorId`, `createTime`, `updateTime`
         ) VALUES (
             %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
@@ -46,13 +46,13 @@ def main():
 
     # result = manager.selectAll("select * from User")
 
-    # 插入MATE标签
+    # 插入META标签
 
 
     values = []
     for i in range(20):
         id = str(uuid.uuid4())
-        name = ('mate-label-' + str(i))
+        name = ('meta-label-' + str(i))
         backgroundColor = '#' + ("".join([random.choice("0123456789ABCDEF") for i in range(6)]))
         required = random.randint(0, 1)
         defaulted = random.randint(0, 1)

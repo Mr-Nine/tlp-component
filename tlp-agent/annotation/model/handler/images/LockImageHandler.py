@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2019-12-19 19:41:41
+@LastEditTime: 2020-03-16 15:02:56
 @Description:
 '''
 
@@ -46,7 +46,7 @@ class LockImageHandler(AbstractHandler):
         mysql = MysqlManager()
 
         try:
-            image_table_name = '`AnnotationlProjectImage' + str(project.index) + '`'
+            image_table_name = '`AnnotationProjectImage' + str(project.index) + '`'
 
             target_image_result = mysql.selectOne("""select * from """ + image_table_name + """ where id = %s""", (data['imageId'], ))
             if target_image_result[0] == 0:

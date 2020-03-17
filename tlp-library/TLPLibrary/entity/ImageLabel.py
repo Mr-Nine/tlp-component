@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-12 13:52:40
-@LastEditTime: 2019-12-19 11:58:08
+@LastEditTime: 2020-03-16 14:51:46
 @Description:
 '''
 
@@ -16,18 +16,18 @@ from TLPLibrary.entity import ValueType, LabelType
 
 class Label(GenericEntity):
 
-    def __init__(self, name, backgroundColor=None):
+    def __init__(self, name, background_color=None):
         super(Label, self).__init__()
         self.name = name
         self.id = None
-        self.backgroundColor = backgroundColor
+        self.background_color = background_color
         self.attributes = {}
 
 
-    def addAttribute(self, key, valueType, value):
-        if not ValueType.check_type(valueType):
-            valueType = ValueType.TEXT
-        self.attributes[key] = {"type":valueType, "value":value}
+    def addAttribute(self, key, value_type, value):
+        if not ValueType.check_type(value_type):
+            value_type = ValueType.TEXT
+        self.attributes[key] = {"type":value_type, "value":value}
 
 
     def removeAttribute(self, key):
@@ -69,16 +69,16 @@ class Label(GenericEntity):
         return json.dumps(self.generateLabelTemplateData())
 
 
-class MateLabel(Label):
+class MetaLabel(Label):
 
     def __init__(self, name):
-        super(MateLabel, self).__init__(name)
-        self.type = LabelType.MATE
+        super(MetaLabel, self).__init__(name)
+        self.type = LabelType.META
 
 
 class RegionLabel(Label):
 
     def __init__(self, name):
         super(RegionLabel, self).__init__(name)
-        self.regionId = None
+        self.region_id = None
         self.type = LabelType.REGION

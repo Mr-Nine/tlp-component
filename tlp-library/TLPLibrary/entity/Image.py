@@ -5,13 +5,13 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-12 17:39:06
-@LastEditTime: 2019-12-16 19:37:36
+@LastEditTime: 2020-03-16 14:51:39
 @Description:
 '''
 import json
 
 from TLPLibrary.core import GenericEntity
-from TLPLibrary.entity import MateLabel, ImageRegion
+from TLPLibrary.entity import MetaLabel, ImageRegion
 from TLPLibrary.error import ClassCastException
 
 class Image(GenericEntity):
@@ -21,22 +21,30 @@ class Image(GenericEntity):
 
         self.path = path
         self.id = None
-        self.mateLabels = []
+        self.meta_labels = []
         self.regions = []
 
 
-    def addMateLabel(self, mateLabel):
-        if not isinstance(mateLabel, MateLabel):
-            raise ClassCastException("请添加MateLabel类型的标签到Image")
+    def addMetaLabel(self, meta_label):
+        if not isinstance(meta_label, MetaLabel):
+            raise ClassCastException("请添加MetaLabel类型的标签到Image")
 
-        for selfLabel in self.mateLabels:
-            if selfLabel.name == mateLabel.name:
-                raise ClassCastException("图片已包含同名MateLabe，请确认是否应该合并")
+        #TODO:是否要合并同名
+        # for self_label in self.meta_labels:
+        #     if self_label.name == meta_label.name:
+        #         raise ClassCastException("图片已包含同名MetaLabe，请确认是否应该合并")
 
-        self.mateLabels.append(mateLabel)
+        # for self_label in self.meta_labels:
+        #     if self_label.name == meta_label.name:
+        #         self_label.name = meta_label.name
+        #         self_label.background_color = meta_label.background_color
 
-    def addImageRegion(self, imageRegion):
-        if not isinstance(imageRegion, ImageRegion):
+        #         self_label.attributes = {}
+
+        self.meta_labels.append(meta_label)
+
+    def addImageRegion(self, image_region):
+        if not isinstance(image_region, ImageRegion):
             raise ClassCastException("请添加ImagePolygonRegion或ImageRectangleRegion类型的区域到Image")
 
-        self.regions.append(imageRegion)
+        self.regions.append(image_region)

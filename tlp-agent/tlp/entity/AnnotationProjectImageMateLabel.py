@@ -11,7 +11,7 @@
 
 from tlp.entity import GenericEntity
 
-class AnnotationProjectImageMateLabel(GenericEntity):
+class AnnotationProjectImageMetaLabel(GenericEntity):
 
     @classmethod
     def convert_database_result_2_dict(cls, data_result):

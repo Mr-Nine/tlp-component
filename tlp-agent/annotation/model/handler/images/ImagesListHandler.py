@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2019-12-17 17:27:03
+@LastEditTime: 2020-03-16 15:02:33
 @Description:负责处理获取图片列表的请求数据，会根据当前用户和所标注的项目去获取对应的图片信息,
 消息格式：
 send-message:{
@@ -48,7 +48,7 @@ import math
 from annotation.model.handler import AbstractHandler
 from core import Config, MysqlManager, TLPContext
 
-from tlp.entity import AnnotationlProjectImage
+from tlp.entity import AnnotationProjectImage
 
 class ImagesListHandler(AbstractHandler):
 
@@ -89,7 +89,7 @@ class ImagesListHandler(AbstractHandler):
             current_project = context.get_project(self.user.projectId)
             project_index = current_project.index
 
-            image_table_name = '`AnnotationlProjectImage' + str(project_index) + '`'
+            image_table_name = '`AnnotationProjectImage' + str(project_index) + '`'
 
             sql = """SELECT COUNT(1) total FROM """ + image_table_name
             total_rows = mysql.selectOne(sql)[1]['total']
@@ -164,7 +164,7 @@ class ImagesListHandler(AbstractHandler):
 
             image_list = []
             for i in range(len(page_result[1])):
-                image_list.append(AnnotationlProjectImage.convert_database_result_2_dict(page_result[1][i]))
+                image_list.append(AnnotationProjectImage.convert_database_result_2_dict(page_result[1][i]))
 
             return self.replyMessage(message,
                 state=True,

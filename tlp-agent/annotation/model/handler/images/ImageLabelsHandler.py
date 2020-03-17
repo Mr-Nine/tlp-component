@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2019-12-18 16:22:48
+@LastEditTime: 2020-03-16 15:02:16
 @Description:
 '''
 
@@ -16,7 +16,7 @@ import math
 
 from annotation.model.handler import AbstractHandler
 from core import Config, MysqlManager, TLPContext
-from tlp.entity import AnnotationlProjectLabelTemplate
+from tlp.entity import AnnotationProjectLabelTemplate
 
 class ImageLabelsHandler(AbstractHandler):
 
@@ -60,23 +60,23 @@ class ImageLabelsHandler(AbstractHandler):
             current_project = context.get_project(self.user.projectId)
             project_index = current_project.index
 
-            sql_start = """select * from `AnnotationlProjectLabelTemplate` where projectId = %s """
+            sql_start = """select * from `AnnotationProjectLabelTemplate` where projectId = %s """
             sql_end = """ order by name asc"""
 
-            if action == 'mate':
-                mate_label_list = []
+            if action == 'meta':
+                meta_label_list = []
 
-                lable_result = mysql.selectAll(sql_start + """ and `type` = 'MATE' """ + sql_end, (project_id, ))
+                lable_result = mysql.selectAll(sql_start + """ and `type` = 'Meta' """ + sql_end, (project_id, ))
 
                 if lable_result[0]:
                     for result in lable_result[1]:
-                        mate_label_list.append(AnnotationlProjectLabelTemplate.convert_database_result_2_dict(result))
+                        meta_label_list.append(AnnotationProjectLabelTemplate.convert_database_result_2_dict(result))
 
                 return self.replyMessage(message,
                     state=True,
                     msg='',
                     projectId=project_id,
-                    mateLabes=mate_label_list
+                    metaLabes=meta_label_list
                 )
             elif action == 'region':
                 region_label_list = []
@@ -85,33 +85,33 @@ class ImageLabelsHandler(AbstractHandler):
 
                 if lable_result[0]:
                     for result in lable_result[1]:
-                        region_label_list.append(AnnotationlProjectLabelTemplate.convert_database_result_2_dict(result))
+                        region_label_list.append(AnnotationProjectLabelTemplate.convert_database_result_2_dict(result))
 
                 return self.replyMessage(message,
                     state=True,
                     msg='',
                     projectId=project_id,
-                    mateLabels=mate_label_list,
+                    metaLabels=meta_label_list,
                     regionLabels=region_label_list
                 )
             else:
-                mate_label_list = []
+                meta_label_list = []
                 region_label_list = []
 
                 lable_result = mysql.selectAll(sql_start + sql_end,(project_id, ))
 
                 if lable_result[0]:
                     for result in lable_result[1]:
-                        if result["type"].decode("utf-8") == 'MATE':
-                            mate_label_list.append(AnnotationlProjectLabelTemplate.convert_database_result_2_dict(result))
+                        if result["type"].decode("utf-8").lower() == 'meta':
+                            meta_label_list.append(AnnotationProjectLabelTemplate.convert_database_result_2_dict(result))
                         else:
-                            region_label_list.append(AnnotationlProjectLabelTemplate.convert_database_result_2_dict(result))
+                            region_label_list.append(AnnotationProjectLabelTemplate.convert_database_result_2_dict(result))
 
                 return self.replyMessage(message,
                     state=True,
                     msg='',
                     projectId=project_id,
-                    mateLabels=mate_label_list,
+                    metaLabels=meta_label_list,
                     regionLabels=region_label_list
                 )
         finally:

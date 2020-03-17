@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-07 09:56:37
-@LastEditTime: 2019-12-13 18:04:52
+@LastEditTime: 2020-03-13 19:29:17
 @Description:
 注意，所有方法不提供主动关闭连接得方式，因为所有的连接都是可以服用的，需要调用后手动关闭
 '''
@@ -245,10 +245,7 @@ class Mysql(object):
         '''
         @description:关闭游标及连接
         '''
-        if is_end:
-            self.end('commit')
-        else:
-            self.end('rollback');
+        self.end(commit=is_end)
 
         self._cursor.close()
         self._conn.close()

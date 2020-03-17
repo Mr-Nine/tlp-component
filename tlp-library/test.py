@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-10 18:34:19
-@LastEditTime: 2019-12-17 11:46:16
+@LastEditTime: 2020-03-16 14:46:07
 @Description:
 '''
 import datetime
@@ -24,20 +24,20 @@ from TLPLibrary.service import ImportLabelService, InferencerLabelService
 def a(runParameter):
     print("===========================================")
 
-    mate = MateLabel(name="01")
-    mate.addAttribute(key="K1", valueType=ValueType.INT, value=0)
-    mate.addAttribute(key="K2", valueType=ValueType.INT, value=1)
-    mate.addAttribute(key="K3", valueType=ValueType.TEXT, value="aaaaaa")
+    meta = MetaLabel(name="01")
+    meta.addAttribute(key="K1", valueType=ValueType.INT, value=0)
+    meta.addAttribute(key="K2", valueType=ValueType.INT, value=1)
+    meta.addAttribute(key="K3", valueType=ValueType.TEXT, value="aaaaaa")
 
-    mate2 = MateLabel(name="04")
-    mate2.addAttribute(key="K10", valueType=ValueType.INT, value=6)
-    mate2.addAttribute(key="K11", valueType=ValueType.INT, value=7)
-    mate2.addAttribute(key="K12", valueType=ValueType.TEXT, value="aaaaaa")
+    meta2 = MetaLabel(name="04")
+    meta2.addAttribute(key="K10", valueType=ValueType.INT, value=6)
+    meta2.addAttribute(key="K11", valueType=ValueType.INT, value=7)
+    meta2.addAttribute(key="K12", valueType=ValueType.TEXT, value="aaaaaa")
 
-    mate3 = MateLabel(name="01")
-    mate3.addAttribute(key="K13", valueType=ValueType.INT, value=6)
-    mate3.addAttribute(key="K11", valueType=ValueType.FLOAT, value=7)
-    mate3.addAttribute(key="K3", valueType=ValueType.FLOAT, value=0.7)
+    meta3 = MetaLabel(name="01")
+    meta3.addAttribute(key="K13", valueType=ValueType.INT, value=6)
+    meta3.addAttribute(key="K11", valueType=ValueType.FLOAT, value=7)
+    meta3.addAttribute(key="K3", valueType=ValueType.FLOAT, value=0.7)
 
     # ======================================================================================
 
@@ -81,9 +81,9 @@ def a(runParameter):
     polygonRegion2.addRegionLabel(regionLabel5)
 
     image = Image("192.168.30.198:/export/dujiujun/tlp/gdal2tiles/source/world.topo.bathy.200407.3x21600x21600.B2.png")
-    image.addMateLabel(mate)
-    image.addMateLabel(mate2)
-    # image.addMateLabel(mate3)
+    image.addMetaLabel(meta)
+    image.addMetaLabel(meta2)
+    # image.addMetaLabel(meta3)
     image.addImageRegion(polygonRegion)
     image.addImageRegion(polygonRegion2)
 

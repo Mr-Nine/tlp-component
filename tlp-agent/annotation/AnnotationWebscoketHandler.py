@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-10-31 11:57:58
-@LastEditTime: 2019-12-18 14:57:39
+@LastEditTime: 2020-03-17 10:50:31
 @Description:负责标注页面的websocket连接的handler,在收到连接请求后，会先进行连接验证,如果验证通过，
     则创建连接并把连接管理交给模块控制器, 如果验证不通过，则会拒绝创建连接请求。
     在收到任何的消息后，都不会进行处理，而是直接发送给模块控制器。
@@ -25,7 +25,7 @@ import tornado.websocket
 
 from core.utils import *
 from core import *
-from tlp.entity import User, AnnotationlProject, AnnotationlProjectLabelTemplate
+from tlp.entity import User, AnnotationProject, AnnotationProjectLabelTemplate
 
 from annotation import Publisher
 
@@ -65,7 +65,7 @@ class AnnotationWebscoketHandler(tornado.websocket.WebSocketHandler):
 
         logging.debug('Get connection token: %s' % token)
 
-        selectResult = mysql.selectOne("select * from AnnotationlProjectUser where token = %s", (token,))
+        selectResult = mysql.selectOne("select * from AnnotationProjectUser where token = %s", (token,))
 
         if selectResult[0] == 0 or not selectResult[1]:
             return False, 10202, 'websocket connection close, user not find.'
@@ -109,9 +109,9 @@ class AnnotationWebscoketHandler(tornado.websocket.WebSocketHandler):
         project = self.__context.get_project(project_id)
 
         if project is None:
-            selectResult = mysql.selectOne("""select * from AnnotationlProject where id = %s""", (project_id, ))
+            selectResult = mysql.selectOne("""select * from AnnotationProject where id = %s""", (project_id, ))
             if selectResult[0]:
-                project = AnnotationlProject.create_by_database_result(selectResult[1])
+                project = AnnotationProject.create_by_database_result(selectResult[1])
                 self.__context.set_project(project)
                 return project
             else:
@@ -169,36 +169,36 @@ class AnnotationWebscoketHandler(tornado.websocket.WebSocketHandler):
             opened_result["projectName"] = project.name
             opened_result["projectLock"] = project.locked
 
-            select_inferencer_sql = """select * from AnnotationlProjectInferencer where projectId = %s and `activity` = 1"""
+            select_inferencer_sql = """select * from AnnotationProjectInferencer where projectId = %s and `activity` = 1"""
             select_inferencer_result = mysql.selectOne(select_inferencer_sql, (user.projectId, ))
             if select_inferencer_result[0]:
                 opened_result["inferencerId"] = select_inferencer_result[1]['id'].decode("utf-8")
             else:
                 opened_result["inferencerId"] = ''
 
-            sql_start = """select * from `AnnotationlProjectLabelTemplate` where projectId = %s order by name asc"""
+            sql_start = """select * from `AnnotationProjectLabelTemplate` where projectId = %s order by name asc"""
             sql_end = """ limit %s, %s"""
 
-            mate_label_list = []
+            meta_label_list = []
             region_label_list = []
 
             lable_result = mysql.selectAll(sql_start,(project.id, ))
 
             if lable_result[0]:
                 for result in lable_result[1]:
-                    if result["type"].decode("utf-8") == 'MATE':
-                        mate_label_list.append(AnnotationlProjectLabelTemplate.convert_database_result_2_dict(result))
+                    if result["type"].decode("utf-8") == 'META':
+                        meta_label_list.append(AnnotationProjectLabelTemplate.convert_database_result_2_dict(result))
                     else:
-                        region_label_list.append(AnnotationlProjectLabelTemplate.convert_database_result_2_dict(result))
+                        region_label_list.append(AnnotationProjectLabelTemplate.convert_database_result_2_dict(result))
 
-            opened_result["mateLabels"] = mate_label_list
+            opened_result["metaLabels"] = meta_label_list
             opened_result["regionLabels"] = region_label_list
             self.write_message(self._create_ws_base_message("opened", opened_result))
 
             '''
             # 废弃掉的分页逻辑
 
-            count_sql = """select count(1) as total from `AnnotationlProjectLabelTemplate` where projectId = %s"""
+            count_sql = """select count(1) as total from `AnnotationProjectLabelTemplate` where projectId = %s"""
             total_lable_number = mysql.selectOne(count_sql, (project.id, ))[1]['total']
 
             # 数据量较小，部分也直接发送全部到前端
@@ -209,25 +209,25 @@ class AnnotationWebscoketHandler(tornado.websocket.WebSocketHandler):
                 total_page = math.ceil(total_lable_number / 500)
 
                 for i in range(total_page):
-                    mate_label_list = []
+                    meta_label_list = []
                     region_label_list = []
                     offset = i * 500
 
                     lable_result = mysql.selectAll((sql_start + sql_end),(project.id, offset, 500))
 
                     for result in lable_result[1]:
-                        if result["type"].decode("utf-8") == 'MATE':
-                            mate_label_list.append(AnnotationlProjectLabelTemplate.convert_database_result_2_dict(result))
+                        if result["type"].decode("utf-8") == 'META':
+                            meta_label_list.append(AnnotationProjectLabelTemplate.convert_database_result_2_dict(result))
                         else:
-                            region_label_list.append(AnnotationlProjectLabelTemplate.convert_database_result_2_dict(result))
+                            region_label_list.append(AnnotationProjectLabelTemplate.convert_database_result_2_dict(result))
 
-                    opened_result["projectLabel"]["mateLabel"] = mate_label_list
+                    opened_result["projectLabel"]["metaLabel"] = meta_label_list
                     opened_result["projectLabel"]["regionLabel"] = region_label_list
                     opened_result["labelMessageCount"] = total_page
 
                     self.write_message(self._create_ws_base_message("opened", opened_result))
             else:
-                opened_result["projectLabel"]["mateLabel"] = []
+                opened_result["projectLabel"]["metaLabel"] = []
                 opened_result["projectLabel"]["regionLabel"] = []
                 opened_result["labelMessageCount"] = 0
                 self.write_message(self._create_ws_base_message("opened", opened_result))
@@ -271,6 +271,7 @@ class AnnotationWebscoketHandler(tornado.websocket.WebSocketHandler):
             # else:
             #     self.write_message(self._create_ws_base_message("error", {'message':10303, 'reason':"error message"}))
         else:
+            logging.error(message.to_json())
             self.write_message(self._create_ws_base_message("error", {'message':10304, 'reason':"error message"}))
 
 

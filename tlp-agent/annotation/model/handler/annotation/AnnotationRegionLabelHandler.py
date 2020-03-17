@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2019-12-19 15:18:51
+@LastEditTime: 2020-03-16 15:00:25
 @Description:
 '''
 
@@ -18,7 +18,7 @@ import uuid
 from annotation.model.handler import AbstractHandler
 from core import Config, MysqlManager, TLPContext, MessageMid
 
-from tlp.entity import AnnotationlProjectImage, AnnotationProjectImageRegion, AnnotationProjectImageRegionLabel
+from tlp.entity import AnnotationProjectImage, AnnotationProjectImageRegion, AnnotationProjectImageRegionLabel
 from tlp.error import RunTimeException
 
 class AnnotationRegionLabelHandler(AbstractHandler):
@@ -55,7 +55,7 @@ class AnnotationRegionLabelHandler(AbstractHandler):
         mysql = MysqlManager()
 
         try:
-            image_table_name = '`AnnotationlProjectImage' + str(project.index) + '`'
+            image_table_name = '`AnnotationProjectImage' + str(project.index) + '`'
             region_table_name = '`AnnotationProjectImageRegion' + str(project.index) + '`'
             region_label_table_name = '`AnnotationProjectImageRegionLabel' + str(project.index) + '`'
 
@@ -64,7 +64,7 @@ class AnnotationRegionLabelHandler(AbstractHandler):
                 # 目标图片不存在
                 return self.replyMessage(message, state=False, msg="40104")
 
-            image = AnnotationlProjectImage.create_by_database_result(target_image_result[1])
+            image = AnnotationProjectImage.create_by_database_result(target_image_result[1])
 
             if image.annotationUserId != self.user.userId:
                 # 当前用户没有锁定图片
