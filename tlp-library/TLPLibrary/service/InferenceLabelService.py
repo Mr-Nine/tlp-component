@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-12 20:45:34
-@LastEditTime: 2020-03-17 20:13:55
+@LastEditTime: 2020-03-18 17:22:10
 @Description:
 '''
 
@@ -18,13 +18,13 @@ from TLPLibrary.error import *
 from TLPLibrary.entity import *
 from TLPLibrary.service import BusinessService
 
-class InferencerLabelService(BusinessService):
+class InferenceLabelService(BusinessService):
 
     def __init__(self):
-        super(InferencerLabelService, self).__init__()
+        super(InferenceLabelService, self).__init__()
 
 
-    def inferencerManyImageLabel(self, run_parameter, images):
+    def inferenceManyImageLabel(self, run_parameter, images):
         '''
         @description:将推理后的多张图片label写入的TLP中
         @param {object} run_parameter:程序的运行参数对象
@@ -45,16 +45,16 @@ class InferencerLabelService(BusinessService):
             region_table_name = self._config.project_image_region_table_name + table_index
 
             # 推理器的版本号
-            inferencer_info = self._getInferencerInfo(run_parameter.inferencer_id)
+            inference_info = self._getInferenceInfo(run_parameter.inference_id)
 
-            if inferencer_info is None:
+            if inference_info is None:
                 raise NotFoundException("没有找到指定的推理器信息")
 
             # 检查推理器状态
-            if inferencer_info['state'] == 'INFERENCING':
+            if inference_info['state'] == 'INFERENCING':
                 raise RunTimeException("推理器已经运行")
 
-            inferencer_version = inferencer_info['version'] # int
+            inference_version = inference_info['version'] # int
 
             for image in images:
                 delete_old_label = False
@@ -66,19 +66,19 @@ class InferencerLabelService(BusinessService):
 
                 # 检查是否需要导入，检查依据：
                 # 是否有这个推理器的version的区域信息，meta标签信息，区域标签信息
-                last_version = self._getRegionAndLabelInferencerLastVersionFromImage(image.id, table_index)
+                last_version = self._getRegionAndLabelInferenceLastVersionFromImage(image.id, table_index)
 
                 print("last version:%d"%last_version)
 
                 # 已经存在了推理的结果在DB中
                 if last_version > 0:
                     # 图片已经被这个推理器推理过结果，跳过
-                    if last_version == inferencer_version:
+                    if last_version == inference_version:
                         print("推理器已经处理过图片:%s, 跳过处理." % image.path)
                         continue
 
                     # 图片的推理结果是推理器上个版本推理出来的，需要删除
-                    if last_version == inferencer_version - 1:
+                    if last_version == inference_version - 1:
                         delete_old_label = True
 
                 # 数据库中已存在的元数据模板信息
@@ -126,7 +126,7 @@ class InferencerLabelService(BusinessService):
                         raise NotFoundException("运行异常，没有找到标签所属的模板信息")
                     meta_label_id = str(uuid.uuid4())
                     meta_label_attribute = meta_label.generateAttributeJson()
-                    meta_label_values.append((meta_label_id, image.id, label_template_id, TaggingType.AUTO, inferencer_version, meta_label_attribute, run_parameter.user_id, now, now))
+                    meta_label_values.append((meta_label_id, image.id, label_template_id, TaggingType.AUTO, inference_version, meta_label_attribute, run_parameter.user_id, now, now))
 
                 # 提取这张图片的区域标签模板信息
                 for region in image.regions:
@@ -154,7 +154,7 @@ class InferencerLabelService(BusinessService):
                 for region in image.regions:
                     region_id = str(uuid.uuid4())
                     # 提取需要写入的区域信息
-                    region_values.append((region_id, image.id, index, region.shape, region.getShapeDataJson(), run_parameter.user_id, now, now, inferencer_version))
+                    region_values.append((region_id, image.id, index, region.shape, region.getShapeDataJson(), run_parameter.user_id, now, now, inference_version))
                     index += 1
 
                     for region_label in region.labels:
@@ -164,7 +164,7 @@ class InferencerLabelService(BusinessService):
                         if label_template_id is None:
                             raise NotFoundException("运行异常，没有找到标签所属的模板信息")
                         region_label_id = str(uuid.uuid4())
-                        region_label_values.append((region_label_id, image.id, region_id, label_template_id, TaggingType.AUTO, inferencer_version, region_label_attribute, run_parameter.user_id, now, now))
+                        region_label_values.append((region_label_id, image.id, region_id, label_template_id, TaggingType.AUTO, inference_version, region_label_attribute, run_parameter.user_id, now, now))
 
                 # 写入新增的标签模板
                 if insert_meta_label_template_values or insert_region_label_template_values:
@@ -230,6 +230,9 @@ class InferencerLabelService(BusinessService):
                     # 删除meta标签信息,记录模板ids
                     # select labelId from AnnotationProjectImageMateLabel1 where imageId = ? and last_version = ? and type = 'AUTO'
                     meta_label_template_ids_result = self._mysql.selectAll("select labelId from " + meta_label_table_name + " where imageId = %s and version = %s and type = 'AUTO' group by labelId", (image.id, last_version, ))
+                    print("""delete from " + meta_label_table_name + " where imageId = %s and version = %s and type = 'AUTO'""")
+                    print(image.id)
+                    print(last_version)
                     delete_meta_label_result = self._mysql.delete(sql="delete from " + meta_label_table_name + " where imageId = %s and version = %s and type = 'AUTO'", parameter=(image.id, last_version, ), auto_commit=False)
 
                     # 删除区域标签信息,记录模板的ids
@@ -250,7 +253,6 @@ class InferencerLabelService(BusinessService):
 
                     wait_delete_label_template_ids_str = ""
                     for template_id in wait_delete_label_template_ids:
-                        print(template_id)
                         wait_delete_label_template_ids_str += "'" + str(template_id, encoding="utf-8") + "',"
 
                     wait_delete_label_template_ids_str = wait_delete_label_template_ids_str[:-1]
@@ -275,12 +277,14 @@ class InferencerLabelService(BusinessService):
 
                         self._mysql.delete(sql="delete from " + self._config.project_label_template_table_name + " where id in (" + delete_label_template_ids_str +")")
 
+                    self._mysql.end()
+
                 print("clear old data success.")
         finally:
             self._mysql.destory(is_end=False)
 
 
-    def inferencerOneImageLabel(self, run_parameter, image):
+    def inferenceOneImageLabel(self, run_parameter, image):
         '''
         @description: 将推理后的单张图片信息写入的TLP中
         @param {object} run_parameter: 程序的运行参数对象
@@ -289,4 +293,4 @@ class InferencerLabelService(BusinessService):
         if not isinstance(image, Image):
             raise ClassCastException("请指定要写入标签的图片对象")
 
-        self.inferencerManyImageLabel(run_parameter=run_parameter, images=(image,))
+        self.inferenceManyImageLabel(run_parameter=run_parameter, images=(image,))

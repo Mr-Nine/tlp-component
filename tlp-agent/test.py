@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-14 18:37:16
-@LastEditTime: 2020-03-16 14:56:37
+@LastEditTime: 2020-03-18 14:25:58
 @Description:
 '''
 import sys
@@ -27,7 +27,7 @@ def main():
     type = 'META'
     source = 'MANUAL'
     heat = 0
-    inferencerId = None
+    inferenceId = None
     icon = None
     shortcutKey = None
     enabled = 1
@@ -58,7 +58,7 @@ def main():
         defaulted = random.randint(0, 1)
         reviewed = random.randint(0, 1)
 
-        values.append((id, projectId, name, labelGroupId, type, source, heat, inferencerId, icon, backgroundColor, shortcutKey, enabled, required, defaulted, reviewed, attribute, creatorId, createTime, updateTime))
+        values.append((id, projectId, name, labelGroupId, type, source, heat, inferenceId, icon, backgroundColor, shortcutKey, enabled, required, defaulted, reviewed, attribute, creatorId, createTime, updateTime))
 
     # manager.insertMany(sql, values)
 
@@ -74,7 +74,7 @@ def main():
         defaulted = random.randint(0, 1)
         reviewed = random.randint(0, 1)
 
-        values.append((id, projectId, name, labelGroupId, type, source, heat, inferencerId, icon, backgroundColor, shortcutKey, enabled, required, defaulted, reviewed, attribute, creatorId, createTime, updateTime))
+        values.append((id, projectId, name, labelGroupId, type, source, heat, inferenceId, icon, backgroundColor, shortcutKey, enabled, required, defaulted, reviewed, attribute, creatorId, createTime, updateTime))
 
     try:
         manager.insertMany(sql, values)

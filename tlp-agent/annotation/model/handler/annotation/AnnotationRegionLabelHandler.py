@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2020-03-17 20:25:13
+@LastEditTime: 2020-03-18 11:19:25
 @Description:
 '''
 
@@ -181,6 +181,11 @@ class AnnotationRegionLabelHandler(AbstractHandler):
         return True
 
     def __create_region_and_region_label_data(self, regions, imageId, userId, now):
+        '''
+        @description:
+        @param {type}
+        @return:
+        '''
         insert_region_list = []
         insert_region_label_list = []
         update_region_list = []

@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2020-03-16 15:00:51
+@LastEditTime: 2020-03-18 14:29:22
 @Description:
 '''
 
@@ -65,17 +65,17 @@ class AutoAnnotationLabelHandler(AbstractHandler):
                 # 当前用户没有锁定图片
                 return self.replyMessage(message, state=False, msg="请先标记此图片为要标注图片")
 
-            inferencer_result = mysql.selectOne("""select * from AnnotationProjectInferencer where id = %s""", (data['inferencerId'],))
-            if not inferencer_result[0]:
+            inference_result = mysql.selectOne("""select * from AnnotationProjectInferencer where id = %s""", (data['inferencerId'],))
+            if not inference_result[0]:
                 return self.replyMessage(message, state=False, msg="指定的标注器没有找到")
 
-            inferencer_dict = mysql_dict_2_dict(inferencer_result[1])
+            inference_dict = mysql_dict_2_dict(inference_result[1])
 
-            script_path = inferencer_dict['script']
+            script_path = inference_dict['script']
             if not os.path.exists(script_path):
                 return self.replyMessage(message, state=False, msg="指定的自动标注脚本没有找到")
 
-            autoAnnotationLabelThread = AutoAnnotationLabelThread(ws=self.websocket, message=message, image_path=image.path, script_path=script_path, project_id=project.id, user_id=self.user.userId, inferencer_id=inferencer_dict["id"])
+            autoAnnotationLabelThread = AutoAnnotationLabelThread(ws=self.websocket, message=message, image_path=image.path, script_path=script_path, project_id=project.id, user_id=self.user.userId, inferencer_id=inference_dict["id"])
             autoAnnotationLabelThread.start()
 
         finally:

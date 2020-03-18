@@ -10,4 +10,4 @@
 
 from .BusinessService import BusinessService
 from .ImportLabelService import ImportLabelService
-from .InferencerLabelService import InferencerLabelService
+from .InferenceLabelService import InferenceLabelService

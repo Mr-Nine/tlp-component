@@ -9,56 +9,37 @@ import os
 from TLPLibrary.core import *
 from TLPLibrary.error import *
 from TLPLibrary.entity import *
-from TLPLibrary.service import ImportLabelService
+from TLPLibrary.service import InferenceLabelService
 
 
 def input_data(run_parameter):
     '''
-    @description: 导入数据的逻辑实现
+    @description: 推理程序写入的逻辑实现
     @param {TLPLibrary.core.RunParameter} run_parameter: 脚本调用时传入的参数对象
-    @return: boolean,如果有异常处理请在捕获异常后返回False
     '''
     image_path = run_parameter.path
 
     if os.path.isdir(image_path):
         # 批量导入操作，获取的是一个存放图片的目录
-        import_images_label_data(run_parameter, image_path)
+        inference_images_label_data(run_parameter, image_path)
     elif os.path.isfile(image_path):
         # 运行参数传递的单张图片的路径，导入程序针对这一张图片进行处理
-        import_images_label_data(run_parameter, image_path)
+        inference_image_label_data(run_parameter, image_path)
 
 
-def import_image_label_data(run_parameter, image_path):
-    '''
-    @description: 导入一个目录下所有图片的标注数据的方法
-    @param {TLPLibrary.core.RunParameter} run_parameter: 脚本调用时传入的参数对象
-    @param {str} image_dir: 要导入的图片的路径
-    '''
 
-    # entiry you imput region and label code.
+def inference_image_label_data(run_parameter, image_file_path):
+    # entiry you input region and label code.
     pass
 
 
-def import_images_label_data(run_parameter, image_dir):
-    '''
-    @description: 示例代码，展示如何构建并写入导入的图片标注数据
-    @param {TLPLibrary.core.RunParameter} run_parameter: 脚本调用时传入的参数对象
-    @param {str} image_dir: 要导入的图片的路径
-    '''
-
-    # entiry you imput region and label code.
+def inference_images_label_data(run_parameter, image_dir):
     for root, dirs, files in os.walk(image_dir):
         for file in files:
             print(os.path.join(root, file))
-            import_image_label_data(run_parameter, os.path.join(root, file))
-
+            inference_image_label_data(run_parameter, os.path.join(root, file))
 
 def __demo_method(run_parameter, image_dir):
-    '''
-    @description: 示例代码，展示如何构建并写入导入的图片标注数据
-    @param {TLPLibrary.core.RunParameter} run_parameter: 脚本调用时传入的参数对象
-    @param {str} image_dir: 要导入的图片的路径
-    '''
     images = []
     for root, dirs, files in os.walk(image_dir):
         for file in files:
@@ -100,10 +81,9 @@ def __demo_method(run_parameter, image_dir):
             image.addImageRegion(rectangle_region)
 
             images.append(image)
-
     try:
-        importLabelService = ImportLabelService()
-        importLabelService.importManyImageLabel(runParameter, images)
+        inferenceLabelService = InferenceLabelService()
+        inferenceLabelService.inferenceManyImageLabel(run_parameter, images)
         print(True)
     except DataBaseException as dbe:
         dbe.print_exception_stack()
@@ -111,8 +91,8 @@ def __demo_method(run_parameter, image_dir):
 
 
 def main():
-    run_parameter = RunParameter.get_run_parameter()
-    input_data(run_parameter)
+    runParameter = RunParameter.get_run_parameter()
+    input_data(runParameter)
 
 if __name__ == "__main__":
     main()

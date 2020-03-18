@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-12 15:28:16
-@LastEditTime: 2020-03-12 11:02:24
+@LastEditTime: 2020-03-18 10:44:48
 @Description:
 '''
 import json
@@ -59,3 +59,6 @@ class ImageRectangleRegion(ImageRegion):
     def __init__(self, points, bounding_box):
         super(ImageRectangleRegion, self).__init__(points, bounding_box)
         self.shape = RegionType.RECTANGLE
+
+        if len(points) == 4:
+            self.shape_data.append(points[0])

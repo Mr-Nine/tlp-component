@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-13 11:48:14
-@LastEditTime: 2020-03-17 16:32:31
+@LastEditTime: 2020-03-18 14:46:41
 @Description:
 '''
 import os
@@ -171,33 +171,33 @@ class BusinessService(object):
         return time.time()
 
 
-    def _getInferencerBatchVersion(self, inferencer_id):
+    def _getInferenceBatchVersion(self, inference_id):
         '''
         @description:获取推理器的版本信息
         @param {type}
         @return:
         '''
-        current_version_result = self._mysql.selectOne("""select version from """ + self._config.project_reasoning_machine_table_name + """ where id = %s""", (inferencer_id, ))
+        current_version_result = self._mysql.selectOne("""select version from """ + self._config.project_reasoning_machine_table_name + """ where id = %s""", (inference_id, ))
         if current_version_result[0]:
             return current_version_result[1]['version']
 
         return None
 
 
-    def _getInferencerInfo(self, inferencer_id):
+    def _getInferenceInfo(self, inference_id):
         '''
         @description:
         @param {type}
         @return:
         '''
-        inferencer_result = self._mysql.selectOne("""select * from """ + self._config.project_reasoning_machine_table_name + """ where id = %s""", (inferencer_id, ))
-        if inferencer_result[0]:
-            return Utils.transform_database_result_2_dict(inferencer_result[1])
+        inference_result = self._mysql.selectOne("""select * from """ + self._config.project_reasoning_machine_table_name + """ where id = %s""", (inference_id, ))
+        if inference_result[0]:
+            return Utils.transform_database_result_2_dict(inference_result[1])
 
         return None
 
 
-    def _getRegionAndLabelInferencerLastVersionFromImage(self, image_id, table_index):
+    def _getRegionAndLabelInferenceLastVersionFromImage(self, image_id, table_index):
         '''
         @description:
         @param {type}

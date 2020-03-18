@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-10 18:34:19
-@LastEditTime: 2020-03-16 14:46:07
+@LastEditTime: 2020-03-18 14:34:31
 @Description:
 '''
 import datetime
@@ -13,13 +13,13 @@ import datetime
 from TLPLibrary.entity import *
 from TLPLibrary.core import *
 from TLPLibrary.error import *
-from TLPLibrary.service import ImportLabelService, InferencerLabelService
+from TLPLibrary.service import ImportLabelService, InferenceLabelService
 
 # projectId 80882967-e342-4417-b002-8aeaf41cd6ea
 # userId 31602ab7-8527-4952-a252-639a9be22d64
 # path 192.168.30.198:/export/dujiujun/tlp/gdal2tiles/source/
 # type import
-# inferencerId 66655555-e342-4417-b002-111111111111
+# inferenceId 66655555-e342-4417-b002-111111111111
 
 def a(runParameter):
     print("===========================================")
@@ -88,8 +88,8 @@ def a(runParameter):
     image.addImageRegion(polygonRegion2)
 
     try:
-        inferencerLabelService = InferencerLabelService()
-        inferencerLabelService.inferencerOneImageLabel(runParameter, image)
+        inferenceLabelService = InferenceLabelService()
+        inferenceLabelService.inferenceOneImageLabel(runParameter, image)
 
         # importLabelService = ImportLabelService()
         # importLabelService.importOneImageLabel(runParameter, image)

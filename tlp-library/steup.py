@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-10 18:25:40
-@LastEditTime: 2019-12-17 11:49:17
+@LastEditTime: 2020-03-18 14:34:08
 @Description:
 '''
 import setuptools
@@ -28,7 +28,7 @@ setup(
     ],
     package_data={
         'TLPLibrary.core': ['library.conf'],
-        'TLPLibrary.tools': ['import_script_template', 'inferencer_script_template']
+        'TLPLibrary.tools': ['import_script_template', 'inference_script_template']
     },
     install_requires=[
         'mysqlclient>=1.4.5',
