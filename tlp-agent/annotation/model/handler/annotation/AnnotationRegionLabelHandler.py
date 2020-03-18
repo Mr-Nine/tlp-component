@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2020-03-18 11:19:25
+@LastEditTime: 2020-03-18 19:11:23
 @Description:
 '''
 
@@ -45,11 +45,6 @@ class AnnotationRegionLabelHandler(AbstractHandler):
         if data['projectId'] != self.user.projectId:
             return self.replyMessage(message, state=False, msg="40103")
 
-        if 'regions' not in data:
-            return self.replyMessage(message, state=False, msg="40109")
-
-        regions = data['regions']
-
         context = TLPContext()
         project =context.get_project(self.user.projectId)
         mysql = MysqlManager()
@@ -72,11 +67,19 @@ class AnnotationRegionLabelHandler(AbstractHandler):
 
             action = data['action']
 
+            userId = self.user.userId
+            now = datetime.datetime.today()
+
+            insert_region_label_sql = """insert into """ + region_label_table_name + """(`id`, `imageId`, `regionId`, `labelId`, `type`, `version`, `attribute`, `userId`, `createTime`, `updateTime`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+            update_region_label_sql = """update """ + region_label_table_name + """ set attribute = %s, updateTime = %s where id = %s"""
+
             if action == 'save-all':
                 # 更新全部的页面Region标签
 
-                userId = self.user.userId
-                now = datetime.datetime.today()
+                if 'regions' not in data:
+                    return self.replyMessage(message, state=False, msg="40109")
+
+                regions = data['regions']
 
                 (insert_region_list, insert_region_lable_list, update_region_list, update_region_label_list) = self.__create_region_and_region_label_data(regions, image.id, userId, now)
 
@@ -95,7 +98,7 @@ class AnnotationRegionLabelHandler(AbstractHandler):
 
                 if insert_region_lable_list:
                     # 继续写入需要新的label数据
-                    insert_region_label_sql = """insert into """ + region_label_table_name + """(`id`, `imageId`, `regionId`, `labelId`, `type`, `version`, `attribute`, `userId`, `createTime`, `updateTime`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+
                     insert_region_label_data = []
 
                     for label_object in insert_region_lable_list:
@@ -108,14 +111,11 @@ class AnnotationRegionLabelHandler(AbstractHandler):
                 if update_region_list:
                     # 如果有需要更新的矩形数据--更新
                     update_region_sql = """update """ + region_table_name + """ set shapeData = %s, updateTime = %s where id = %s"""
-
                     for region_obj in update_region_list:
                         mysql.update(update_region_sql, parameter=(region_obj.shapeData, region_obj.updateTime, region_obj.id), auto_commit=False)
 
                 if update_region_label_list:
                     # 如果有需要更新的矩形标签--更新
-                    update_region_label_sql = """update """ + region_label_table_name + """ set attribute = %s, updateTime = %s where id = %s"""
-
                     for label_object in update_region_label_list:
                         mysql.update(update_region_label_sql, parameter=(label_object.attribute, label_object.updateTime, label_object.id), auto_commit=False)
 
@@ -168,6 +168,37 @@ class AnnotationRegionLabelHandler(AbstractHandler):
                 else:
                     # 没有形状信息就直接返回一个图片的ID
                     return self.replyMessage(message, state=True, msg="save all region lable success.", imageId=image.id, action="save-all")
+
+            elif action == "save-one":
+                if "regionId" not in data or not data['regionId']:
+                    return self.replyMessage(message, state=False, msg="请指定要标签的区域信息")
+
+                region_id = data['regionId']
+
+                if "labelId" not in data or not data['labelId']:
+                    return self.replyMessage(message, state=False, msg="请指定要标签的模板信息")
+
+                label_id = data['labelId']
+
+                lid = None
+                if "id" in data:
+                    lid = data["id"]
+
+                attribute = None
+                if "attribute" in data:
+                    attribute = data["attribute"]
+
+                label_obj = AnnotationProjectImageRegionLabel(id=lid, imageId=image.id, regionId=region_id, labelId=label_id, type="MANUAL", version="0", attribute=attribute, userId=userId, createTime=now, updateTime=now)
+
+                if label_obj.id is None:
+                    # insert
+                    label_obj.id = str(uuid.uuid4())
+                    mysql.insert(insert_region_label_sql, label_obj.to_value_list(('id', 'imageId', 'regionId', 'labelId', 'type', 'version', 'attribute', 'userId', 'createTime', 'updateTime')))
+                else:
+                    # update
+                    mysql.update(update_region_label_sql, (label_obj.attribute, now, label_obj.id))
+
+                return self.replyMessage(message, state=True, msg="区域标签保存成功", action="save-one", labelInfo=label_obj.to_dict())
 
         except Exception as e:
             mysql.end(False)

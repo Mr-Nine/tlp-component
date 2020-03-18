@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2020-03-18 14:29:22
+@LastEditTime: 2020-03-18 17:55:35
 @Description:
 '''
 
@@ -70,6 +70,9 @@ class AutoAnnotationLabelHandler(AbstractHandler):
                 return self.replyMessage(message, state=False, msg="指定的标注器没有找到")
 
             inference_dict = mysql_dict_2_dict(inference_result[1])
+
+            if inference_dict["state"] != 'GENERAL':
+                return self.replyMessage(message, state=False, msg="推理器正在工作，请等待推理完成后重试")
 
             script_path = inference_dict['script']
             if not os.path.exists(script_path):
