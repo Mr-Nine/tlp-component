@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2020-03-19 20:04:41
+@LastEditTime: 2020-03-19 20:17:20
 @Description:
 '''
 
@@ -17,7 +17,6 @@ import uuid
 
 from annotation.model.handler import AbstractHandler
 from core import Config, MysqlManager, TLPContext, MessageMid
-from core.utils
 
 from tlp.entity import AnnotationProjectImage
 
