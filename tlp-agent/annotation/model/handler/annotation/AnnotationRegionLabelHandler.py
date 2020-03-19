@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2020-03-19 19:07:42
+@LastEditTime: 2020-03-19 19:25:35
 @Description:
 '''
 
@@ -177,7 +177,7 @@ class AnnotationRegionLabelHandler(AbstractHandler):
                 label_id = data['labelId']
 
                 lid = None
-                if "id" in data:
+                if "id" in data and len(data['id']) > 0:
                     lid = data["id"]
 
                 attribute = None
