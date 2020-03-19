@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-10-31 11:57:58
-@LastEditTime: 2020-03-18 14:26:18
+@LastEditTime: 2020-03-19 19:56:19
 @Description:负责标注页面的websocket连接的handler,在收到连接请求后，会先进行连接验证,如果验证通过，
     则创建连接并把连接管理交给模块控制器, 如果验证不通过，则会拒绝创建连接请求。
     在收到任何的消息后，都不会进行处理，而是直接发送给模块控制器。
@@ -119,6 +119,16 @@ class AnnotationWebscoketHandler(tornado.websocket.WebSocketHandler):
 
         return project
 
+    def _load_default_label_attribute(self, mysql):
+        '''
+        '''
+        default_atrribute = self.__context.get_default_attribute()
+        if default_atrribute is None:
+            default_attribute = mysql.selectOne("""select `value` from Config where `targetId` = -1 and `key` = 'ANNOTATION_LABEL_TEMPLATE_DEFAULT_ATTRIBUTE'""")
+            if default_attribute[0]:
+                default_attribute_json = json.loads(default_attribute[1]['value'].decode("utf-8"))
+                self.__context.set_default_attribute(default_attribute_json)
+
     def open(self, *args, **kwargs):
         '''
         @description:
@@ -136,6 +146,8 @@ class AnnotationWebscoketHandler(tornado.websocket.WebSocketHandler):
                 self._send_ws_message_and_close_connection("Web socket not init, connection user check fail.", checkResult[1], checkResult[2])
                 return
 
+            self._load_default_label_attribute(mysql)
+
             connectionId = self._id()
             user = checkResult[1]
 
@@ -148,6 +160,7 @@ class AnnotationWebscoketHandler(tornado.websocket.WebSocketHandler):
             if self._load_and_check_project(mysql, user.projectId) is None:
                 self._send_ws_message_and_close_connection("Web socket not init, connection project is not find.", 201110, '???')
                 return
+
 
             project = self.__context.get_project(user.projectId)
 

@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-17 21:14:41
-@LastEditTime: 2020-03-19 19:03:16
+@LastEditTime: 2020-03-19 19:16:36
 @Description:TLP模块上下文对象
 '''
 
@@ -20,6 +20,7 @@ class TLPContext(object):
             cls.__instance = object.__new__(cls)
             cls.__cache_project_dict = dict()
             cls.__connects_dict = dict()
+            cls.__default_attributes = None
 
         return cls.__instance
 
@@ -52,6 +53,13 @@ class TLPContext(object):
             return self.__connects_dict[connect_id]['publisher']
 
         return None
+
+
+    def set_default_attribute(self, defautl_attribute):
+        self.__default_attributes = defautl_attribute
+
+    def get_default_attribute(self):
+        return self.__default_attributes
 
     def notice(self, message, projectId=None, userId=None):
         '''

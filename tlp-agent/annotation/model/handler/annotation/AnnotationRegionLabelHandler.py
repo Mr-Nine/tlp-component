@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2020-03-19 19:25:35
+@LastEditTime: 2020-03-19 20:08:40
 @Description:
 '''
 
@@ -82,7 +82,7 @@ class AnnotationRegionLabelHandler(AbstractHandler):
 
                 regions = data['regions']
 
-                (insert_region_list, insert_region_lable_list, update_region_list, update_region_label_list) = self.__create_region_and_region_label_data(regions, image.id, userId, now)
+                (insert_region_list, insert_region_lable_list, update_region_list, update_region_label_list) = self.__create_region_and_region_label_data(context, regions, image.id, userId, now)
 
                 # if not insert_region_list and not update_region_list and not update_region_label_list:
                 #     return self.replyMessage(message, state=False, msg="40110") # 没有可以写入的数据
@@ -181,8 +181,12 @@ class AnnotationRegionLabelHandler(AbstractHandler):
                     lid = data["id"]
 
                 attribute = None
-                if "attribute" in data:
+                if "attribute" in data and data['attribute']:
                     attribute = data["attribute"]
+
+                # 增加默认的置信度的设置
+                if attribute is not None:
+                    self._merge_default_attribute(context.get_default_attribute(), attribute)
 
                 if region_id == "":
                     region_id = str(uuid.uuid4())
@@ -215,7 +219,7 @@ class AnnotationRegionLabelHandler(AbstractHandler):
         logging.info("AnnotationRegionLabelHandler destroy.")
         return True
 
-    def __create_region_and_region_label_data(self, regions, imageId, userId, now):
+    def __create_region_and_region_label_data(self, context, regions, imageId, userId, now):
         '''
         @description:
         @param {type}
@@ -252,6 +256,10 @@ class AnnotationRegionLabelHandler(AbstractHandler):
                         labelId = label['labelId']
                         attribute = label['attribute']
 
+                        # 增加默认的置信度的设置
+                        if attribute is not None:
+                            self._merge_default_attribute(context.get_default_attribute(), attribute)
+
                         if 'id' in label:
                             # 已经存在的图形也可能有2种情况，就是update-label和insert-label
                             region_label_id = label['id']
@@ -277,9 +285,23 @@ class AnnotationRegionLabelHandler(AbstractHandler):
 
                         labelId = label['labelId']
                         attribute = label['attribute']
+
+                        # 增加默认的置信度的设置
+                        if attribute is not None:
+                            self._merge_default_attribute(context.get_default_attribute(), attribute)
+
                         region_label_id = str(uuid.uuid4())
 
                         label_obj = AnnotationProjectImageRegionLabel(id=region_label_id, imageId=imageId, regionId=region_id, labelId=labelId, type="MANUAL", version="0", attribute=attribute, userId=userId, createTime=now, updateTime=now)
                         insert_region_label_list.append(label_obj)
 
         return (insert_region_list, insert_region_label_list, update_region_list, update_region_label_list)
+
+
+    def _merge_default_attribute(self, default_attributes, target_attribute):
+        for default in default_attributes:
+            default_key = default['key']
+            default_value = default['default']
+
+            if default_key not in target_attribute:
+                target_attribute[default_key] = default_value

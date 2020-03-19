@@ -6,7 +6,7 @@ __author__ = 'dcp team dujiujun - tlp-agent'
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-10-31 09:59:24
-@LastEditTime: 2019-11-20 17:57:08
+@LastEditTime: 2020-03-19 20:03:33
 @Description:
 '''
 import platform
@@ -74,3 +74,5 @@ def mysql_dict_2_dict(data_dict):
             return_dict[key] = value
 
     return return_dict
+
+# -------------------------------------------------------------------------

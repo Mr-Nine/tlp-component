@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2020-03-16 15:00:10
+@LastEditTime: 2020-03-19 20:04:41
 @Description:
 '''
 
@@ -17,6 +17,7 @@ import uuid
 
 from annotation.model.handler import AbstractHandler
 from core import Config, MysqlManager, TLPContext, MessageMid
+from core.utils
 
 from tlp.entity import AnnotationProjectImage
 
@@ -76,6 +77,10 @@ class AnnotationMetaLabelHandler(AbstractHandler):
                 labelId = data['labelId']
                 attribute = data['attribute'] if ('attribute' in data and data['attribute'] is not None) else None
 
+                # 增加默认的置信度的设置
+                if attribute is not None:
+                    self._merge_default_attribute(context.get_default_attribute(), attribute)
+
                 sql = """insert into """ + meta_label_table_name + """ (`id`, `imageId`, `labelId`, `type`, `version`, `attribute`, `userId`, `createTime`, `updateTime`) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 
                 now = datetime.datetime.today()
@@ -132,3 +137,11 @@ class AnnotationMetaLabelHandler(AbstractHandler):
     def destroy(self):
         logging.info("AnnotationMetaLabelHandler destroy.")
         return True
+
+    def _merge_default_attribute(self, default_attributes, target_attribute):
+        for default in default_attributes:
+            default_key = default['key']
+            default_value = default['default']
+
+            if default_key not in target_attribute:
+                target_attribute[default_key] = default_value
