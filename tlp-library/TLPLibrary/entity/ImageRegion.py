@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-12 15:28:16
-@LastEditTime: 2020-03-18 10:44:48
+@LastEditTime: 2020-03-19 16:46:14
 @Description:
 '''
 import json
@@ -15,14 +15,24 @@ from TLPLibrary.entity import RegionType, RegionLabel
 from TLPLibrary.error import ClassCastException
 
 class ImageRegion(GenericEntity):
-
+    '''
+    标识图片上一个标注区域的对象描述
+    '''
     def __init__(self, points, bounding_box):
+        '''
+        初始化一个区域对象
 
+        Args:
+            points (list): ((point1, point2), (point3, point4)...(pointN, pointN+1))
+            bounding_box (list): ((point1, point2), (point3, point4), (point5, point6), (point7, point8))
+        '''
         super(ImageRegion, self).__init__()
 
         if not isinstance(points, list):
             raise ClassCastException()
         if not isinstance(bounding_box, list) or len(bounding_box) != 4:
+            raise ClassCastException()
+        if len(points) < 3:
             raise ClassCastException()
 
         self.shape_data = points
@@ -52,6 +62,7 @@ class ImagePolygonRegion(ImageRegion):
     def __init__(self, points, bounding_box):
         super(ImagePolygonRegion, self).__init__(points, bounding_box)
         self.shape = RegionType.POLYGON
+        self.shape_data.append(points[0])
 
 
 class ImageRectangleRegion(ImageRegion):

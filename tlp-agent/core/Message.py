@@ -5,13 +5,22 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:14:30
-@LastEditTime: 2019-12-02 14:28:11
+@LastEditTime: 2020-03-19 18:03:20
 @Description:
 '''
-
+import datetime
 import json
 
 from core.utils import get_current_datetime_string
+
+class DateEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime.datetime):
+            return obj.strftime('%Y-%m-%d %H:%M:%S')
+        # elif isinstance(obj, date):
+        #     return obj.strftime("%Y-%m-%d")
+        else:
+            return json.JSONEncoder.default(self, obj)
 
 class Message(object):
 
@@ -28,7 +37,7 @@ class Message(object):
     def to_json(self):
         # x = self.data
         # self.data = lambda x: x.encode('ascii') if isinstance(x, unicode) else x
-        return json.dumps(self.__dict__)
+        return json.dumps(self.__dict__, cls=DateEncoder)
 
 
     def fromJson(self, data=""):
