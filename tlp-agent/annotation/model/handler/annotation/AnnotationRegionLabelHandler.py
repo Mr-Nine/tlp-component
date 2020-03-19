@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2020-03-19 20:08:40
+@LastEditTime: 2020-03-19 20:29:16
 @Description:
 '''
 
@@ -186,7 +186,7 @@ class AnnotationRegionLabelHandler(AbstractHandler):
 
                 # 增加默认的置信度的设置
                 if attribute is not None:
-                    self._merge_default_attribute(context.get_default_attribute(), attribute)
+                    attribute = self._merge_default_attribute(context.get_default_attribute(), attribute)
 
                 if region_id == "":
                     region_id = str(uuid.uuid4())
@@ -258,7 +258,7 @@ class AnnotationRegionLabelHandler(AbstractHandler):
 
                         # 增加默认的置信度的设置
                         if attribute is not None:
-                            self._merge_default_attribute(context.get_default_attribute(), attribute)
+                            attribute = self._merge_default_attribute(context.get_default_attribute(), attribute)
 
                         if 'id' in label:
                             # 已经存在的图形也可能有2种情况，就是update-label和insert-label
@@ -288,7 +288,7 @@ class AnnotationRegionLabelHandler(AbstractHandler):
 
                         # 增加默认的置信度的设置
                         if attribute is not None:
-                            self._merge_default_attribute(context.get_default_attribute(), attribute)
+                            attribute = self._merge_default_attribute(context.get_default_attribute(), attribute)
 
                         region_label_id = str(uuid.uuid4())
 
@@ -303,5 +303,10 @@ class AnnotationRegionLabelHandler(AbstractHandler):
             default_key = default['key']
             default_value = default['default']
 
+            if isinstance(target_attribute, str):
+                target_attribute = json.loads(target_attribute)
+
             if default_key not in target_attribute:
                 target_attribute[default_key] = default_value
+
+            return json.dumps(target_attribute)
