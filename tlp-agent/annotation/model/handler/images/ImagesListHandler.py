@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2020-03-16 15:02:33
+@LastEditTime: 2020-03-19 15:13:16
 @Description:负责处理获取图片列表的请求数据，会根据当前用户和所标注的项目去获取对应的图片信息,
 消息格式：
 send-message:{
@@ -18,7 +18,8 @@ send-message:{
     data: {
         'projectId':'str',
         'page':int,
-        'action':'last|next'
+        'action':'last|next',
+        'imageIds':[]|None
     }
 }
 reply-message:{
@@ -91,92 +92,122 @@ class ImagesListHandler(AbstractHandler):
 
             image_table_name = '`AnnotationProjectImage' + str(project_index) + '`'
 
-            sql = """SELECT COUNT(1) total FROM """ + image_table_name
-            total_rows = mysql.selectOne(sql)[1]['total']
-            total_page = math.ceil(total_rows / page_size)
+            if "imageIds" not in data or not data["imageIds"]:
+                sql = """SELECT COUNT(1) total FROM """ + image_table_name
+                total_rows = mysql.selectOne(sql)[1]['total']
+                total_page = math.ceil(total_rows / page_size)
 
-            current_page = 0
-            page = 0
-            if 'page' not in data:
-                # 没有指定当前浏览的数据
-                current_image_result = mysql.selectAll("""SELECT * FROM """ + image_table_name + """ WHERE `annotationUserId` = %s or `reviewUserId` = %s or `browseUserId` = %s""", (current_user_id, current_user_id, current_user_id))
-                if (current_image_result[0] > 0):
-                    # 已经有在处理的数据，需要知道是第几页的数据，从而继续从那边继续
-                    current_images = current_image_result[1]
-                    for image in current_images:
-                        # 除了是正在标注的，其他的位置随便
-                        if current_image_id is None:
-                            current_image_id = image["id"]
+                current_page = 0
+                page = 0
+                if 'page' not in data:
+                    # 没有指定当前浏览的数据
+                    current_image_result = mysql.selectAll("""SELECT * FROM """ + image_table_name + """ WHERE `annotationUserId` = %s or `reviewUserId` = %s or `browseUserId` = %s""", (current_user_id, current_user_id, current_user_id))
+                    if (current_image_result[0] > 0):
+                        # 已经有在处理的数据，需要知道是第几页的数据，从而继续从那边继续
+                        current_images = current_image_result[1]
+                        for image in current_images:
+                            # 除了是正在标注的，其他的位置随便
+                            if current_image_id is None:
+                                current_image_id = image["id"]
 
-                        if image["annotationUserId"] is not None:
-                            current_image_id = image["id"]
+                            if image["annotationUserId"] is not None:
+                                current_image_id = image["id"]
 
-                    sql = """
-                    SELECT
-                        rowNum FROM (
-                            SELECT id, @ROWNUM := @ROWNUM + 1 AS rowNum FROM """ + image_table_name + """, (SELECT @ROWNUM := 0) r ORDER BY `name` ASC, `id` DESC
-                        ) t
-                    WHERE
-                    id = %s
-                    """
-                    result = mysql.selectOne(sql, (current_image_id, ))
-                    current_image_number = result[1]['rowNum']
+                        sql = """
+                        SELECT
+                            rowNum FROM (
+                                SELECT id, @ROWNUM := @ROWNUM + 1 AS rowNum FROM """ + image_table_name + """, (SELECT @ROWNUM := 0) r ORDER BY `name` ASC, `id` DESC
+                            ) t
+                        WHERE
+                        id = %s
+                        """
+                        result = mysql.selectOne(sql, (current_image_id, ))
+                        current_image_number = result[1]['rowNum']
 
-                    current_page = int(current_image_number / page_size)
-                    current_row = current_image_number % page_size
+                        current_page = int(current_image_number / page_size)
+                        current_row = current_image_number % page_size
 
-                    if current_page == 0:
-                        # TODO:随机一个page数据
-                        pass
+                        if current_page == 0:
+                            # TODO:随机一个page数据
+                            pass
+                        else:
+                            page = current_page
+
                     else:
-                        page = current_page
-
+                        # 没有在处理的数据，并且没有指定页数，也就是刚开始标注
+                        current_page = 0
+                        # TODO:随机一个page数据
                 else:
-                    # 没有在处理的数据，并且没有指定页数，也就是刚开始标注
-                    current_page = 0
-                    # TODO:随机一个page数据
+                    # 已指定浏览信息，直接获取对应的要求数据
+                    current_page = data['page']
+                    action = data['action']
+
+                    if action == 'next':
+                        page = current_page
+                    elif action == 'last':
+                        page = current_page - 2
+
+                # 是否要配置页面list的分页数量>分页量小访问频繁，分页量大数据获取慢
+                # 使用有优化效果的Join子句
+                sql = """SELECT i1.* FROM """ + image_table_name + """ AS i1 INNER JOIN (SELECT id FROM """ + image_table_name + """ ORDER BY `name` ASC, `id` DESC LIMIT %s, %s) i2 ON i1.id = i2.id"""
+                page_result = mysql.selectAll(sql, ((page * page_size), page_size))
+
+                if not page_result[0]:
+                    return self.replyMessage(message, state=False, msg='当前项目还没有可标注的图片')
+
+                image_list = []
+                for i in range(len(page_result[1])):
+                    image_list.append(AnnotationProjectImage.convert_database_result_2_dict(page_result[1][i]))
+
+
+                # 组织返回的数据
+                # return_data = dict()
+                # return_data['projectId'] = project_id
+                # return_data['totalRow'] = total_rows
+                # return_data['totalPage'] = total_page
+                # return_data['page'] = page + 1
+                # return_data['pageSize'] = page_size
+                # return_data['currentImageId'] = current_image_id
+                return self.replyMessage(message,
+                    state=True,
+                    msg='',
+                    projectId=project_id,
+                    totalRow=total_rows,
+                    totalPage=total_page,
+                    page=(page + 1),
+                    pageSize=page_size,
+                    currentImageId=current_image_id.decode('utf-8') if current_image_id is not None else '',
+                    images=image_list
+                )
             else:
-                # 已指定浏览信息，直接获取对应的要求数据
-                current_page = data['page']
-                action = data['action']
+                imageIds = data["imageIds"]
+                imageIds_str = ""
+                for imageId in imageIds:
+                    imageIds_str += "'" + imageId + "',"
 
-                if action == 'next':
-                    page = current_page
-                elif action == 'last':
-                    page = current_page - 2
+                imageIds_str = imageIds_str[:-1]
 
-            # 是否要配置页面list的分页数量>分页量小访问频繁，分页量大数据获取慢
-            # 使用有优化效果的Join子句
-            sql = """SELECT i1.* FROM """ + image_table_name + """ AS i1 INNER JOIN (SELECT id FROM """ + image_table_name + """ ORDER BY `name` ASC, `id` DESC LIMIT %s, %s) i2 ON i1.id = i2.id"""
-            page_result = mysql.selectAll(sql, ((page * page_size), page_size))
+                sql = """select * from """ + image_table_name + """ where imageId in (""" + imageIds_str + """)"""
+                page_result = mysql.selectAll(sql)
 
-            if not page_result[0]:
-                return self.replyMessage(message, state=False, msg='当前项目还没有可标注的图片')
+                if not page_result[0]:
+                    return self.replyMessage(message, state=False, msg='没有找到指定要标注的图片')
 
-            # 组织返回的数据
-            # return_data = dict()
-            # return_data['projectId'] = project_id
-            # return_data['totalRow'] = total_rows
-            # return_data['totalPage'] = total_page
-            # return_data['page'] = page + 1
-            # return_data['pageSize'] = page_size
-            # return_data['currentImageId'] = current_image_id
+                image_list = []
+                for i in range(len(page_result[1])):
+                    image_list.append(AnnotationProjectImage.convert_database_result_2_dict(page_result[1][i]))
 
-            image_list = []
-            for i in range(len(page_result[1])):
-                image_list.append(AnnotationProjectImage.convert_database_result_2_dict(page_result[1][i]))
-
-            return self.replyMessage(message,
-                state=True,
-                msg='',
-                projectId=project_id,
-                totalRow=total_rows,
-                totalPage=total_page,
-                page=(page + 1),
-                pageSize=page_size,
-                currentImageId=current_image_id.decode('utf-8') if current_image_id is not None else '',
-                images=image_list
-            )
+                return self.replyMessage(message,
+                    state=True,
+                    msg='',
+                    projectId=project_id,
+                    totalRow=page_result[0],
+                    totalPage=1,
+                    page=1,
+                    pageSize=page_result[0],
+                    currentImageId='',
+                    images=image_list
+                )
 
         finally:
             mysql.destory()
