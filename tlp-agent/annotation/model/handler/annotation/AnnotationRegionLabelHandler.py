@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2020-03-19 18:03:35
+@LastEditTime: 2020-03-19 19:07:42
 @Description:
 '''
 
@@ -186,7 +186,7 @@ class AnnotationRegionLabelHandler(AbstractHandler):
 
                 if region_id == "":
                     region_id = str(uuid.uuid4())
-                    new_region = AnnotationProjectImageRegion(id=region_id, imageId=image.id, type='MANUAL', index=data['index'], shape=data['shape'], shapeData=data['shapeData'], userId=userId, updateTime=now)
+                    new_region = AnnotationProjectImageRegion(id=region_id, imageId=image.id, type='MANUAL', index=data['index'], shape=data['shape'], shapeData=data['shapeData'], userId=userId, createTime=now, updateTime=now)
                     mysql.close_transaction_insert_many(insert_region_sql, (new_region.to_value_list(('id', 'imageId', 'type', 'index', 'shape', 'shapeData', 'userId', 'createTime', 'updateTime')), ))
 
                 label_obj = AnnotationProjectImageRegionLabel(id=lid, imageId=image.id, regionId=region_id, labelId=label_id, type="MANUAL", version="0", attribute=attribute, userId=userId, createTime=now, updateTime=now)

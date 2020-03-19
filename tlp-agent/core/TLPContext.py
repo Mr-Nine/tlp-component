@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-17 21:14:41
-@LastEditTime: 2019-11-21 16:43:52
+@LastEditTime: 2020-03-19 19:03:16
 @Description:TLP模块上下文对象
 '''
 
@@ -82,5 +82,3 @@ class TLPContext(object):
                 connect_info = self.__connects_dict[connect_id]
                 if connect_info["user_id"] == userId:
                     connect_info['connect'].write_message(message.to_json())
-
-
