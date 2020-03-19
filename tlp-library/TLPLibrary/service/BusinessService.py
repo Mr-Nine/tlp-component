@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-13 11:48:14
-@LastEditTime: 2020-03-18 14:46:41
+@LastEditTime: 2020-03-19 11:56:54
 @Description:
 '''
 import os
@@ -197,7 +197,7 @@ class BusinessService(object):
         return None
 
 
-    def _getRegionAndLabelInferenceLastVersionFromImage(self, image_id, table_index):
+    def _getRegionAndLabelInferenceLastVersionFromImage(self, image_id, table_index, inferencer_id):
         '''
         @description:
         @param {type}
@@ -208,7 +208,7 @@ class BusinessService(object):
         meta_label_table_name = self._config.project_meta_label_table_name + str_index
         region_label_table_name = self._config.project_image_region_label_table_name + str_index
 
-        last_version_result = self._mysql.selectOne("select (select IFNULL(MAX(version), -1) from " + region_table_name + ") as region_last_version, (select IFNULL(MAX(version), -1) from " + meta_label_table_name + " where type ) as meta_label_last_version")
+        last_version_result = self._mysql.selectOne("select (select IFNULL(MAX(version), -1) from " + region_table_name + " where `type` = 'AUTO' and `inferencerId` = %s and `imageId` = %s) as region_last_version, (select IFNULL(MAX(version), -1) from " + meta_label_table_name + " where `type` = 'AUTO' and `inferencerId` = %s and `imageId` = %s) as meta_label_last_version", (inferencer_id, image_id, inferencer_id, image_id, ))
         if last_version_result[0]:
             max_version = int(last_version_result[1]["region_last_version"])
             if max_version < int(last_version_result[1]["meta_label_last_version"]):

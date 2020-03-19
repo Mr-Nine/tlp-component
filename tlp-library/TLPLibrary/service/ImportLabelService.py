@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-12 20:44:56
-@LastEditTime: 2020-03-17 17:43:14
+@LastEditTime: 2020-03-19 11:32:20
 @Description:
 '''
 
@@ -121,7 +121,7 @@ class ImportLabelService(BusinessService):
                 for region in image.regions:
                     region_id = str(uuid.uuid4())
                     # 提取需要写入的区域信息
-                    region_values.append((region_id, image.id, index, region.shape, region.getShapeDataJson(), run_parameter.user_id, now, now, version))
+                    region_values.append((region_id, image.id, TaggingType.IMPORT, index, region.shape, region.getShapeDataJson(), run_parameter.user_id, now, now, version))
                     index += 1
 
                     for region_label in region.labels:
@@ -172,7 +172,7 @@ class ImportLabelService(BusinessService):
                 if region_values:
                     print("insert new image region info.")
                     print(region_values)
-                    insert_region_sql = """insert into """ + self._config.project_image_region_table_name + table_index + """ (`id`, `imageId`, `index`, `shape`, `shapeData`, `userId`, `createTime`, `updateTime`, `version`) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+                    insert_region_sql = """insert into """ + self._config.project_image_region_table_name + table_index + """ (`id`, `imageId`, `type`, `index`, `shape`, `shapeData`, `userId`, `createTime`, `updateTime`, `version`) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
                     insert_result = self._mysql.close_transaction_insert_many(insert_region_sql, region_values)
                     print("insert " + str(insert_result) + " entries.")
 

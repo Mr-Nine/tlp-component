@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-12 20:45:34
-@LastEditTime: 2020-03-18 17:22:10
+@LastEditTime: 2020-03-19 12:57:50
 @Description:
 '''
 
@@ -44,7 +44,7 @@ class InferenceLabelService(BusinessService):
             region_label_table_name = self._config.project_image_region_label_table_name + table_index
             region_table_name = self._config.project_image_region_table_name + table_index
 
-            # 推理器的版本号
+            # 推理器的信息
             inference_info = self._getInferenceInfo(run_parameter.inference_id)
 
             if inference_info is None:
@@ -54,7 +54,11 @@ class InferenceLabelService(BusinessService):
             if inference_info['state'] == 'INFERENCING':
                 raise RunTimeException("推理器已经运行")
 
+            # 推理器的版本号
             inference_version = inference_info['version'] # int
+            inference_id = run_parameter.inference_id
+
+            print("inference id is:%s, version is %d." % (inference_id, inference_version))
 
             for image in images:
                 delete_old_label = False
@@ -66,9 +70,9 @@ class InferenceLabelService(BusinessService):
 
                 # 检查是否需要导入，检查依据：
                 # 是否有这个推理器的version的区域信息，meta标签信息，区域标签信息
-                last_version = self._getRegionAndLabelInferenceLastVersionFromImage(image.id, table_index)
+                last_version = self._getRegionAndLabelInferenceLastVersionFromImage(image.id, table_index, run_parameter.inference_id)
 
-                print("last version:%d"%last_version)
+                print("inference database last version:%d." % last_version)
 
                 # 已经存在了推理的结果在DB中
                 if last_version > 0:
@@ -117,7 +121,7 @@ class InferenceLabelService(BusinessService):
                         if not background_color:
                             background_color = self._generateRandomColors()
                         meta_label_template['id'] = str(uuid.uuid4())
-                        insert_meta_label_template_values.append((meta_label_template['id'], run_parameter.project_id, meta_label_template['name'], LabelType.META, TaggingType.AUTO, 1, background_color, 0, 0, 0, 0, template_label_attribute, run_parameter.user_id, now, now))
+                        insert_meta_label_template_values.append((meta_label_template['id'], run_parameter.project_id, meta_label_template['name'], LabelType.META, TaggingType.AUTO, 1, background_color, 0, 0, 0, 0, template_label_attribute, run_parameter.user_id, inference_id, now, now))
 
                 # 提取并组织图片要写入的元数据标签
                 for meta_label in image.meta_labels:
@@ -126,7 +130,7 @@ class InferenceLabelService(BusinessService):
                         raise NotFoundException("运行异常，没有找到标签所属的模板信息")
                     meta_label_id = str(uuid.uuid4())
                     meta_label_attribute = meta_label.generateAttributeJson()
-                    meta_label_values.append((meta_label_id, image.id, label_template_id, TaggingType.AUTO, inference_version, meta_label_attribute, run_parameter.user_id, now, now))
+                    meta_label_values.append((meta_label_id, image.id, label_template_id, TaggingType.AUTO, inference_version, meta_label_attribute, run_parameter.user_id, now, now, inference_id))
 
                 # 提取这张图片的区域标签模板信息
                 for region in image.regions:
@@ -146,7 +150,7 @@ class InferenceLabelService(BusinessService):
                         if not background_color:
                             background_color = self._generateRandomColors()
                         region_label_template['id'] = str(uuid.uuid4())
-                        insert_region_label_template_values.append((region_label_template['id'], run_parameter.project_id, region_label_template['name'], LabelType.REGION, TaggingType.AUTO, 1, background_color, 0, 0, 0, 0, template_label_attribute, run_parameter.user_id, now, now))
+                        insert_region_label_template_values.append((region_label_template['id'], run_parameter.project_id, region_label_template['name'], LabelType.REGION, TaggingType.AUTO, 1, background_color, 0, 0, 0, 0, template_label_attribute, run_parameter.user_id, inference_id, now, now))
 
 
                 # 处理Region、RegionLabel和他的模板信息
@@ -154,7 +158,7 @@ class InferenceLabelService(BusinessService):
                 for region in image.regions:
                     region_id = str(uuid.uuid4())
                     # 提取需要写入的区域信息
-                    region_values.append((region_id, image.id, index, region.shape, region.getShapeDataJson(), run_parameter.user_id, now, now, inference_version))
+                    region_values.append((region_id, image.id, TaggingType.AUTO, index, region.shape, region.getShapeDataJson(), run_parameter.user_id, now, now, inference_version, inference_id))
                     index += 1
 
                     for region_label in region.labels:
@@ -164,14 +168,14 @@ class InferenceLabelService(BusinessService):
                         if label_template_id is None:
                             raise NotFoundException("运行异常，没有找到标签所属的模板信息")
                         region_label_id = str(uuid.uuid4())
-                        region_label_values.append((region_label_id, image.id, region_id, label_template_id, TaggingType.AUTO, inference_version, region_label_attribute, run_parameter.user_id, now, now))
+                        region_label_values.append((region_label_id, image.id, region_id, label_template_id, TaggingType.AUTO, inference_version, region_label_attribute, run_parameter.user_id, now, now, inference_id))
 
                 # 写入新增的标签模板
                 if insert_meta_label_template_values or insert_region_label_template_values:
                     print("insert new meta and region label template...")
                     print(insert_meta_label_template_values)
                     print(insert_region_label_template_values)
-                    insert_label_template_sql = """insert into """ + self._config.project_label_template_table_name + """ (`id`, `projectId`, `name`, `type`, `source`, `heat`, `backgroundColor`, `enabled`, `required`, `defaulted`, `reviewed`, `attribute`, `creatorId`, `createTime`, `updateTime`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
+                    insert_label_template_sql = """insert into """ + self._config.project_label_template_table_name + """ (`id`, `projectId`, `name`, `type`, `source`, `heat`, `backgroundColor`, `enabled`, `required`, `defaulted`, `reviewed`, `attribute`, `creatorId`, `inferencerId`, `createTime`, `updateTime`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
                     insert_result = self._mysql.close_transaction_insert_many(insert_label_template_sql, insert_meta_label_template_values + insert_region_label_template_values)
                     print("insert " + str(insert_result) + " entries.")
 
@@ -197,7 +201,7 @@ class InferenceLabelService(BusinessService):
                 if meta_label_values:
                     print("insert new image meta label info.")
                     print(meta_label_values)
-                    insert_meta_label_sql = """insert into """ + meta_label_table_name + """ (`id`, `imageId`, `labelId`, `type`, `version`, `attribute`, `userId`, `createTime`, `updateTime`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) """
+                    insert_meta_label_sql = """insert into """ + meta_label_table_name + """ (`id`, `imageId`, `labelId`, `type`, `version`, `attribute`, `userId`, `createTime`, `updateTime`, `inferencerId`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
                     insert_result = self._mysql.close_transaction_insert_many(insert_meta_label_sql, meta_label_values)
                     print("insert " + str(insert_result) + " entries.")
 
@@ -205,7 +209,7 @@ class InferenceLabelService(BusinessService):
                 if region_values:
                     print("insert new image region info.")
                     print(region_values)
-                    insert_region_sql = """insert into """ + region_table_name + """ (`id`, `imageId`, `index`, `shape`, `shapeData`, `userId`, `createTime`, `updateTime`, `version`) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+                    insert_region_sql = """insert into """ + region_table_name + """ (`id`, `imageId`, `type`, `index`, `shape`, `shapeData`, `userId`, `createTime`, `updateTime`, `version`, `inferencerId`) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
                     insert_result = self._mysql.close_transaction_insert_many(insert_region_sql, region_values)
                     print("insert " + str(insert_result) + " entries.")
 
@@ -213,7 +217,7 @@ class InferenceLabelService(BusinessService):
                 if region_label_values:
                     print("insert new image region lable info.")
                     print(region_label_values)
-                    insert_region_lable_sql = """insert into """ + region_label_table_name + """ (`id`, `imageId`, `regionId`, `labelId`, `type`, `version`, `attribute`, `userId`, `createTime`, `updateTime`) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+                    insert_region_lable_sql = """insert into """ + region_label_table_name + """ (`id`, `imageId`, `regionId`, `labelId`, `type`, `version`, `attribute`, `userId`, `createTime`, `updateTime`, `inferencerId`) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
                     insert_result = self._mysql.close_transaction_insert_many(insert_region_lable_sql, region_label_values)
                     print("insert " + str(insert_result) + " entries.")
 
@@ -223,23 +227,19 @@ class InferenceLabelService(BusinessService):
 
                 print("start cleaning up old data.")
                 if delete_old_label:
-
                     # 删除区域信息
                     # 检查模板的ids如果没有其他的使用者则一起删(可能需要加上源的判断)
 
                     # 删除meta标签信息,记录模板ids
                     # select labelId from AnnotationProjectImageMateLabel1 where imageId = ? and last_version = ? and type = 'AUTO'
-                    meta_label_template_ids_result = self._mysql.selectAll("select labelId from " + meta_label_table_name + " where imageId = %s and version = %s and type = 'AUTO' group by labelId", (image.id, last_version, ))
-                    print("""delete from " + meta_label_table_name + " where imageId = %s and version = %s and type = 'AUTO'""")
-                    print(image.id)
-                    print(last_version)
-                    delete_meta_label_result = self._mysql.delete(sql="delete from " + meta_label_table_name + " where imageId = %s and version = %s and type = 'AUTO'", parameter=(image.id, last_version, ), auto_commit=False)
+                    meta_label_template_ids_result = self._mysql.selectAll("select labelId from " + meta_label_table_name + " where `imageId` = %s and `version` = %s and `type` = 'AUTO' and `inferencerId` = %s group by labelId", (image.id, last_version, inference_id, ))
+                    delete_meta_label_result = self._mysql.delete(sql="delete from " + meta_label_table_name + " where imageId = %s and version = %s and type = 'AUTO' and `inferencerId` = %s", parameter=(image.id, last_version, inference_id, ), auto_commit=False)
 
                     # 删除区域标签信息,记录模板的ids
-                    region_label_template_ids_result = self._mysql.selectAll("select labelId from " + region_label_table_name + " where imageId = %s and version = %s and type = 'AUTO' group by labelId", (image.id, last_version, ))
-                    delete_region_label_result = self._mysql.delete(sql="delete from " + region_label_table_name + " where imageId = %s and version = %s and type = 'AUTO'", parameter=(image.id, last_version, ), auto_commit=False)
+                    region_label_template_ids_result = self._mysql.selectAll("select labelId from " + region_label_table_name + " where `imageId` = %s and `version` = %s and `type` = 'AUTO' and `inferencerId` = %s group by labelId", (image.id, last_version, inference_id, ))
+                    delete_region_label_result = self._mysql.delete(sql="delete from " + region_label_table_name + " where imageId = %s and version = %s and type = 'AUTO' and `inferencerId` = %s", parameter=(image.id, last_version, inference_id, ), auto_commit=False)
 
-                    delete_region_result = self._mysql.delete(sql="delete from " + region_table_name + " where imageId = %s and version = %s", parameter=(image.id, last_version, ), auto_commit=False)
+                    delete_region_result = self._mysql.delete(sql="delete from " + region_table_name + " where `imageId` = %s and `version` = %s and `type` = 'AUTO' and `inferencerId` = %s", parameter=(image.id, last_version, inference_id, ), auto_commit=False)
 
                     wait_delete_label_template_ids = []
 
