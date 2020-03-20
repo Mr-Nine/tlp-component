@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-12 20:45:34
-@LastEditTime: 2020-03-19 14:57:19
+@LastEditTime: 2020-03-20 15:23:45
 @Description:
 '''
 
@@ -48,11 +48,11 @@ class InferenceLabelService(BusinessService):
             inference_info = self._getInferenceInfo(run_parameter.inference_id)
 
             if inference_info is None:
-                raise NotFoundException("没有找到指定的推理器信息")
+                raise NotFoundException("project inference not found.")
 
             # 检查推理器状态
             if inference_info['state'] == 'INFERENCING':
-                raise RunTimeException("推理器已经运行")
+                raise RunTimeException("the inference is running.")
 
             # 推理器的版本号
             inference_version = inference_info['version'] # int
@@ -78,7 +78,7 @@ class InferenceLabelService(BusinessService):
                 if last_version > 0:
                     # 图片已经被这个推理器推理过结果，跳过
                     if last_version == inference_version:
-                        print("推理器已经处理过图片:%s, 跳过处理." % image.path)
+                        print("the reasoner has processed the image:%s, skip processing." % image.path)
                         continue
 
                     # 图片的推理结果是推理器上个版本推理出来的，需要删除
@@ -127,7 +127,7 @@ class InferenceLabelService(BusinessService):
                 for meta_label in image.meta_labels:
                     label_template_id = self._getLabelTemplateIdByTemplateName(meta_label.name, merged_meta_label_template_list, database_meta_label_template_map)
                     if label_template_id is None:
-                        raise NotFoundException("运行异常，没有找到标签所属的模板信息")
+                        raise NotFoundException("label template not found")
                     meta_label_id = str(uuid.uuid4())
                     meta_label_attribute = meta_label.generateAttributeJson()
                     meta_label_values.append((meta_label_id, image.id, label_template_id, TaggingType.AUTO, inference_version, meta_label_attribute, run_parameter.user_id, now, now, inference_id))
@@ -166,7 +166,7 @@ class InferenceLabelService(BusinessService):
                         region_label_attribute = region_label.generateAttributeJson()
                         label_template_id = self._getLabelTemplateIdByTemplateName(region_label.name, merged_region_label_template_list, database_region_label_template_map) #self._findLabelTemplateId(region_label_template_map, region_label.name)
                         if label_template_id is None:
-                            raise NotFoundException("运行异常，没有找到标签所属的模板信息")
+                            raise NotFoundException("label template not found")
                         region_label_id = str(uuid.uuid4())
                         region_label_values.append((region_label_id, image.id, region_id, label_template_id, TaggingType.AUTO, inference_version, region_label_attribute, run_parameter.user_id, now, now, inference_id))
 

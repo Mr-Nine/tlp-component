@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-02 11:10:52
-@LastEditTime: 2020-03-20 10:45:30
+@LastEditTime: 2020-03-20 15:32:59
 @Description:
 '''
 
@@ -48,17 +48,14 @@ class AutoAnnotationLabelThread(threading.Thread):
             command = "cd " + work_dir + " && python " + self.__script_path
             command = ""
             command = "python " + self.__script_path + " -t inference" + " -pid " + self.__project_id + " -uid " + self.__user_id + " -p " + self.__image_path + " -iid " + self.__inferencer_id
-            logging.info(command)
             auto_label_process = subprocess.Popen(command, shell=True, cwd=work_dir, stdout=subprocess.PIPE)
             out = auto_label_process.stdout.readlines()
+            output_lines = []
             for out_line in out:
-                line = out_line.decode("utf-8")
-                if "True" in line:
-                    self.__message.data = {"state":True}
-                    self.loop.run_until_complete(self.__ws.write_message(self.__message.to_json()))
-                else:
-                    self.__message.data = {"state":False}
-                    self.loop.run_until_complete(self.__ws.write_message(self.__message.to_json()))
+                output_lines.append(out_line.decode("utf-8"))
+
+            self.__message.data = {"state":True, "output":output_lines}
+            self.loop.run_until_complete(self.__ws.write_message(self.__message.to_json()))
         except Exception as e:
             from io import StringIO
             fp = StringIO()
@@ -70,3 +67,4 @@ class AutoAnnotationLabelThread(threading.Thread):
         finally:
             if self.loop:
                 self.loop.close() # 线程结束关闭loop
+

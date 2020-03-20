@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-13 11:48:14
-@LastEditTime: 2020-03-19 11:56:54
+@LastEditTime: 2020-03-20 15:17:43
 @Description:
 '''
 import os
@@ -44,7 +44,7 @@ class BusinessService(object):
         @param {RunParameter} runParameter: 运行参数对象
         '''
         if not isinstance(run_parameter, RunParameter):
-            raise DataTypeException("请指定运行参数")
+            raise DataTypeException("run parameter type error.")
 
 
     def _checkImageParameter(self, run_parameter, image):
@@ -53,10 +53,10 @@ class BusinessService(object):
         @param {Image} image: 图片对象
         '''
         if not isinstance(image, Image):
-            raise DataTypeException("请指定要导入的图片信息")
+            raise DataTypeException("image type error.")
 
         if not image.path:
-            raise ParameterNotFoundException("请指定图存储的路径")
+            raise ParameterNotFoundException("image path not found.")
 
         # if not image.metaLabels and not image.regions:
         #     raise ParameterNotFoundException("请指定图片的标注信息")
@@ -87,7 +87,7 @@ class BusinessService(object):
         find_project_sql = """select * from """ + self._config.project_table_name + """ where id = %s"""
         find_project_result = self._mysql.selectOne(find_project_sql, (run_parameter.project_id, ))
         if not find_project_result[0]:
-            raise NotFoundException("指定的项目不存在")
+            raise NotFoundException("project not found.")
 
         return Utils.transform_database_result_2_dict(find_project_result[1])
 
@@ -101,7 +101,7 @@ class BusinessService(object):
         find_project_image_sql = """select * from """ + table_name + """ where path = %s"""
         find_image_result = self._mysql.selectOne(find_project_image_sql, (image_path, ))
         if not find_image_result[0]:
-            raise NotFoundException("指定的图片并不存在于项目中")
+            raise NotFoundException(("the image %s doec not exist in the project")%image_path)
 
         return Utils.transform_database_result_2_dict(find_image_result[1])
 
@@ -303,7 +303,7 @@ class BusinessService(object):
         @param {dict} database_label_template_map:数据库中已经存在的模板信息
         @param {list} merge_result_list:返回整理后的结果
         '''
-        print("*****************************************merge开始******************************************")
+        print("*****************************************merge begin******************************************")
         print('')
         # 整合名称相同的KEY，将返回的数据结构调整为map
         ready_label_map = self._groupLabel(ready_label_list)
@@ -313,7 +313,7 @@ class BusinessService(object):
 
             # 数据库中和merge内存中都没有这个label模板
             if self._isNewLabel(ready_label_name, merge_result_list, database_label_template_map):
-                print("新的模板")
+                print("new template")
                 new_template = {}
                 new_template["id"] = None
                 new_template["name"] = ready_label_name
@@ -330,7 +330,7 @@ class BusinessService(object):
 
             # 内存中已经存在merge过
             elif self._isIncludeLable(ready_label_name, merge_result_list):
-                print("内存中已存在")
+                print("mem include template")
                 include_template = None
                 for include in merge_result_list:
                     if include['name'] == ready_label_name:
@@ -342,7 +342,7 @@ class BusinessService(object):
 
             # 数据库中这个模板存在属性信息
             else:
-                print("数据库中已存在")
+                print("database include template")
                 label_template = database_label_template_map[ready_label_name]
                 template_attributes = label_template["attribute"]
 
@@ -352,10 +352,10 @@ class BusinessService(object):
                         update = self._mergeLabelTemplateAttribute(ready_label_template_attributes, template_attributes)
                         # label_template['attribute'] = template_attributes
                         if update:
-                            print("待更新模板：" + json.dumps(label_template))
+                            print("wait update template:" + json.dumps(label_template))
                             merge_result_list.append(label_template)
 
-        print("*****************************************merge结束******************************************")
+        print("*****************************************merge over******************************************")
         print('')
         #     # 为当前导入批次初始化一个新的name集合
         #     if loaded_label_template_name not in database_label_template_map:

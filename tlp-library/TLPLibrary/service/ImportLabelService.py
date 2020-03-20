@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-12 20:44:56
-@LastEditTime: 2020-03-19 11:32:20
+@LastEditTime: 2020-03-20 15:10:17
 @Description:
 '''
 
@@ -92,7 +92,7 @@ class ImportLabelService(BusinessService):
                 for meta_label in image.meta_labels:
                     label_template_id = self._getLabelTemplateIdByTemplateName(meta_label.name, merged_meta_label_template_list, database_meta_label_template_map)
                     if label_template_id is None:
-                        raise NotFoundException("运行异常，没有找到标签所属的模板信息")
+                        raise NotFoundException("label template not found.")
                     meta_label_id = str(uuid.uuid4())
                     meta_label_attribute = meta_label.generateAttributeJson()
                     meta_label_values.append((meta_label_id, image.id, label_template_id, TaggingType.IMPORT, version, meta_label_attribute, run_parameter.user_id, now, now))
@@ -129,7 +129,7 @@ class ImportLabelService(BusinessService):
                         region_label_attribute = region_label.generateAttributeJson()
                         label_template_id = self._getLabelTemplateIdByTemplateName(region_label.name, merged_region_label_template_list, database_region_label_template_map) #self._findLabelTemplateId(region_label_template_map, region_label.name)
                         if label_template_id is None:
-                            raise NotFoundException("运行异常，没有找到标签所属的模板信息")
+                            raise NotFoundException("label template not found.")
                         region_label_id = str(uuid.uuid4())
                         region_label_values.append((region_label_id, image.id, region_id, label_template_id, TaggingType.IMPORT, version, region_label_attribute, run_parameter.user_id, now, now))
 
@@ -198,7 +198,7 @@ class ImportLabelService(BusinessService):
         @return:
         '''
         if not isinstance(image, Image):
-            raise ClassCastException("请指定要导入标签的图片对象")
+            raise ClassCastException("target image not found.")
 
         self.importManyImageLabel(run_parameter=run_parameter, images=(image))
 
