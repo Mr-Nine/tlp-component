@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2020-03-19 20:37:22
+@LastEditTime: 2020-03-20 11:16:18
 @Description:
 '''
 
@@ -104,7 +104,6 @@ class AnnotationRegionLabelHandler(AbstractHandler):
 
                     # 新的标注属性
                     mysql.close_transaction_insert_many(insert_region_label_sql, insert_region_label_data)
-
 
                 if update_region_list:
                     # 如果有需要更新的矩形数据--更新
@@ -261,14 +260,13 @@ class AnnotationRegionLabelHandler(AbstractHandler):
                         if attribute is not None:
                             attribute = self._merge_default_attribute(context.get_default_attribute(), attribute)
 
-                        if 'id' in label:
+                        if 'id' in label and len(label['id']) > 0:
                             # 已经存在的图形也可能有2种情况，就是update-label和insert-label
                             region_label_id = label['id']
                             label_obj = AnnotationProjectImageRegionLabel(id=region_label_id, imageId=imageId, regionId=region_id, labelId=labelId, type="MANUAL", version="0", attribute=attribute, userId=userId, createTime=now, updateTime=now)
                             update_region_label_list.append(label_obj)
                         else:
                             region_label_id = str(uuid.uuid4())
-
                             label_obj = AnnotationProjectImageRegionLabel(id=region_label_id, imageId=imageId, regionId=region_id, labelId=labelId, type="MANUAL", version="0", attribute=attribute, userId=userId, createTime=now, updateTime=now)
                             insert_region_label_list.append(label_obj)
             else:

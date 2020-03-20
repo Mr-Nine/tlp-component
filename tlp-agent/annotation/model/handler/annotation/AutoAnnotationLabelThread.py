@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-02 11:10:52
-@LastEditTime: 2019-12-17 18:19:28
+@LastEditTime: 2020-03-20 10:45:30
 @Description:
 '''
 
@@ -47,7 +47,7 @@ class AutoAnnotationLabelThread(threading.Thread):
             # source /export/software/miniconda3/bin/activate &&
             command = "cd " + work_dir + " && python " + self.__script_path
             command = ""
-            command = "python " + self.__script_path + " -t inferencer" + " -pid " + self.__project_id + " -uid " + self.__user_id + " -p " + self.__image_path + " -iid " + self.__inferencer_id
+            command = "python " + self.__script_path + " -t inference" + " -pid " + self.__project_id + " -uid " + self.__user_id + " -p " + self.__image_path + " -iid " + self.__inferencer_id
             logging.info(command)
             auto_label_process = subprocess.Popen(command, shell=True, cwd=work_dir, stdout=subprocess.PIPE)
             out = auto_label_process.stdout.readlines()
