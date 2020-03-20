@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-10-31 11:57:58
-@LastEditTime: 2020-03-19 19:56:19
+@LastEditTime: 2020-03-20 12:11:16
 @Description:负责标注页面的websocket连接的handler,在收到连接请求后，会先进行连接验证,如果验证通过，
     则创建连接并把连接管理交给模块控制器, 如果验证不通过，则会拒绝创建连接请求。
     在收到任何的消息后，都不会进行处理，而是直接发送给模块控制器。
@@ -182,12 +182,15 @@ class AnnotationWebscoketHandler(tornado.websocket.WebSocketHandler):
             opened_result["projectName"] = project.name
             opened_result["projectLock"] = project.locked
 
-            select_inference_sql = """select * from AnnotationProjectInferencer where projectId = %s and `activity` = 1"""
-            select_inference_result = mysql.selectOne(select_inference_sql, (user.projectId, ))
+            select_inference_sql = """select * from AnnotationProjectInferencer where projectId = %s"""
+            select_inference_result = mysql.selectAll(select_inference_sql, (user.projectId, ))
+            project_inference_list = []
+
             if select_inference_result[0]:
-                opened_result["inferencerId"] = select_inference_result[1]['id'].decode("utf-8")
-            else:
-                opened_result["inferencerId"] = ''
+                for inference_result in select_inference_result[1]:
+                    project_inference_list.append(mysql_dict_2_dict(inference_result))
+
+            opened_result["inferencerInfo"] = project_inference_list
 
             sql_start = """select * from `AnnotationProjectLabelTemplate` where projectId = %s order by name asc"""
             sql_end = """ limit %s, %s"""
