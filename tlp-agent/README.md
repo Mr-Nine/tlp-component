@@ -32,7 +32,15 @@ DBUtils>=1.3
 
 ## 安装方法
 
-无需安装，运行项目目录下的`run-linux.sh`或`run-windows.sh`即可在后台启动服务。
+安装Python3，[下载地址](https://www.python.org/ftp/python/3.7.7/python-3.7.7-amd64.exe)，next 2 over；
+
+开启一个cmd命令行窗口，尝试输入`pip list`，如果有结果返回，则说明pip安装正常，如果没有成功安装pip，则先下载安装[pip的脚本](https://bootstrap.pypa.io/get-pip.py)，下载到本地后开启cmd，切换到get-pip.py(刚才下载的脚本)所在的目录，执行`python get-pip.py`，安装pip，然后再执行`pip list`检查是否能正确返回结果；
+
+切换到tlp-agent目录下，执行命令`pip install -r requirements.txt`
+
+## 运行方法
+
+运行项目目录下的`run-linux.sh`或`run-windows.sh`即可在后台启动服务。
 
 ## 测试方法
 
