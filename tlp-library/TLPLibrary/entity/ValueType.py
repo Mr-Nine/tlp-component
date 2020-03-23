@@ -1,16 +1,10 @@
 # -- coding: utf-8 --
-'''
-@Project:
-@Team:
-@Author: jerome.du
-@LastEditors: jerome.du
-@Date: 2019-12-11 19:03:30
-@LastEditTime: 2020-03-17 16:37:22
-@Description:
-'''
 
 class ValueType():
-
+    '''label的attribute的值类型常量
+    NUMBER:数值类型
+    TEXT:文本类型
+    '''
     INT = "int"
     FLOAT = "float"
     DOUBLE = "double"
@@ -19,6 +13,11 @@ class ValueType():
 
     @staticmethod
     def check_type(type):
+        '''检查当前类型是否是一个合格的ValueType
+
+        Args:
+            type (str): 值类型
+        '''
         if not isinstance(type, str):
             return False
 

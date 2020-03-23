@@ -5,7 +5,7 @@
 @Author: jerome.du
 @LastEditors: jerome.du
 @Date: 2019-12-12 20:44:56
-@LastEditTime: 2020-03-20 15:10:17
+@LastEditTime: 2020-03-20 16:52:28
 @Description:
 '''
 
@@ -72,10 +72,8 @@ class ImportLabelService(BusinessService):
                 self._mergeLabelTemplate(image.meta_labels, database_meta_label_template_map, merged_meta_label_template_list)
 
                 # 提取需要创建或更新的元数据标签模板信息
-                print("A")
-                print(merged_meta_label_template_list)
-                print("B")
                 for meta_label_template in merged_meta_label_template_list:
+                    temp_attribute = meta_label_template["attribute"]
                     template_label_attribute = json.dumps(meta_label_template["attribute"])
                     if "id" in meta_label_template and meta_label_template["id"]:
                         # 处理要更新的元数据标签模板数据
@@ -93,6 +91,11 @@ class ImportLabelService(BusinessService):
                     label_template_id = self._getLabelTemplateIdByTemplateName(meta_label.name, merged_meta_label_template_list, database_meta_label_template_map)
                     if label_template_id is None:
                         raise NotFoundException("label template not found.")
+
+                    # 写入默认模板属性中的默认值
+                    for default_attribute in self._default_attributes:
+                        meta_label.addAttribute(default_attribute['key'], default_attribute['type'], default_attribute['default'])
+
                     meta_label_id = str(uuid.uuid4())
                     meta_label_attribute = meta_label.generateAttributeJson()
                     meta_label_values.append((meta_label_id, image.id, label_template_id, TaggingType.IMPORT, version, meta_label_attribute, run_parameter.user_id, now, now))
@@ -126,6 +129,11 @@ class ImportLabelService(BusinessService):
 
                     for region_label in region.labels:
                         background_color = self._getLabelBackgroundColor(region_label)
+
+                        # 写入默认模板属性中的默认值
+                        for default_attribute in self._default_attributes:
+                            region_label.addAttribute(default_attribute['key'], default_attribute['type'], default_attribute['default'])
+
                         region_label_attribute = region_label.generateAttributeJson()
                         label_template_id = self._getLabelTemplateIdByTemplateName(region_label.name, merged_region_label_template_list, database_region_label_template_map) #self._findLabelTemplateId(region_label_template_map, region_label.name)
                         if label_template_id is None:

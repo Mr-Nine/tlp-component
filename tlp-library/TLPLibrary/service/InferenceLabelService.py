@@ -3,9 +3,9 @@
 @Project:
 @Team:
 @Author: jerome.du
-@LastEditors: jerome.du
+LastEditors: jerome.du
 @Date: 2019-12-12 20:45:34
-@LastEditTime: 2020-03-20 15:23:45
+LastEditTime: 2020-03-23 10:45:18
 @Description:
 '''
 
@@ -129,6 +129,13 @@ class InferenceLabelService(BusinessService):
                     if label_template_id is None:
                         raise NotFoundException("label template not found")
                     meta_label_id = str(uuid.uuid4())
+
+                    # 无法在用户设置的属性和系统定义的默认值直接找到一个平衡点，所以写死
+                    if meta_label.getLabelConfidence() is not None:
+                        meta_label.addAttribute("confidence", "NUMBER", meta_label.getLabelConfidence())
+                    else:
+                        meta_label.addAttribute("confidence", "NUMBER", 1.0)
+
                     meta_label_attribute = meta_label.generateAttributeJson()
                     meta_label_values.append((meta_label_id, image.id, label_template_id, TaggingType.AUTO, inference_version, meta_label_attribute, run_parameter.user_id, now, now, inference_id))
 
@@ -163,6 +170,10 @@ class InferenceLabelService(BusinessService):
 
                     for region_label in region.labels:
                         background_color = self._getLabelBackgroundColor(region_label)
+                        if region_label.getLabelConfidence() is not None:
+                            region_label.addAttribute("confidence", "NUMBER", meta_label.getLabelConfidence())
+                        else:
+                            region_label.addAttribute("confidence", "NUMBER", 1.0)
                         region_label_attribute = region_label.generateAttributeJson()
                         label_template_id = self._getLabelTemplateIdByTemplateName(region_label.name, merged_region_label_template_list, database_region_label_template_map) #self._findLabelTemplateId(region_label_template_map, region_label.name)
                         if label_template_id is None:
@@ -232,50 +243,50 @@ class InferenceLabelService(BusinessService):
 
                     # 删除meta标签信息,记录模板ids
                     # select labelId from AnnotationProjectImageMateLabel1 where imageId = ? and last_version = ? and type = 'AUTO'
-                    meta_label_template_ids_result = self._mysql.selectAll("select labelId from " + meta_label_table_name + " where `imageId` = %s and `version` = %s and `type` = 'AUTO' and `inferencerId` = %s group by labelId", (image.id, last_version, inference_id, ))
+                    # meta_label_template_ids_result = self._mysql.selectAll("select labelId from " + meta_label_table_name + " where `imageId` = %s and `version` = %s and `type` = 'AUTO' and `inferencerId` = %s group by labelId", (image.id, last_version, inference_id, ))
                     delete_meta_label_result = self._mysql.delete(sql="delete from " + meta_label_table_name + " where imageId = %s and version = %s and type = 'AUTO' and `inferencerId` = %s", parameter=(image.id, last_version, inference_id, ), auto_commit=False)
 
                     # 删除区域标签信息,记录模板的ids
-                    region_label_template_ids_result = self._mysql.selectAll("select labelId from " + region_label_table_name + " where `imageId` = %s and `version` = %s and `type` = 'AUTO' and `inferencerId` = %s group by labelId", (image.id, last_version, inference_id, ))
+                    # region_label_template_ids_result = self._mysql.selectAll("select labelId from " + region_label_table_name + " where `imageId` = %s and `version` = %s and `type` = 'AUTO' and `inferencerId` = %s group by labelId", (image.id, last_version, inference_id, ))
                     delete_region_label_result = self._mysql.delete(sql="delete from " + region_label_table_name + " where imageId = %s and version = %s and type = 'AUTO' and `inferencerId` = %s", parameter=(image.id, last_version, inference_id, ), auto_commit=False)
 
                     delete_region_result = self._mysql.delete(sql="delete from " + region_table_name + " where `imageId` = %s and `version` = %s and `type` = 'AUTO' and `inferencerId` = %s", parameter=(image.id, last_version, inference_id, ), auto_commit=False)
 
-                    wait_delete_label_template_ids = []
+                    # wait_delete_label_template_ids = []
 
-                    if meta_label_template_ids_result[0]:
-                        for labelIdDict in meta_label_template_ids_result[1]:
-                            wait_delete_label_template_ids.append(labelIdDict["labelId"])
+                    # if meta_label_template_ids_result[0]:
+                    #     for labelIdDict in meta_label_template_ids_result[1]:
+                    #         wait_delete_label_template_ids.append(labelIdDict["labelId"])
 
-                    if region_label_template_ids_result[0]:
-                        for labelIdDict in region_label_template_ids_result[1]:
-                            wait_delete_label_template_ids.append(labelIdDict["labelId"])
+                    # if region_label_template_ids_result[0]:
+                    #     for labelIdDict in region_label_template_ids_result[1]:
+                    #         wait_delete_label_template_ids.append(labelIdDict["labelId"])
 
-                    wait_delete_label_template_ids_str = ""
-                    for template_id in wait_delete_label_template_ids:
-                        wait_delete_label_template_ids_str += "'" + str(template_id, encoding="utf-8") + "',"
+                    # wait_delete_label_template_ids_str = ""
+                    # for template_id in wait_delete_label_template_ids:
+                    #     wait_delete_label_template_ids_str += "'" + str(template_id, encoding="utf-8") + "',"
 
-                    wait_delete_label_template_ids_str = wait_delete_label_template_ids_str[:-1]
+                    # wait_delete_label_template_ids_str = wait_delete_label_template_ids_str[:-1]
 
-                    select_label_contact_result_sql = "select labelId, COUNT(1) count_num from " + region_label_table_name + " where labelId in (" + wait_delete_label_template_ids_str + ") group by labelId UNION select labelId, COUNT(1) count_num from " + meta_label_table_name + " where labelId in (" + wait_delete_label_template_ids_str + ") group by labelId;"
-                    select_label_contact_result = self._mysql.selectAll(sql=select_label_contact_result_sql)
+                    # select_label_contact_result_sql = "select labelId, COUNT(1) count_num from " + region_label_table_name + " where labelId in (" + wait_delete_label_template_ids_str + ") group by labelId UNION select labelId, COUNT(1) count_num from " + meta_label_table_name + " where labelId in (" + wait_delete_label_template_ids_str + ") group by labelId;"
+                    # select_label_contact_result = self._mysql.selectAll(sql=select_label_contact_result_sql)
 
-                    if select_label_contact_result[0]:
-                        for result in select_label_contact_result[1]:
-                            if result["count_num"] > 0:
-                                wait_delete_label_template_ids.remove(result['labelId'])
+                    # if select_label_contact_result[0]:
+                    #     for result in select_label_contact_result[1]:
+                    #         if result["count_num"] > 0:
+                    #             wait_delete_label_template_ids.remove(result['labelId'])
 
-                    # 没有关联的单独的模板信息
-                    if len(wait_delete_label_template_ids) > 0:
-                        delete_label_template_ids_str = ""
-                        for template_id in wait_delete_label_template_ids:
-                            delete_label_template_ids_str += "'" + str(template_id, encoding="utf-8") + "',"
+                    # # 没有关联的单独的模板信息
+                    # if len(wait_delete_label_template_ids) > 0:
+                    #     delete_label_template_ids_str = ""
+                    #     for template_id in wait_delete_label_template_ids:
+                    #         delete_label_template_ids_str += "'" + str(template_id, encoding="utf-8") + "',"
 
-                        delete_label_template_ids_str = delete_label_template_ids_str[:-1]
+                    #     delete_label_template_ids_str = delete_label_template_ids_str[:-1]
 
-                        print("deleted label template ids : %s" % delete_label_template_ids_str)
+                    #     print("deleted label template ids : %s" % delete_label_template_ids_str)
 
-                        self._mysql.delete(sql="delete from " + self._config.project_label_template_table_name + " where id in (" + delete_label_template_ids_str +")")
+                    #     self._mysql.delete(sql="delete from " + self._config.project_label_template_table_name + " where id in (" + delete_label_template_ids_str +")")
 
                     self._mysql.end()
 

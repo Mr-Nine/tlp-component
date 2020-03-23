@@ -1,20 +1,23 @@
 # -- coding: utf-8 --
-'''
-@Project:
-@Team:
-@Author: jerome.du
-@LastEditors: jerome.du
-@Date: 2019-12-11 20:54:31
-@LastEditTime: 2020-03-18 14:46:32
-@Description:
-'''
 
 import argparse
 
 class RunParameter(object):
+    '''脚本运行时的会传入的参数对象
+    '''
 
     @staticmethod
     def get_run_parameter(): # , choices=('import', 'inference')
+        '''获取运行的参数对象
+
+        Returns (RunParameter):
+            脚本运行时的会传入的参数对象:
+            projectId:运行的项目ID
+            path:需要处理的图片的目录或路径
+            type:运行脚本的入口类型
+            userId:指定脚本的用户ID
+            inferenceId:如果是自动推理，推理器的ID
+        '''
         parse = argparse.ArgumentParser(description="run customer script")
         parse.add_argument("-pid", "--projectId", help="当前脚本要处理的数据所属的项目ID", type=str, metavar="", required=True)
         parse.add_argument("-p", "--path", help="图片全路径(自动推理)或要处理的图片所在的根目录(导入原有标注信息)", type=str, metavar="", required=True)

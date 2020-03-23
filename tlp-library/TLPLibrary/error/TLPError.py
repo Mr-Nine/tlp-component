@@ -1,23 +1,19 @@
 # -- coding: utf-8 --
 
-'''
-@Project:
-@Team:
-@Author: jerome.du
-@LastEditors: jerome.du
-@Date: 2019-11-22 15:08:22
-@LastEditTime: 2019-12-12 22:10:23
-@Description:
-'''
-
 import logging
 import traceback
 
 class TLPError(BaseException):
+    '''TLPLibrary的异常定义
+    '''
+
     def __init__(self, message):
         self.message = message
 
     def print_exception_stack(self):
+        '''打印自定义异常信息
+        将异常的堆栈信息转换为字符串，方便输出和记类
+        '''
         from io import StringIO
         fp = StringIO()
         traceback.print_exc(file=fp)
@@ -28,6 +24,8 @@ class TLPError(BaseException):
 
 
     def print_exception_message(self):
+        '''将异常的信息输出到log中，不包含堆栈信息
+        '''
         logging.error(self.message)
 
 class ClassCastException(TLPError):

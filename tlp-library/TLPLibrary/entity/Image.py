@@ -1,13 +1,4 @@
-
-'''
-@Project:
-@Team:
-@Author: jerome.du
-@LastEditors: jerome.du
-@Date: 2019-12-12 17:39:06
-@LastEditTime: 2020-03-16 14:51:39
-@Description:
-'''
+# -- coding: utf-8 --
 import json
 
 from TLPLibrary.core import GenericEntity
@@ -15,7 +6,8 @@ from TLPLibrary.entity import MetaLabel, ImageRegion
 from TLPLibrary.error import ClassCastException
 
 class Image(GenericEntity):
-
+    '''描述一个
+    '''
     def __init__(self, path):
         super(Image, self).__init__()
 
@@ -26,8 +18,13 @@ class Image(GenericEntity):
 
 
     def addMetaLabel(self, meta_label):
+        '''关联一个元数据标签到图片
+
+        Args:
+            meta_label (MetaLabel) :要和图片关联的meta label对象
+        '''
         if not isinstance(meta_label, MetaLabel):
-            raise ClassCastException("请添加MetaLabel类型的标签到Image")
+            raise ClassCastException("add mate label type error.")
 
         #TODO:是否要合并同名
         # for self_label in self.meta_labels:
@@ -43,8 +40,14 @@ class Image(GenericEntity):
 
         self.meta_labels.append(meta_label)
 
+
     def addImageRegion(self, image_region):
+        '''关联一个图片上的标注区域
+
+        Args:
+            image_region (ImageRegion): 要关联的区域对象，可以是ImagePolygonRegion或ImageRectangleRegion的对象。
+        '''
         if not isinstance(image_region, ImageRegion):
-            raise ClassCastException("请添加ImagePolygonRegion或ImageRectangleRegion类型的区域到Image")
+            raise ClassCastException("add region type error.")
 
         self.regions.append(image_region)

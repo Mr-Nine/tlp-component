@@ -1,13 +1,4 @@
 # -- coding: utf-8 --
-'''
-@Project:
-@Team:
-@Author: jerome.du
-@LastEditors: jerome.du
-@Date: 2019-12-13 11:48:14
-@LastEditTime: 2020-03-20 15:17:43
-@Description:
-'''
 import os
 import uuid
 import time
@@ -19,10 +10,20 @@ from TLPLibrary.error import *
 from TLPLibrary.entity import *
 
 class BusinessService(object):
+    '''
+    '''
 
     def __init__(self):
         self._mysql = Mysql()
         self._config = Config()
+
+        self._default_attributes = []
+        default_attributes_result = self._mysql.selectOne("select `value` from Config where `targetId` = -1 and `key` = 'ANNOTATION_LABEL_TEMPLATE_DEFAULT_ATTRIBUTE'")
+        print(default_attributes_result)
+        if default_attributes_result[0]:
+            default_attribute_json = json.loads(default_attributes_result[1]['value'].decode("utf-8"))
+            self._default_attributes = default_attribute_json
+
 
     def _generateRandomColors(self):
         return '#' + ("".join([random.choice("0123456789ABCDEF") for i in range(6)]))
@@ -325,6 +326,14 @@ class BusinessService(object):
                 for ready_label in ready_lables:
                     ready_label_templates = ready_label.generateLabelTemplateData()
                     self._mergeLabelTemplateAttribute(ready_label_templates, new_template["attribute"])
+
+                # 加入默认的属性到模板信息中
+                print("11111111111111111111111111111111")
+                print(self._default_attributes)
+                print("11111111111111111111111111111111")
+                for default_attribute in self._default_attributes:
+                    print(default_attribute)
+                    new_template["attribute"].append(default_attribute)
 
                 merge_result_list.append(new_template)
 

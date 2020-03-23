@@ -1,14 +1,4 @@
 # -- coding: utf-8 --
-'''
-@Project:
-@Team:
-@Author: jerome.du
-@LastEditors: jerome.du
-@Date: 2019-11-07 09:56:37
-@LastEditTime: 2020-03-13 19:29:17
-@Description:
-注意，所有方法不提供主动关闭连接得方式，因为所有的连接都是可以服用的，需要调用后手动关闭
-'''
 
 import MySQLdb
 from MySQLdb.cursors import DictCursor
@@ -57,11 +47,14 @@ class Mysql(object):
 
 
     def selectOne(self, sql, parameter=None):
-        '''
-        @description:查询单条记录，如果查询结果返回多条，也只会取第一条结果返回
-        @param {string} sql:要执行的SQL语句
-        @param {tuple} parameter:要替换到SQL语句中的占位符中的参数，会按索引进行替换
-        @return: {tuple}: (查询的总条目数, 查询的结果，如果查询的结果集为空，则返回False)
+        '''查询单条记录，如果查询结果返回多条，也只会取第一条结果返回
+
+        Args:
+            sql (str): 要执行的SQL语句
+            parameter (tuple): 拼接在SQL语句中的参数元组，可以不传.
+
+        Returns (tuple):
+            结果的元组，2个元素，1为查询结果的count数量，2为结果的dict.
         '''
         try:
             if parameter is None:

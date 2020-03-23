@@ -1,13 +1,5 @@
+# -- coding: utf-8 --
 
-'''
-@Project:
-@Team:
-@Author: jerome.du
-@LastEditors: jerome.du
-@Date: 2019-12-12 15:28:16
-@LastEditTime: 2020-03-19 16:46:14
-@Description:
-'''
 import json
 
 from TLPLibrary.core import GenericEntity
@@ -19,8 +11,7 @@ class ImageRegion(GenericEntity):
     标识图片上一个标注区域的对象描述
     '''
     def __init__(self, points, bounding_box):
-        '''
-        初始化一个区域对象
+        '''初始化一个区域对象
 
         Args:
             points (list): ((point1, point2), (point3, point4)...(pointN, pointN+1))
@@ -41,8 +32,13 @@ class ImageRegion(GenericEntity):
 
 
     def addRegionLabel(self, label):
+        '''关联一个区域的标签对象
+
+        Args:
+            label (RegionLabel): 关联
+        '''
         if not isinstance(label, RegionLabel):
-            raise ClassCastException("只能为ImageRegion添加RegionLabel类型的Label")
+            raise ClassCastException("add region label type error.")
 
         # if label.name in self.labels:
         #     # 整合名称相同的Label
@@ -51,6 +47,11 @@ class ImageRegion(GenericEntity):
         self.labels.append(label)
 
     def getShapeDataJson(self):
+        '''获取描述区域形状的坐标数据的JSON结构。
+
+        Returns (json):
+            JSON结构的数据结构[[point, point], [point, point], [point, point], [point, point]]
+        '''
         if self.shape_data:
             return json.dumps(self.shape_data)
 
@@ -58,7 +59,8 @@ class ImageRegion(GenericEntity):
 
 
 class ImagePolygonRegion(ImageRegion):
-
+    '''描述一个多边形区域的对象
+    '''
     def __init__(self, points, bounding_box):
         super(ImagePolygonRegion, self).__init__(points, bounding_box)
         self.shape = RegionType.POLYGON
@@ -66,7 +68,8 @@ class ImagePolygonRegion(ImageRegion):
 
 
 class ImageRectangleRegion(ImageRegion):
-
+    '''描述一个举行区域的对象
+    '''
     def __init__(self, points, bounding_box):
         super(ImageRectangleRegion, self).__init__(points, bounding_box)
         self.shape = RegionType.RECTANGLE

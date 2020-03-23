@@ -1,19 +1,11 @@
 # -- coding: utf-8 --
-'''
-@Project:
-@Team:
-@Author: jerome.du
-@LastEditors: jerome.du
-@Date: 2019-11-13 17:16:51
-@LastEditTime: 2020-03-18 14:46:14
-@Description:
-'''
 
 import os
 import configparser
 
 class Config(object):
-
+    '''TLPLibrary的配置对象，会读取目录下的library.conf来初始化各模块.
+    '''
     __instance=None
 
     def __new__(cls):
@@ -27,6 +19,8 @@ class Config(object):
         pass
 
     def initConfig(self):
+        '''读取目录下的library.conf来初始化各模块.
+        '''
         tlp_config = configparser.ConfigParser()
         tlp_config.read(filenames=os.path.join(os.path.dirname(__file__), "library.conf"), encoding="utf-8")
 
