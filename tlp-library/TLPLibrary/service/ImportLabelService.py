@@ -3,9 +3,9 @@
 @Project:
 @Team:
 @Author: jerome.du
-@LastEditors: jerome.du
+LastEditors: jerome.du
 @Date: 2019-12-12 20:44:56
-@LastEditTime: 2020-03-20 16:52:28
+LastEditTime: 2020-03-23 19:43:59
 @Description:
 '''
 
@@ -208,5 +208,5 @@ class ImportLabelService(BusinessService):
         if not isinstance(image, Image):
             raise ClassCastException("target image not found.")
 
-        self.importManyImageLabel(run_parameter=run_parameter, images=(image))
+        self.importManyImageLabel(run_parameter=run_parameter, images=(image, ))
 

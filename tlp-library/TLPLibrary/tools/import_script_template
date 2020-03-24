@@ -103,7 +103,7 @@ def __demo_method(run_parameter, image_dir):
 
     try:
         importLabelService = ImportLabelService()
-        importLabelService.importManyImageLabel(runParameter, images)
+        importLabelService.importManyImageLabel(run_parameter, images)
         print(True)
     except DataBaseException as dbe:
         dbe.print_exception_stack()

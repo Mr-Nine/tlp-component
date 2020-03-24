@@ -3,9 +3,9 @@
 @Project:TLP
 @Team:dcp team
 @Author: jerome.du
-@LastEditors: jerome.du
+LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2020-03-19 20:37:29
+LastEditTime: 2020-03-23 14:25:27
 @Description:
 '''
 
@@ -139,6 +139,9 @@ class AnnotationMetaLabelHandler(AbstractHandler):
         return True
 
     def _merge_default_attribute(self, default_attributes, target_attribute):
+        if default_attributes is None:
+            return json.dump(target_attribute)
+
         for default in default_attributes:
             default_key = default['key']
             default_value = default['default']

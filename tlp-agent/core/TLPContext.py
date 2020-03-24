@@ -3,9 +3,9 @@
 @Project:TLP
 @Team:DCP team
 @Author: jerome.du
-@LastEditors: jerome.du
+LastEditors: jerome.du
 @Date: 2019-11-17 21:14:41
-@LastEditTime: 2020-03-19 19:16:36
+LastEditTime: 2020-03-24 14:16:58
 @Description:TLP模块上下文对象
 '''
 
@@ -52,6 +52,15 @@ class TLPContext(object):
         if connect_id in self.__connects_dict and 'publisher' in self.__connects_dict[connect_id]:
             return self.__connects_dict[connect_id]['publisher']
 
+        return None
+
+    def set_label_filter_condition(self, connect_id, condition=[]):
+        if connect_id in self.__connects_dict:
+            self.__connects_dict[connect_id]['label_condition'] = condition
+
+    def get_label_filter_condition(self, connect_id):
+        if connect_id in self.__connects_dict and 'label_condition' in self.__connects_dict[connect_id]:
+            return self.__connects_dict[connect_id]['label_condition']
         return None
 
 

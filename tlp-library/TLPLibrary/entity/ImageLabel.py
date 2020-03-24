@@ -78,6 +78,8 @@ class Label(GenericEntity):
         Returns:
             返回当前标签key和value的属性字典JSON字符串.
         '''
+        print("!")
+        print(self.generateAttributeData())
         return json.dumps(self.generateAttributeData())
 
 

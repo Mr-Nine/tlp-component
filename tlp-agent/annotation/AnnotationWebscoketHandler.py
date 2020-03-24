@@ -3,9 +3,9 @@
 @Project:TLP
 @Team:DCP-Team
 @Author: jerome.du
-@LastEditors: jerome.du
+LastEditors: jerome.du
 @Date: 2019-10-31 11:57:58
-@LastEditTime: 2020-03-20 12:11:16
+LastEditTime: 2020-03-24 14:15:19
 @Description:负责标注页面的websocket连接的handler,在收到连接请求后，会先进行连接验证,如果验证通过，
     则创建连接并把连接管理交给模块控制器, 如果验证不通过，则会拒绝创建连接请求。
     在收到任何的消息后，都不会进行处理，而是直接发送给模块控制器。

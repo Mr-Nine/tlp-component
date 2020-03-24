@@ -20,11 +20,11 @@ class ImageRegion(GenericEntity):
         super(ImageRegion, self).__init__()
 
         if not isinstance(points, list):
-            raise ClassCastException()
-        if not isinstance(bounding_box, list) or len(bounding_box) != 4:
-            raise ClassCastException()
+            raise ClassCastException("parameter points is list.")
+        if bounding_box is not None and (not isinstance(bounding_box, list) or len(bounding_box) != 4):
+            raise ClassCastException("parameter bounding_box is list.")
         if len(points) < 3:
-            raise ClassCastException()
+            raise ClassCastException("parameter bounding_box not less than 3.")
 
         self.shape_data = points
         self.bounding_box = bounding_box
