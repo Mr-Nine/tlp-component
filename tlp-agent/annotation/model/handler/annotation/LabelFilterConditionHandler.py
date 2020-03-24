@@ -1,13 +1,4 @@
 # -- coding: utf-8 --
-'''
-@Project:TLP
-@Team:dcp team
-@Author: jerome.du
-LastEditors: jerome.du
-@Date: 2019-11-04 14:04:52
-LastEditTime: 2020-03-24 14:26:11
-@Description:
-'''
 
 import sys
 import json
@@ -49,15 +40,11 @@ class LabelFilterConditionHandler(AbstractHandler):
             connect_id = id(self.websocket)
 
             if action == 'set-condition' and "condition" in data and data["condition"]:
-
-                print(context.get_label_filter_condition(connect_id=connect_id))
-
                 context.set_label_filter_condition(connect_id=connect_id, condition=data["condition"])
-
-                print(context.get_label_filter_condition(connect_id=connect_id))
+                return self.replyMessage(message, state=True, msg="设置成功")
             elif action == 'clean-condition':
                 context.set_label_filter_condition(connect_id=connect_id, condition=None)
-                print(context.get_label_filter_condition(connect_id=connect_id))
+                return self.replyMessage(message, state=True, msg="清除成功")
 
         finally:
             pass

@@ -4,9 +4,9 @@ __author__ = 'dcp team dujiujun - tlp-agent'
 @Project:
 @Team:
 @Author: jerome.du
-@LastEditors: jerome.du
+LastEditors: jerome.du
 @Date: 2019-11-07 09:56:37
-@LastEditTime: 2019-11-27 13:12:53
+LastEditTime: 2020-03-24 17:32:51
 @Description:
 注意，所有方法不提供主动关闭连接得方式，因为所有的连接都是可以服用的，需要调用后手动关闭
 '''
@@ -83,11 +83,14 @@ class MysqlManager(object):
 
 
     def selectAll(self, sql, parameter=None):
-        '''
-        @description:批量查询所有符合条件的内容。
-        @param {string} sql:要执行的SQL语句
-        @param {tuple} parameter:要替换到SQL语句中的占位符中的参数，会按索引进行替换
-        @return: {tuple}: (查询的总条目数, 查询的结果，如果查询的结果集为空，则返回False)
+        '''批量查询所有符合条件的内容。
+
+        Args:
+            sql (str): 要执行的SQL语句
+            parameter (tuple): 要替换到SQL语句中的占位符中的参数，会按索引进行替换
+
+        Returns:
+            (tuple) (查询的总条目数, 查询的结果，如果查询的结果集为空，则返回False)
         '''
         try:
             if parameter is None:
