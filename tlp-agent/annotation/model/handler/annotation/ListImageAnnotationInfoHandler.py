@@ -5,7 +5,7 @@
 @Author: jerome.du
 LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-LastEditTime: 2020-03-24 19:38:14
+LastEditTime: 2020-03-25 13:58:25
 @Description:
 '''
 
@@ -230,13 +230,13 @@ class ListImageAnnotationInfoHandler(AbstractHandler):
 
         select_meta_label_sql = "select apiml.* from " + meta_label_table_name + " apiml left join AnnotationProjectLabelTemplate aplt on apiml.labelId = aplt.id where apiml.imageId = %s "
 
-        if label_type_list_str is not None:
+        if label_type_list_str is not None and len(label_type_list_str) > 1:
             select_meta_label_sql += " and apiml.`type` in (" + label_type_list_str + ") "
 
-        if inferencer_id_list_str is not None:
+        if inferencer_id_list_str is not None and len(inferencer_id_list_str) > 1:
             select_meta_label_sql += " and apiml.`inferencerId` in (" + inferencer_id_list_str + ") "
 
-        if group_id_list_str is not None:
+        if group_id_list_str is not None and len(group_id_list_str) > 1:
             select_meta_label_sql += " and aplt.labelGroupId in (" + group_id_list_str + ") "
 
         if min_confidence_str is not None and max_confidence_str is not None:
@@ -254,13 +254,13 @@ class ListImageAnnotationInfoHandler(AbstractHandler):
         # 查标签带着区域的ID，吧区域的ID单独查出来整合
         select_region_label_sql = "select apirl.* from " + image_region_label_table_name + " apirl left join AnnotationProjectLabelTemplate aplt on apirl.labelId = aplt.id where apirl.imageId = %s "
 
-        if label_type_list_str is not None:
+        if label_type_list_str is not None and len(label_type_list_str) > 1:
             select_region_label_sql += " and apirl.`type` in (" + label_type_list_str + ") "
 
-        if inferencer_id_list_str is not None:
+        if inferencer_id_list_str is not None and len(inferencer_id_list_str) > 1:
             select_region_label_sql += " and apirl.`inferencerId` in (" + inferencer_id_list_str + ") "
 
-        if group_id_list_str is not None:
+        if group_id_list_str is not None and len(group_id_list_str) > 1:
             select_region_label_sql += " and aplt.labelGroupId in (" + group_id_list_str + ") "
 
         if min_confidence_str is not None and max_confidence_str is not None:
@@ -284,7 +284,7 @@ class ListImageAnnotationInfoHandler(AbstractHandler):
         region_ids_str = region_ids_str[:-1]
 
         region_list = []
-        if region_ids_str:
+        if region_ids_str is not None and len(region_ids_str) > 1:
             select_region_sql = "select * from " + image_region_table_name + " where id in (" + region_ids_str + ") order by `index` asc"
             select_region_result = mysql.selectAll(select_region_sql)
 
