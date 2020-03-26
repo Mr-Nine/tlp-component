@@ -64,6 +64,8 @@ def import_image_label_data(run_parameter, image_path):
     # create image object
     image = Image(image_path)
 
+    width_size = int(meta_data.getElementsByTagName("WidthInPixels")[0].childNodes[0].data)
+
     # add image meta label -- ROIClass
     image_meta_label = MetaLabel(name=meta_data.getElementsByTagName("ROIClass")[0].childNodes[0].data)
     image.addMetaLabel(image_meta_label)
@@ -80,6 +82,10 @@ def import_image_label_data(run_parameter, image_path):
         for position in positions:
             if isinstance(position, xml.dom.minidom.Element):
                 image_regions.append(eval(position.childNodes[0].data))
+
+        # 同步坐标系
+        for region in image_regions:
+            retion[0] = image_regions - width_size[0]
 
         if len(image_regions) == 4:
             region = ImageRectangleRegion(image_regions, bounding_box=None)
