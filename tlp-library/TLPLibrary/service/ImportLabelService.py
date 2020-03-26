@@ -5,7 +5,7 @@
 @Author: jerome.du
 LastEditors: jerome.du
 @Date: 2019-12-12 20:44:56
-LastEditTime: 2020-03-23 19:43:59
+LastEditTime: 2020-03-26 19:52:16
 @Description:
 '''
 
@@ -74,7 +74,7 @@ class ImportLabelService(BusinessService):
                 # 提取需要创建或更新的元数据标签模板信息
                 for meta_label_template in merged_meta_label_template_list:
                     temp_attribute = meta_label_template["attribute"]
-                    template_label_attribute = json.dumps(meta_label_template["attribute"])
+                    template_label_attribute = json.dumps(meta_label_template["attribute"], ensure_ascii=False)
                     if "id" in meta_label_template and meta_label_template["id"]:
                         # 处理要更新的元数据标签模板数据
                         update_meta_label_template_values.append((template_label_attribute, now, meta_label_template['id']))
@@ -106,7 +106,7 @@ class ImportLabelService(BusinessService):
 
                 # 提取需要创建或更新的区域标签模板信息
                 for region_label_template in merged_region_label_template_list:
-                    template_label_attribute = json.dumps(region_label_template["attribute"])
+                    template_label_attribute = json.dumps(region_label_template["attribute"], ensure_ascii=False)
                     if "id" in region_label_template and region_label_template["id"]:
                         # 处理要更新的区域数据标签模板数据
                         update_region_label_template_values.append((template_label_attribute, now, region_label_template["id"]))

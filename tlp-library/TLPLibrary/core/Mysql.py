@@ -37,9 +37,9 @@ class Mysql(object):
                 passwd=config.mysql_pwd,
                 db=config.database_name,
                 use_unicode=False,
-                charset=config.database_charset,
+                charset='utf8',
                 cursorclass=DictCursor
-            )
+            )#config.database_charset
 
         # print("MYSQL Manger ID: %d." % id(MysqlManager.__pool))
 

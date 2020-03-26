@@ -5,7 +5,7 @@ import os
 # import you library
 
 import xml.sax
-
+import chardet
 from xml.dom import minidom
 from xml.dom.minidom import parse
 
@@ -65,6 +65,7 @@ def import_image_label_data(run_parameter, image_path):
     image = Image(image_path)
 
     width_size = int(meta_data.getElementsByTagName("WidthInPixels")[0].childNodes[0].data)
+    height_size = int(meta_data.getElementsByTagName("HeightInPixels")[0].childNodes[0].data)
 
     # add image meta label -- ROIClass
     image_meta_label = MetaLabel(name=meta_data.getElementsByTagName("ROIClass")[0].childNodes[0].data)
@@ -84,13 +85,14 @@ def import_image_label_data(run_parameter, image_path):
                 image_regions.append(eval(position.childNodes[0].data))
 
         # 同步坐标系
+        region_images2 = []
         for region in image_regions:
-            retion[0] = width_size - region[0]
+            region_images2.append((region[0], height_size - region[1]))
 
-        if len(image_regions) == 4:
-            region = ImageRectangleRegion(image_regions, bounding_box=None)
+        if len(region_images2) == 4:
+            region = ImageRectangleRegion(region_images2, bounding_box=None)
         else:
-            region = ImagePolygonRegion(image_regions, bounding_box=None)
+            region = ImagePolygonRegion(region_images2, bounding_box=None)
 
         # get class info
         classes = obj.getElementsByTagName("Class")[0].childNodes
@@ -157,7 +159,7 @@ def __demo_method(run_parameter, image_dir):
             # 根据解析的数据构建图片的标签数据,找到当前图片的信息
 
             # 图片的meta标签创建
-            image_meta_label = MateLabel(name="dog")
+            image_meta_label = MetaLabel(name="dog")
             # 增加meta标签的属性
             image_meta_label.addAttribute(key="type", value_type=ValueType.TEXT, value="hound")
             image_meta_label.addAttribute(key="age", value_type=ValueType.NUMBER, value=4)

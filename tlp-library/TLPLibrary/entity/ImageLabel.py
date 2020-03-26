@@ -78,9 +78,7 @@ class Label(GenericEntity):
         Returns:
             返回当前标签key和value的属性字典JSON字符串.
         '''
-        print("!")
-        print(self.generateAttributeData())
-        return json.dumps(self.generateAttributeData())
+        return json.dumps(self.generateAttributeData(), ensure_ascii=False)
 
 
     def generateLabelTemplateData(self):
@@ -109,7 +107,7 @@ class Label(GenericEntity):
         Returns:
             返回JSON结构的数据
         '''
-        return json.dumps(self.generateLabelTemplateData())
+        return json.dumps(self.generateLabelTemplateData(), ensure_ascii=False)
 
 
     def setLabelConfidence(self, confidence):

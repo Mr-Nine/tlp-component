@@ -55,12 +55,12 @@ def __demo_method(run_parameter, image_dir):
             # 根据解析的数据构建图片的标签数据,找到当前图片的信息
 
             # 图片的meta标签创建
-            image_meta_label = MateLabel(name="dog")
+            image_meta_label = MetaLabel(name="dog")
             # 增加meta标签的属性
             image_meta_label.addAttribute(key="type", value_type=ValueType.TEXT, value="hound")
             image_meta_label.addAttribute(key="age", value_type=ValueType.NUMBER, value=4)
             # 将meta标签关联图片
-            image.addMateLabel(image_meta_label)
+            image.addMetaLabel(image_meta_label)
 
             # 图片的区域标签创建
             # 构建区域的范围，4个坐标点，左上，右上，左下，右下
