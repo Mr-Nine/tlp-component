@@ -85,7 +85,7 @@ def import_image_label_data(run_parameter, image_path):
 
         # 同步坐标系
         for region in image_regions:
-            retion[0] = image_regions - width_size[0]
+            retion[0] = width_size - region[0]
 
         if len(image_regions) == 4:
             region = ImageRectangleRegion(image_regions, bounding_box=None)
