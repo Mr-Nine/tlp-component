@@ -3,9 +3,9 @@
 @Project:
 @Team:
 @Author: jerome.du
-@LastEditors: jerome.du
+LastEditors: jerome.du
 @Date: 2019-11-25 11:21:03
-@LastEditTime: 2019-12-18 17:12:36
+LastEditTime: 2020-03-26 20:13:26
 @Description:
 '''
 
@@ -24,7 +24,7 @@ class AnnotationProjectImageRegionLabel(GenericEntity):
         data_dict['regionId']   = data_result['regionId'].decode("utf-8") if data_result["regionId"] else ""
         data_dict['labelId']    = data_result['labelId'].decode("utf-8") if data_result["labelId"] else ""
         data_dict['type']       = data_result['type'].decode("utf-8") if data_result["type"] else ""
-        data_dict['version']    = data_result['version'].decode("utf-8") if data_result["version"] else ""
+        data_dict['version']    = data_result['version']
         data_dict['attribute']  = data_result['attribute'].decode("utf-8") if data_result["attribute"] else ""
         data_dict['userId']     = data_result['userId'].decode("utf-8") if data_result["userId"] else ""
         data_dict['createTime'] = data_result["createTime"].strftime("%Y-%m-%d %H:%M:%S") if data_result["createTime"] else ""
