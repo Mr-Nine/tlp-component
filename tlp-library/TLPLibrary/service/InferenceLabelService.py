@@ -5,7 +5,7 @@
 @Author: jerome.du
 LastEditors: jerome.du
 @Date: 2019-12-12 20:45:34
-LastEditTime: 2020-03-23 10:45:18
+LastEditTime: 2020-03-25 15:54:31
 @Description:
 '''
 
@@ -50,10 +50,6 @@ class InferenceLabelService(BusinessService):
             if inference_info is None:
                 raise NotFoundException("project inference not found.")
 
-            # 检查推理器状态
-            if inference_info['state'] == 'INFERENCING':
-                raise RunTimeException("the inference is running.")
-
             # 推理器的版本号
             inference_version = inference_info['version'] # int
             inference_id = run_parameter.inference_id
@@ -67,6 +63,12 @@ class InferenceLabelService(BusinessService):
                 # TODO: 如果给定的图片并不存在于项目中，是否应该不抛出异常而是跳过，那是不是应该有写日志的办法？
                 image_info = self._findProjectImageInfo(image_table_name, image.path)
                 image.id = image_info['id']
+
+                # 检查推理器状态
+                if inference_info['state'] == 'INFERENCING':
+                    if self.__check_current_image_is_inferencing(table_index, run_parameter.inference_id, image.id):
+                        continue
+                    # raise RunTimeException("the inference is running.")
 
                 # 检查是否需要导入，检查依据：
                 # 是否有这个推理器的version的区域信息，meta标签信息，区域标签信息
@@ -296,12 +298,21 @@ class InferenceLabelService(BusinessService):
 
 
     def inferenceOneImageLabel(self, run_parameter, image):
-        '''
-        @description: 将推理后的单张图片信息写入的TLP中
-        @param {object} run_parameter: 程序的运行参数对象
-        @param {object} image: 要导入推理结果的图片对象
+        '''将推理后的单张图片信息写入的TLP中
+
+        Args:
+            run_parameter (RunParameter): 运行脚本时传入的参数的疯涨
+            image (Image): 要处理的图片对象
         '''
         if not isinstance(image, Image):
             raise ClassCastException("请指定要写入标签的图片对象")
 
         self.inferenceManyImageLabel(run_parameter=run_parameter, images=(image,))
+
+
+    def __check_current_image_is_inferencing(self, table_index, inference_id, image_id):
+        '''检查当前图片是否在标注中，通过查询标注器运行明细表进行区分
+        '''
+        select_sql = "select * from AnnotationProjectInferencerTask" + table_index + " where `inferencerId` = %s and imageId = %s"
+        select_result = self._mysql.selectAll(select_sql, (inference_id, image_id, ))
+        return select_result[0]
