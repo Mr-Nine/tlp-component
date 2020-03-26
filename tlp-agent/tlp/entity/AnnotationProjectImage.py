@@ -3,9 +3,9 @@
 @Project:
 @Team:
 @Author: jerome.du
-@LastEditors: jerome.du
+LastEditors: jerome.du
 @Date: 2019-11-20 16:53:11
-@LastEditTime: 2020-03-16 15:03:30
+LastEditTime: 2020-03-26 15:42:00
 @Description:
 '''
 
@@ -28,7 +28,7 @@ class AnnotationProjectImage(GenericEntity):
         data_dict["width"]              = data_result["width"]
         data_dict["height"]             = data_result["height"]
         data_dict["thumbnail"]          = True if data_result["thumbnail"] else False
-        data_dict["tile"]               = True if data_result["tile"] else False
+        data_dict["tile"]               = data_result["tile"].decode("utf-8")
         data_dict["minZoom"]            = data_result["minZoom"]
         data_dict["maxZoom"]            = data_result["maxZoom"]
         data_dict["sourceId"]           = data_result["sourceId"].decode("utf-8")
