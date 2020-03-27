@@ -5,7 +5,7 @@
 @Author: jerome.du
 LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-LastEditTime: 2020-03-27 19:29:33
+LastEditTime: 2020-03-27 21:17:42
 @Description:
 '''
 
@@ -271,10 +271,11 @@ class AnnotationRegionLabelHandler(AbstractHandler):
                             insert_region_label_list.append(label_obj)
             else:
                 # insert 如果矩形没有ID，那就说明他是新得，那它的label也都按新得处理
-                region_id = str(uuid.uuid4())
-                region_obj = AnnotationProjectImageRegion(id=region_id, imageId=imageId, type='MANUAL', index=index, shape=shape, shapeData=shapeData, userId=userId, createTime=now, updateTime=now)
-
                 if 'labels' in region and region['labels']:
+                    region_id = str(uuid.uuid4())
+                    region_obj = AnnotationProjectImageRegion(id=region_id, imageId=imageId, type='MANUAL', index=index, shape=shape, shapeData=shapeData, userId=userId, createTime=now, updateTime=now)
+                    insert_region_list.append(region_obj)
+
                     labels = region['labels']
 
                     for label in labels:
@@ -292,8 +293,6 @@ class AnnotationRegionLabelHandler(AbstractHandler):
 
                         label_obj = AnnotationProjectImageRegionLabel(id=region_label_id, imageId=imageId, regionId=region_id, labelId=labelId, type="MANUAL", version="0", attribute=attribute, userId=userId, createTime=now, updateTime=now)
                         insert_region_label_list.append(label_obj)
-
-                    insert_region_list.append(region_obj)
 
         return (insert_region_list, insert_region_label_list, update_region_list, update_region_label_list)
 
