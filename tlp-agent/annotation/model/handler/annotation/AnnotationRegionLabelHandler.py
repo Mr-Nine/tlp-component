@@ -3,9 +3,9 @@
 @Project:TLP
 @Team:dcp team
 @Author: jerome.du
-@LastEditors: jerome.du
+LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-@LastEditTime: 2020-03-20 11:16:18
+LastEditTime: 2020-03-27 17:58:20
 @Description:
 '''
 
@@ -293,6 +293,8 @@ class AnnotationRegionLabelHandler(AbstractHandler):
 
                         label_obj = AnnotationProjectImageRegionLabel(id=region_label_id, imageId=imageId, regionId=region_id, labelId=labelId, type="MANUAL", version="0", attribute=attribute, userId=userId, createTime=now, updateTime=now)
                         insert_region_label_list.append(label_obj)
+
+                    insert_region_list.append(region_obj)
 
         return (insert_region_list, insert_region_label_list, update_region_list, update_region_label_list)
 
