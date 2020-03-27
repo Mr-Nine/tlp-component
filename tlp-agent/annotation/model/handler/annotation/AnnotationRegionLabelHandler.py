@@ -5,7 +5,7 @@
 @Author: jerome.du
 LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-LastEditTime: 2020-03-27 17:58:20
+LastEditTime: 2020-03-27 19:29:33
 @Description:
 '''
 
@@ -273,7 +273,6 @@ class AnnotationRegionLabelHandler(AbstractHandler):
                 # insert 如果矩形没有ID，那就说明他是新得，那它的label也都按新得处理
                 region_id = str(uuid.uuid4())
                 region_obj = AnnotationProjectImageRegion(id=region_id, imageId=imageId, type='MANUAL', index=index, shape=shape, shapeData=shapeData, userId=userId, createTime=now, updateTime=now)
-                insert_region_list.append(region_obj)
 
                 if 'labels' in region and region['labels']:
                     labels = region['labels']

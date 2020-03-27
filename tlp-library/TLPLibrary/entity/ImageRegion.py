@@ -68,7 +68,7 @@ class ImagePolygonRegion(ImageRegion):
 
 
 class ImageRectangleRegion(ImageRegion):
-    '''描述一个举行区域的对象
+    '''描述一个矩形区域的对象
     '''
     def __init__(self, points, bounding_box):
         super(ImageRectangleRegion, self).__init__(points, bounding_box)
