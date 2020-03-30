@@ -5,7 +5,7 @@
 @Author: jerome.du
 LastEditors: jerome.du
 @Date: 2019-12-12 20:45:34
-LastEditTime: 2020-03-25 15:54:31
+LastEditTime: 2020-03-30 00:07:24
 @Description:
 '''
 
@@ -113,7 +113,7 @@ class InferenceLabelService(BusinessService):
                 for meta_label_template in merged_meta_label_template_list:
                     print("megred item:")
                     print(meta_label_template)
-                    template_label_attribute = json.dumps(meta_label_template["attribute"])
+                    template_label_attribute = json.dumps(meta_label_template["attribute"], ensure_ascii=False)
                     if "id" in meta_label_template and meta_label_template["id"]:
                         # 处理要更新的元数据标签模板数据
                         update_meta_label_template_values.append((template_label_attribute, now, meta_label_template['id']))
@@ -149,7 +149,7 @@ class InferenceLabelService(BusinessService):
                 for region_label_template in merged_region_label_template_list:
                     print("megred item:")
                     print(region_label_template)
-                    template_label_attribute = json.dumps(region_label_template["attribute"])
+                    template_label_attribute = json.dumps(region_label_template["attribute"], ensure_ascii=False)
                     if "id" in region_label_template and region_label_template["id"]:
                         # 处理要更新的区域数据标签模板数据
                         update_region_label_template_values.append((template_label_attribute, now, region_label_template["id"]))
@@ -173,7 +173,7 @@ class InferenceLabelService(BusinessService):
                     for region_label in region.labels:
                         background_color = self._getLabelBackgroundColor(region_label)
                         if region_label.getLabelConfidence() is not None:
-                            region_label.addAttribute("confidence", "NUMBER", meta_label.getLabelConfidence())
+                            region_label.addAttribute("confidence", "NUMBER", region_label.getLabelConfidence())
                         else:
                             region_label.addAttribute("confidence", "NUMBER", 1.0)
                         region_label_attribute = region_label.generateAttributeJson()
