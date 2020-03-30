@@ -5,7 +5,7 @@
 @Author: jerome.du
 LastEditors: jerome.du
 @Date: 2019-12-04 17:52:11
-LastEditTime: 2020-03-30 15:12:23
+LastEditTime: 2020-03-30 20:25:59
 @Description:
 '''
 
@@ -62,7 +62,7 @@ class PreprocessingWorkProcess(Process):
             rate = float(200) / float(size[1])
             new_size = (int(size[0] * rate), 200)
 
-            image_obj.thumbnail(new_size)
+            image_obj.thumbnail(new_size, Image.BILINEAR)
 
             thumbnail_path = os.path.join(self.image_root_path, 'thumbnail.png')
             image_obj.save(thumbnail_path, 'PNG')
@@ -117,7 +117,8 @@ class PreprocessingWorkProcess(Process):
             self.progress_queue.put({"state":"ERROR", "progress":"tiles", "imageId":self.pending_image_id, "imagePath":self.pending_image_path})
 
 
-
     def __copy_image_to_target(self, image_name):
+        '''
+        '''
         shutil.copyfile(self.pending_image_path, os.path.join(self.image_root_path, image_name))
 
