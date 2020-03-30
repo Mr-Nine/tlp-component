@@ -5,7 +5,7 @@
 @Author: jerome.du
 LastEditors: jerome.du
 @Date: 2019-12-12 20:45:34
-LastEditTime: 2020-03-30 00:07:24
+LastEditTime: 2020-03-30 17:21:38
 @Description:
 '''
 
@@ -84,8 +84,8 @@ class InferenceLabelService(BusinessService):
                         continue
 
                     # 图片的推理结果是推理器上个版本推理出来的，需要删除
-                    if last_version == inference_version - 1:
-                        delete_old_label = True
+                    # if last_version == inference_version - 1:
+                    delete_old_label = True
 
                 # 数据库中已存在的元数据模板信息
                 database_meta_label_template_map = self._buildLabelTemplateDatabaseMap(project_id, LabelType.META)
@@ -246,13 +246,13 @@ class InferenceLabelService(BusinessService):
                     # 删除meta标签信息,记录模板ids
                     # select labelId from AnnotationProjectImageMateLabel1 where imageId = ? and last_version = ? and type = 'AUTO'
                     # meta_label_template_ids_result = self._mysql.selectAll("select labelId from " + meta_label_table_name + " where `imageId` = %s and `version` = %s and `type` = 'AUTO' and `inferencerId` = %s group by labelId", (image.id, last_version, inference_id, ))
-                    delete_meta_label_result = self._mysql.delete(sql="delete from " + meta_label_table_name + " where imageId = %s and version = %s and type = 'AUTO' and `inferencerId` = %s", parameter=(image.id, last_version, inference_id, ), auto_commit=False)
+                    delete_meta_label_result = self._mysql.delete(sql="delete from " + meta_label_table_name + " where imageId = %s and version <= %s and type = 'AUTO' and `inferencerId` = %s", parameter=(image.id, last_version, inference_id, ), auto_commit=False)
 
                     # 删除区域标签信息,记录模板的ids
                     # region_label_template_ids_result = self._mysql.selectAll("select labelId from " + region_label_table_name + " where `imageId` = %s and `version` = %s and `type` = 'AUTO' and `inferencerId` = %s group by labelId", (image.id, last_version, inference_id, ))
-                    delete_region_label_result = self._mysql.delete(sql="delete from " + region_label_table_name + " where imageId = %s and version = %s and type = 'AUTO' and `inferencerId` = %s", parameter=(image.id, last_version, inference_id, ), auto_commit=False)
+                    delete_region_label_result = self._mysql.delete(sql="delete from " + region_label_table_name + " where imageId = %s and version <= %s and type = 'AUTO' and `inferencerId` = %s", parameter=(image.id, last_version, inference_id, ), auto_commit=False)
 
-                    delete_region_result = self._mysql.delete(sql="delete from " + region_table_name + " where `imageId` = %s and `version` = %s and `type` = 'AUTO' and `inferencerId` = %s", parameter=(image.id, last_version, inference_id, ), auto_commit=False)
+                    delete_region_result = self._mysql.delete(sql="delete from " + region_table_name + " where `imageId` = %s and `version` <= %s and `type` = 'AUTO' and `inferencerId` = %s", parameter=(image.id, last_version, inference_id, ), auto_commit=False)
 
                     # wait_delete_label_template_ids = []
 
