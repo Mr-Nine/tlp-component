@@ -3,9 +3,9 @@
 @Project:
 @Team:
 @Author: jerome.du
-@LastEditors: jerome.du
+LastEditors: jerome.du
 @Date: 2019-11-25 11:21:03
-@LastEditTime: 2019-12-19 14:35:04
+LastEditTime: 2020-03-30 14:26:33
 @Description:
 '''
 
@@ -22,7 +22,7 @@ class AnnotationProjectImageRegion(GenericEntity):
         data_dict['id']         = data_result['id'].decode("utf-8") if data_result["id"] else ""
         data_dict['imageId']    = data_result['imageId'].decode("utf-8") if data_result["imageId"] else ""
         data_dict['type']       = data_result['type'].decode("utf-8") if data_result['type'] else ""
-        data_dict['index']      = data_result['index'] if data_result["index"] else 10000
+        data_dict['index']      = data_result['index']
         data_dict['shape']      = data_result['shape'].decode("utf-8") if data_result["shape"] else ""
         data_dict['shapeData']  = data_result['shapeData'].decode("utf-8") if data_result["shapeData"] else ""
         data_dict['userId']     = data_result['userId'].decode("utf-8") if data_result["userId"] else ""
