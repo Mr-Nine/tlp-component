@@ -5,7 +5,7 @@
 @Author: jerome.du
 LastEditors: jerome.du
 @Date: 2019-12-12 20:44:56
-LastEditTime: 2020-03-26 19:52:16
+LastEditTime: 2020-03-31 17:09:41
 @Description:
 '''
 
@@ -191,6 +191,13 @@ class ImportLabelService(BusinessService):
                     insert_region_lable_sql = """insert into """ + self._config.project_image_region_label_table_name + table_index + """ (`id`, `imageId`, `regionId`, `labelId`, `type`, `version`, `attribute`, `userId`, `createTime`, `updateTime`) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
                     insert_result = self._mysql.close_transaction_insert_many(insert_region_lable_sql, region_label_values)
                     print("insert " + str(insert_result) + " entries.")
+
+                self._mysql.end()
+
+                # 清除之前版本的导入数据，只保留最后一版
+                self._mysql.delete(sql="delete from " + self._config.project_meta_label_table_name + table_index + " where `version` != %s and `type` = %s and `imageId`", parameter=(version, TaggingType.IMPORT, image.id, ), auto_commit=False)
+                self._mysql.delete(sql="delete from " + self._config.project_image_region_table_name + table_index + table_index + " where `version` != %s and `type` = %s and `imageId`", parameter=(version, TaggingType.IMPORT, image.id, ), auto_commit=False)
+                self._mysql.delete(sql="delete from " + self._config.project_image_region_label_table_name + table_index + " where `version` != %s and `type` = %s and `imageId`", parameter=(version, TaggingType.IMPORT, image.id, ), auto_commit=False)
 
                 self._mysql.end()
 
