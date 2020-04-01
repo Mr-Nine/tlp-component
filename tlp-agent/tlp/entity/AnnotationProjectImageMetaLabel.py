@@ -5,7 +5,7 @@
 @Author: jerome.du
 LastEditors: jerome.du
 @Date: 2019-11-22 21:06:12
-LastEditTime: 2020-03-26 20:12:47
+LastEditTime: 2020-04-01 10:02:06
 @Description:
 '''
 
@@ -26,5 +26,6 @@ class AnnotationProjectImageMetaLabel(GenericEntity):
         data_dict['userId']     = data_result['userId'].decode("utf-8")
         data_dict['createTime'] = data_result["createTime"].strftime("%Y-%m-%d %H:%M:%S") if data_result["createTime"] is not None else ""
         data_dict['updateTime'] = data_result["updateTime"].strftime("%Y-%m-%d %H:%M:%S") if data_result["updateTime"] is not None else ""
+        data_dict['inferencerId']  = data_result['inferencerId'].decode("utf-8") if data_result["inferencerId"] else None
 
         return data_dict

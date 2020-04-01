@@ -5,7 +5,7 @@
 @Author: jerome.du
 LastEditors: jerome.du
 @Date: 2019-11-25 11:21:03
-LastEditTime: 2020-03-26 20:13:26
+LastEditTime: 2020-04-01 10:03:03
 @Description:
 '''
 
@@ -29,5 +29,6 @@ class AnnotationProjectImageRegionLabel(GenericEntity):
         data_dict['userId']     = data_result['userId'].decode("utf-8") if data_result["userId"] else ""
         data_dict['createTime'] = data_result["createTime"].strftime("%Y-%m-%d %H:%M:%S") if data_result["createTime"] else ""
         data_dict['updateTime'] = data_result["updateTime"].strftime("%Y-%m-%d %H:%M:%S") if data_result["updateTime"] else ""
+        data_dict['inferencerId']  = data_result['inferencerId'].decode("utf-8") if data_result["inferencerId"] else None
 
         return data_dict
