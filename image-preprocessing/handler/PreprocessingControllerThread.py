@@ -3,9 +3,9 @@
 @Project:
 @Team:
 @Author: jerome.du
-@LastEditors: jerome.du
+LastEditors: jerome.du
 @Date: 2019-12-02 11:10:52
-@LastEditTime: 2019-12-09 17:25:23
+LastEditTime: 2020-04-02 17:12:39
 @Description:
 '''
 
@@ -36,17 +36,22 @@ class PreprocessingControllerThread(threading.Thread):
         super(PreprocessingControllerThread, self).__init__()
 
         self.__ws = ws
+        # 排队等待切图的队列
         self.__pending_queue = pending_queue
+        # 向主进程发送自己状态的队列
         self.__state_queue = state_queue
-
+        # 运行控制标记位
         self.__running = threading.Event()
+        # 暂停控制标记位
         self.__waiting = threading.Event()
-
+        # 存放子线程（工作进程）的列表
         self.__sub_thread_array = []
-
+        # 消息回复线程
         self.__result_thread = None
+        # 保存处理队列的文件位置
         self.__save_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pending_image_list.data")
 
+        # 初始化最大工作进程数
         self.__work_thread_count = self.config.default_max_processing_thread_number
         if not self.__work_thread_count:
             self.__work_thread_count = int(multiprocessing.cpu_count() / self.config.default_concurrent_processes_number)
@@ -63,6 +68,8 @@ class PreprocessingControllerThread(threading.Thread):
             self.__result_thread.start() # 启动监听结果的线程
 
             pending_image_list = []
+            lock = threading.Lock()
+
             try:
                 if os.path.exists(self.__save_file_path):
                     with open(self.__save_file_path, 'rb+') as load_file:
@@ -72,6 +79,7 @@ class PreprocessingControllerThread(threading.Thread):
                     if pending_image_list:
                         for image in pending_image_list:
                             self.__pending_queue.put(image)
+
                 logging.info("%s:restore unprocessed pictures to the queue." % self.name)
             except Exception as e:
                 logging.error("%s:failed to restore unprocessed pictures to the queue, error:"%(self.name, str(e)))
@@ -81,12 +89,11 @@ class PreprocessingControllerThread(threading.Thread):
             self.loop = asyncio.new_event_loop()
             asyncio.set_event_loop(self.loop)
 
-
             sub_thread_wati_count = 1
             while self.__running.isSet():
 
                 if len(self.__sub_thread_array) == self.__work_thread_count:
-                    logging.debug("%s:waiting for the work thread queue to be free." % self.name)
+                    logging.debug("%s:waiting for the work thread queue to be free..." % self.name)
 
                     time.sleep(sub_thread_wati_count)
                     if sub_thread_wati_count < self.config.default_max_sleep_time:
@@ -120,17 +127,19 @@ class PreprocessingControllerThread(threading.Thread):
 
                 if image:
                     thread_name = 'preprocessing-work-thread-' + image["id"]
-                    work = PreprocessingWorkThread(thread_name, self.__ws, image, self.__sub_thread_array, self.work_result_queue)
+                    work = PreprocessingWorkThread(thread_name, image, self.__sub_thread_array, self.work_result_queue, lock)
                     work.start()
-                    self.__sub_thread_array.append(work.name)
+                    self.__sub_thread_array.append(thread_name)
 
-            logging.debug("%s:start processing thread recycling." % self.name)
+            logging.debug("%s:start processing thread recycling..." % self.name)
 
             while self.__sub_thread_array:
                 # 如果还有没有完成的线程，就等着
-                logging.debug("%s:wait for the work thread to end." % self.name)
+                logging.debug("%s:wait for the work thread to end..." % self.name)
+                print(self.__sub_thread_array)
                 time.sleep(3)
 
+            # 连接都结束了，还有必要在等着发送结束吗？
             logging.debug("%s:notify the send thread to end." % self.name)
             if self.__result_thread.isAlive():
                 self.__result_thread.stop()
@@ -180,6 +189,7 @@ class PreprocessingControllerThread(threading.Thread):
         self.__waiting.set()
         if self.__result_thread.isAlive():
             self.__result_thread.resume()
+
 
     def is_pause(self):
         return self.__waiting.isSet()

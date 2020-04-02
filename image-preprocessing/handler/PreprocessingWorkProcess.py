@@ -5,7 +5,7 @@
 @Author: jerome.du
 LastEditors: jerome.du
 @Date: 2019-12-04 17:52:11
-LastEditTime: 2020-03-30 20:25:59
+LastEditTime: 2020-04-02 17:27:09
 @Description:
 '''
 
@@ -24,12 +24,20 @@ Image.MAX_IMAGE_PIXELS = None
 class PreprocessingWorkProcess(Process):
     def __init__(self, name, image_id, image_path, save_root_path, processes, progress_queue):
         super(PreprocessingWorkProcess, self).__init__()
+
+        # 进程名称
         self.name = name
+        # 需要处理的图片的编号（非项目）
         self.pending_image_id = image_id
+        # 原图像的存放路径（转义后）
         self.pending_image_path = image_path
+        # 处理后的图片的跟路径
         self.save_root_path = save_root_path
+        # 处理后图片内容存放的路径
         self.image_root_path = os.path.join(self.save_root_path, self.pending_image_id)
+        # 每张图的可以使用的进程数
         self.processes = processes
+        # 发送处理结果的消息队列
         self.progress_queue = progress_queue
 
 
@@ -38,18 +46,39 @@ class PreprocessingWorkProcess(Process):
         if not os.path.exists(self.image_root_path):
             os.makedirs(self.image_root_path)
 
-        self.__generate_thumbnail()
+        thumbnail_result = self.__generate_thumbnail()
 
-        self.__generate_tile_file()
-
-        # TODO:告诉父进程我切图做完了
+        if thumbnail_result:
+            self.__generate_tile_file()
 
 
     def __generate_thumbnail(self):
         try:
             Image.MAX_IMAGE_PIXELS = None
 
-            image_obj = Image.open(self.pending_image_path)
+            fsize = os.path.getsize(self.pending_image_path) / float(1024 * 1024)
+            (fname, suffix) = os.path.splitext(self.pending_image_path)
+
+            # 如果超大文件或tif格式的文件，就换库处理缩略图的问题
+            if suffix.lower() == '.tif':
+                logging.info("thumbnail tif file.")
+                pass
+            elif fsize >= 2048:
+                logging.info("thumbnail big file.")
+                pass
+            else:
+                pass
+
+            image_obj = None
+
+            try:
+                image_obj = Image.open(self.pending_image_path)
+            except BaseException as identifier:
+                logging.error("%s:open image file error, error msg:%s" % (self.name, str(e)))
+                import traceback
+                traceback.print_exc()
+                self.progress_queue.put({"state":"ERROR", "progress":"thumbnail", "imageId":self.pending_image_id, "imagePath":self.pending_image_path, "width":-1, "height":-1, "minZoom":0, "maxZoom":0})
+                return False
 
             self.max_zoom = int(math.ceil(math.log(max(image_obj.width, image_obj.height)/256) / math.log(2)))
 
@@ -62,17 +91,20 @@ class PreprocessingWorkProcess(Process):
             rate = float(200) / float(size[1])
             new_size = (int(size[0] * rate), 200)
 
-            image_obj.thumbnail(new_size, Image.BILINEAR)
+            image_obj.thumbnail(new_size)
 
             thumbnail_path = os.path.join(self.image_root_path, 'thumbnail.png')
             image_obj.save(thumbnail_path, 'PNG')
 
             self.progress_queue.put({"state":"true", "progress":"thumbnail", "imageId":self.pending_image_id, "imagePath":self.pending_image_path, "width":size[0], "height":size[1], "minZoom":0, "maxZoom":self.max_zoom})
+
+            return True
         except Exception as e:
             logging.error("%s:generate thumbnail error, error msg:%s" % (self.name, str(e)))
             import traceback
             traceback.print_exc()
             self.progress_queue.put({"state":"ERROR", "progress":"thumbnail", "imageId":self.pending_image_id, "imagePath":self.pending_image_path, "width":size[0], "height":size[1], "minZoom":0, "maxZoom":self.max_zoom})
+            return False
 
 
     def __generate_tile_file(self):
@@ -107,7 +139,6 @@ class PreprocessingWorkProcess(Process):
                         if "100 - done." not in line:
                             self.progress_queue.put({"state":"ERROR", "progress":"tiles", "imageId":self.pending_image_id, "imagePath":self.pending_image_path})
                             return
-                            # TODO:清除垃圾文件
 
                 self.progress_queue.put({"state":"TILE", "progress":"tiles", "imageId":self.pending_image_id, "imagePath":self.pending_image_path})
         except Exception as e:

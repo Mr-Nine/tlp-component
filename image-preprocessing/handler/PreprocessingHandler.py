@@ -3,9 +3,9 @@
 @Project:
 @Team:
 @Author: jerome.du
-@LastEditors  : jerome.du
+LastEditors: jerome.du
 @Date: 2019-11-28 16:58:42
-@LastEditTime : 2019-12-22 16:35:22
+LastEditTime: 2020-04-01 17:51:41
 @Description:
 '''
 
@@ -109,13 +109,13 @@ class PreprocessingHandler(tornado.websocket.WebSocketHandler):
             self.__context.set_connect(self._id(), connectionInfo)
 
             # 后端主动心跳机制
-            if ('hc' not in dir()):
-                self.hc = HeartCheck(self)
-                self.hc.start()
+            # if ('hc' not in dir()):
+            #     self.hc = HeartCheck(self)
+            #     self.hc.start()
             # self.loop.add_callback(self.heart_check)
 
             if self._controllerThread is None:
-                # 如果控制进程没有启动，则启动预处理切图进程
+                # 如果控制进程没有启动，则启动预处理切图进程（ws=webscoket的变量, pending_queue=待处理的图片列表队列, state_queue=和父进程回复状态的队列,
                 self._controllerThread = PreprocessingControllerThread(ws=self, pending_queue=self.pending_image_queue, state_queue=self.controller_thread_state_queue)
                 self._controllerThread.name = "preprocessing-controller-thread"
                 self._controllerThread.start()
@@ -195,14 +195,12 @@ class PreprocessingHandler(tornado.websocket.WebSocketHandler):
 
 
     def on_close(self, transfer=True):
-        '''
-        @description: 当本条ws被关闭的时候被调用，要处理工作的子线程回收
+        '''当ws被关闭的时候被调用，要处理工作的子线程回收
         '''
         connection = self.__context.get_connect(self._id())
         if connection is not None:
             del self.__context.get_connect_dict()[self._id()]
-            self.hc.close()
-            logging.debug("client close the connection id:%s, current connection count:%s" % (self._id(), str(len(self.__context.get_connect_dict().keys()))))
+            # self.hc.close() 结束主动心跳
 
         if self._controllerThread.isAlive():
             self._controllerThread.stop() # 结束处理控制器线程
@@ -212,6 +210,8 @@ class PreprocessingHandler(tornado.websocket.WebSocketHandler):
                 logging.info("线程回收完毕")
             else:
                 logging.error("线程回收失败，错误原因:%s" % close_result[1])
+
+        logging.debug("client close the connection id:%s, current connection count:%s" % (self._id(), str(len(self.__context.get_connect_dict().keys()))))
 
 
     def check_origin(self, origin):
