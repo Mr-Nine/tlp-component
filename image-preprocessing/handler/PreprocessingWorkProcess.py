@@ -5,7 +5,7 @@
 @Author: jerome.du
 LastEditors: jerome.du
 @Date: 2019-12-04 17:52:11
-LastEditTime: 2020-04-02 17:27:09
+LastEditTime: 2020-04-03 17:07:12
 @Description:
 '''
 
@@ -119,8 +119,8 @@ class PreprocessingWorkProcess(Process):
                 logging.info("not tile image, image path %s, send 'ORIGINAL' message."%self.pending_image_path)
                 self.progress_queue.put({"state":"ORIGINAL", "progress":"tiles", "imageId":self.pending_image_id, "imagePath":self.pending_image_path})
             else:
-                current_path = os.path.dirname(os.path.abspath(__file__))
-                command = "python2 " + os.path.join(current_path, "gdal2tiles-multiprocess.py") + " -l -p raster -z 0-" + str(self.max_zoom) + " -w none --processes=" + str(self.processes) + " " + self.pending_image_path + " " + self.image_root_path
+                script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "script")
+                command = "python2 " + os.path.join(script_path, "gdal2tiles_3.1_update_leaflet.py") + " -l -p raster -z 0-" + str(self.max_zoom) + " -w none --processes=" + str(self.processes) + " " + self.pending_image_path + " " + self.image_root_path
                 logging.info(command)
 
                 tile_process = subprocess.Popen(command, shell=True, cwd="/", stdout=subprocess.PIPE)
