@@ -5,7 +5,7 @@
 @Author: jerome.du
 LastEditors: jerome.du
 @Date: 2019-11-04 14:04:52
-LastEditTime: 2020-03-23 14:25:27
+LastEditTime: 2020-04-03 15:59:20
 @Description:
 '''
 
@@ -87,10 +87,13 @@ class AnnotationMetaLabelHandler(AbstractHandler):
                 newId = str(uuid.uuid4())
 
                 count = mysql.insertOne(sql, (newId, image.id, labelId, 'MANUAL', '0', attribute, self.user.userId, now, now))
-                if count:
-                    return self.replyMessage(message, state=True, msg="add meta label success.", id=newId, imageId=image.id, labelId=labelId)
-                else:
-                    return self.replyMessage(message, state=False, msg="50107", imageId=image.id, labelId=labelId) # 插入为写入数据库
+
+                return self.replyMessage(message, state=True, msg="add meta label success.", id=newId, imageId=image.id, labelId=labelId)
+
+                # if count:
+                #     return self.replyMessage(message, state=True, msg="add meta label success.", id=newId, imageId=image.id, labelId=labelId)
+                # else:
+                #     return self.replyMessage(message, state=False, msg="50107", imageId=image.id, labelId=labelId) # 插入为写入数据库
 
             elif action == 'delete':
                 # 为图片取消一个meta标签
@@ -104,10 +107,13 @@ class AnnotationMetaLabelHandler(AbstractHandler):
                 sql = """delete from """ + meta_label_table_name + """ where id = %s"""
 
                 count = mysql.delete(sql, (delete_id, ))
-                if count:
-                    return self.replyMessage(message, state=True, msg="delete meta label success.", id=delete_id, imageId=image.id)
-                else:
-                    return self.replyMessage(message, state=False, msg="50108", id=delete_id, imageId=image.id) # 删除未成功执行
+
+                return self.replyMessage(message, state=True, msg="delete meta label success.", id=delete_id, imageId=image.id)
+
+                # if count:
+                #     return self.replyMessage(message, state=True, msg="delete meta label success.", id=delete_id, imageId=image.id)
+                # else:
+                #     return self.replyMessage(message, state=False, msg="50108", id=delete_id, imageId=image.id) # 删除未成功执行
 
             elif action == 'update':
                 # 为图像的Meta修改属性
@@ -121,10 +127,12 @@ class AnnotationMetaLabelHandler(AbstractHandler):
                 sql = """update """ + meta_label_table_name + """ set attribute = %s where id = %s"""
                 count = mysql.update(sql, (attribute, update_id))
 
-                if count:
-                    return self.replyMessage(message, state=True, msg="update meta label attribute success.", id=update_id, imageId=image.id)
-                else:
-                    return self.replyMessage(message, state=False, msg="50108", id=update_id, imageId=image.id) # 删除未成功执行
+                return self.replyMessage(message, state=True, msg="update meta label attribute success.", id=update_id, imageId=image.id)
+
+                # if count:
+                #     return self.replyMessage(message, state=True, msg="update meta label attribute success.", id=update_id, imageId=image.id)
+                # else:
+                #     return self.replyMessage(message, state=False, msg="50108", id=update_id, imageId=image.id) # 删除未成功执行
 
             else:
                 # 未知的meta操作
