@@ -3,20 +3,63 @@
 @Project:TLP-Agent
 @Team:DCP
 @Author: jerome.du
-@LastEditors: jerome.du
+LastEditors: jerome.du
 @Date: 2019-10-31 09:56:39
-@LastEditTime: 2019-12-04 15:26:25
+LastEditTime: 2020-04-09 21:01:49
 @Description:程序启动入口,负责启动tornado服务，实例化模块管理器
 '''
 __author__ = 'dcp team dujiujun - tlp - agent'
 
 import sys
+import os.path
+
+sys.path.append(os.path.dirname(__file__) + os.sep + '../')
+
+import atfork
+atfork.monkeypatch_os_fork_functions()
+
+def fix_logging_module():
+    logging = sys.modules.get('logging')
+    # Prevent fixing multiple times as that would cause a deadlock.
+    if logging and getattr(logging, 'fixed_for_atfork', None):
+        return
+    if logging:
+        warnings.warn('logging module already imported before fixup.')
+    import logging
+    if logging.getLogger().handlers:
+        # We could register each lock with atfork for these handlers but if
+        # these exist, other loggers or not yet added handlers could as well.
+        # Its safer to insist that this fix is applied before logging has been
+        # configured.
+        raise BaseException('logging handlers already registered.')
+
+    logging._acquireLock()
+    try:
+        def fork_safe_createLock(self):
+            self._orig_createLock()
+            atfork.atfork(self.lock.acquire,
+                          self.lock.release, self.lock.release)
+
+        # Fix the logging.Handler lock (a major source of deadlocks).
+        logging.Handler._orig_createLock = logging.Handler.createLock
+        logging.Handler.createLock = fork_safe_createLock
+
+        # Fix the module level lock.
+        atfork.atfork(logging._acquireLock,
+                      logging._releaseLock, logging._releaseLock)
+
+        logging.fixed_for_atfork = True
+    finally:
+        logging._releaseLock()
+
+fix_logging_module()
+
 import time
 import logging
 import logging.config
-import os.path
 import json
 import signal
+import warnings
 
 import tornado.httpserver
 import tornado.ioloop
@@ -31,7 +74,6 @@ from core import PreprocessingContext
 from handler import MainHandler, PreprocessingHandler
 
 
-sys.path.append(os.path.dirname(__file__) + os.sep + '../')
 
 define('port', default=7979)
 
@@ -54,7 +96,6 @@ def init_agent_logging():
     tornado.log.enable_pretty_logging(logger=logger)
 
 max_body_size = 1 * 1024 * 1024 * 1024
-
 
 def get_server_settings(options=None):
     service_settings = dict(
