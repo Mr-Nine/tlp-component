@@ -5,7 +5,7 @@
 @Author: jerome.du
 LastEditors: jerome.du
 @Date: 2019-12-04 17:52:11
-LastEditTime: 2020-04-03 20:57:49
+LastEditTime: 2020-04-09 18:15:13
 @Description:
 '''
 
@@ -86,7 +86,7 @@ class PreprocessingWorkProcess(Process):
             if size[0] <= 200:
                 self.__copy_image_to_target('thumbnail.png')
                 self.progress_queue.put({"state":"true", "progress":"thumbnail", "imageId":self.pending_image_id, "imagePath":self.pending_image_path, "width":size[0], "height":size[1], "minZoom":0, "maxZoom":self.max_zoom})
-                return
+                return True
 
             rate = float(200) / float(size[1])
             new_size = (int(size[0] * rate), 200)
@@ -120,27 +120,42 @@ class PreprocessingWorkProcess(Process):
                 self.progress_queue.put({"state":"ORIGINAL", "progress":"tiles", "imageId":self.pending_image_id, "imagePath":self.pending_image_path})
             else:
                 script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "script")
-                command = "python2 " + os.path.join(script_path, "gdal2tiles_3.1_update_leaflet.py") + " -l -p raster -z 0-" + str(self.max_zoom) + " -w none --processes=" + str(self.processes) + " " + self.pending_image_path + " " + self.image_root_path
+                command = "python " + os.path.join(script_path, "gdal2tiles_3.1_update_leaflet.py") + " -l -p raster -z 0-" + str(self.max_zoom) + " -w none --processes=" + str(self.processes) + " " + self.pending_image_path + " " + self.image_root_path
                 logging.info(command)
 
                 tile_process = subprocess.Popen(command, shell=True, cwd="/", stdout=subprocess.PIPE)
 
-                out = tile_process.stdout.readlines()
+                (std_out, std_err) = tile_process.communicate()
 
-                '''
-                b'Generating Base Tiles:\n'
-                b'0...10...20...30...40...50...60...70...80...90...100 - done.\n'
-                b'Generating Overview Tiles:\n'
-                b'0...10...20...30...40...50...60...70...80...90...100 - done.\n'
-                '''
-                for i in range(len(out)):
-                    if i == 1 or i == 3:
-                        line = out[i].decode("utf-8")
-                        if "100 - done." not in line:
-                            self.progress_queue.put({"state":"ERROR", "progress":"tiles", "imageId":self.pending_image_id, "imagePath":self.pending_image_path})
-                            return
+                return_code = tile_process.poll()
+                # out = tile_process.stdout.readlines()
 
-                self.progress_queue.put({"state":"TILE", "progress":"tiles", "imageId":self.pending_image_id, "imagePath":self.pending_image_path})
+                # '''
+                # b'Generating Base Tiles:\n'
+                # b'0...10...20...30...40...50...60...70...80...90...100 - done.\n'
+                # b'Generating Overview Tiles:\n'
+                # b'0...10...20...30...40...50...60...70...80...90...100 - done.\n'
+                # '''
+                # out_put_info = ""
+                # for i in range(len(out)):
+                #     if i == 1 or i == 3:
+                #         line = out[i].decode("utf-8")
+                #         out_put_info += line
+                #         if "100 - done." not in line:
+                #             logging.error(" generate tile file error, return message: %s." % out_put_info)
+                #             self.progress_queue.put({"state":"ERROR", "progress":"tiles", "imageId":self.pending_image_id, "imagePath":self.pending_image_path})
+                #             return
+
+                if return_code:
+                    outs = std_out.readlines()
+                    out_put_info = ""
+                    for i in range(len(outs)):
+                        line = outs[i].decode("utf-8")
+                        out_put_info += line
+                    logging.error(" generate tile file error, return message: %s." % out_put_info)
+                    self.progress_queue.put({"state":"ERROR", "progress":"tiles", "imageId":self.pending_image_id, "imagePath":self.pending_image_path})
+                else:
+                    self.progress_queue.put({"state":"TILE", "progress":"tiles", "imageId":self.pending_image_id, "imagePath":self.pending_image_path})
         except Exception as e:
             logging.error("%s:generate tile file error, error msg:%s" % (self.name, str(e)))
             import traceback
