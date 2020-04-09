@@ -5,7 +5,7 @@
 @Author: jerome.du
 LastEditors: jerome.du
 @Date: 2019-10-31 09:56:39
-LastEditTime: 2020-04-09 21:01:49
+LastEditTime: 2020-04-09 21:04:59
 @Description:程序启动入口,负责启动tornado服务，实例化模块管理器
 '''
 __author__ = 'dcp team dujiujun - tlp - agent'
@@ -72,7 +72,6 @@ from tornado.options import define, options, parse_config_file
 
 from core import PreprocessingContext
 from handler import MainHandler, PreprocessingHandler
-
 
 
 define('port', default=7979)

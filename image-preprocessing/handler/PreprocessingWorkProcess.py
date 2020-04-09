@@ -5,7 +5,7 @@
 @Author: jerome.du
 LastEditors: jerome.du
 @Date: 2019-12-04 17:52:11
-LastEditTime: 2020-04-09 20:14:40
+LastEditTime: 2020-04-09 21:16:26
 @Description:
 '''
 
@@ -54,7 +54,7 @@ class PreprocessingWorkProcess(Process):
 
     def __generate_thumbnail(self):
         try:
-            logging.info("%s: generate thumbnail imageID----- %s, ." % (self.name, self.pending_image_id))
+            # logging.info("%s: generate thumbnail imageID----- %s, ." % (self.name, self.pending_image_id))
             Image.MAX_IMAGE_PIXELS = None
 
             fsize = os.path.getsize(self.pending_image_path) / float(1024 * 1024)
@@ -62,10 +62,10 @@ class PreprocessingWorkProcess(Process):
 
             # 如果超大文件或tif格式的文件，就换库处理缩略图的问题
             if suffix.lower() == '.tif':
-                logging.info("thumbnail tif file.")
+                # logging.info("thumbnail tif file.")
                 pass
             elif fsize >= 2048:
-                logging.info("thumbnail big file.")
+                # logging.info("thumbnail big file.")
                 pass
             else:
                 pass
@@ -75,7 +75,7 @@ class PreprocessingWorkProcess(Process):
             try:
                 image_obj = Image.open(self.pending_image_path)
             except BaseException as identifier:
-                logging.error("%s:open image file error, error msg:%s" % (self.name, str(e)))
+                # logging.error("%s:open image file error, error msg:%s" % (self.name, str(e)))
                 import traceback
                 traceback.print_exc()
                 self.progress_queue.put({"state":"ERROR", "progress":"thumbnail", "imageId":self.pending_image_id, "imagePath":self.pending_image_path, "width":-1, "height":-1, "minZoom":0, "maxZoom":0})
@@ -101,7 +101,7 @@ class PreprocessingWorkProcess(Process):
 
             return True
         except Exception as e:
-            logging.error("%s:generate thumbnail error, error msg:%s" % (self.name, str(e)))
+            # logging.error("%s:generate thumbnail error, error msg:%s" % (self.name, str(e)))
             import traceback
             traceback.print_exc()
             self.progress_queue.put({"state":"ERROR", "progress":"thumbnail", "imageId":self.pending_image_id, "imagePath":self.pending_image_path, "width":size[0], "height":size[1], "minZoom":0, "maxZoom":self.max_zoom})
@@ -109,7 +109,7 @@ class PreprocessingWorkProcess(Process):
 
 
     def __generate_tile_file(self):
-        logging.info("%s: generate tile imageID----- %s, ." % (self.name, self.pending_image_id))
+        # logging.info("%s: generate tile imageID----- %s, ." % (self.name, self.pending_image_id))
         try:
             if (self.max_zoom < 3):
                 '''
@@ -117,12 +117,12 @@ class PreprocessingWorkProcess(Process):
                 '''
                 file_path, file_name = os.path.split(self.pending_image_path)
                 self.__copy_image_to_target(file_name)
-                logging.info("not tile image, image path %s, send 'ORIGINAL' message."%self.pending_image_path)
+                # logging.info("not tile image, image path %s, send 'ORIGINAL' message."%self.pending_image_path)
                 self.progress_queue.put({"state":"ORIGINAL", "progress":"tiles", "imageId":self.pending_image_id, "imagePath":self.pending_image_path})
             else:
                 script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "script")
                 command = "python " + os.path.join(script_path, "gdal2tiles_3.1_update_leaflet.py") + " -l -p raster -z 0-" + str(self.max_zoom) + " -w none --processes=" + str(self.processes) + " " + self.pending_image_path + " " + self.image_root_path
-                logging.info(command)
+                # logging.info(command)
 
                 tile_process = subprocess.Popen(command, shell=True, cwd="/", stdout=subprocess.PIPE)
 
@@ -153,12 +153,12 @@ class PreprocessingWorkProcess(Process):
                     for i in range(len(outs)):
                         line = outs[i].decode("utf-8")
                         out_put_info += line
-                    logging.error(" generate tile file error, return message: %s." % out_put_info)
+                    # logging.error(" generate tile file error, return message: %s." % out_put_info)
                     self.progress_queue.put({"state":"ERROR", "progress":"tiles", "imageId":self.pending_image_id, "imagePath":self.pending_image_path})
                 else:
                     self.progress_queue.put({"state":"TILE", "progress":"tiles", "imageId":self.pending_image_id, "imagePath":self.pending_image_path})
         except Exception as e:
-            logging.error("%s:generate tile file error, error msg:%s" % (self.name, str(e)))
+            # logging.error("%s:generate tile file error, error msg:%s" % (self.name, str(e)))
             import traceback
             traceback.print_exc()
             self.progress_queue.put({"state":"ERROR", "progress":"tiles", "imageId":self.pending_image_id, "imagePath":self.pending_image_path})
