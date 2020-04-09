@@ -5,7 +5,7 @@
 @Author: jerome.du
 LastEditors: jerome.du
 @Date: 2019-10-31 11:57:58
-LastEditTime: 2020-03-24 14:15:19
+LastEditTime: 2020-04-09 10:31:36
 @Description:负责标注页面的websocket连接的handler,在收到连接请求后，会先进行连接验证,如果验证通过，
     则创建连接并把连接管理交给模块控制器, 如果验证不通过，则会拒绝创建连接请求。
     在收到任何的消息后，都不会进行处理，而是直接发送给模块控制器。
@@ -161,7 +161,6 @@ class AnnotationWebscoketHandler(tornado.websocket.WebSocketHandler):
                 self._send_ws_message_and_close_connection("Web socket not init, connection project is not find.", 201110, '???')
                 return
 
-
             project = self.__context.get_project(user.projectId)
 
             publisher = Publisher(self, user)
@@ -287,8 +286,10 @@ class AnnotationWebscoketHandler(tornado.websocket.WebSocketHandler):
             # else:
             #     self.write_message(self._create_ws_base_message("error", {'message':10303, 'reason':"error message"}))
         else:
+            logging.error("ws is closed. msg info:")
             logging.error(message.to_json())
-            self.write_message(self._create_ws_base_message("error", {'message':10304, 'reason':"error message"}))
+            super(AnnotationWebscoketHandler, self).close()
+            # self.write_message(self._create_ws_base_message("error", {'message':10304, 'reason':"error message"}))
 
 
     def on_ping(self, data):
