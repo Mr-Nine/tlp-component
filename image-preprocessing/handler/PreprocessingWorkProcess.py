@@ -5,7 +5,7 @@
 @Author: jerome.du
 LastEditors: jerome.du
 @Date: 2019-12-04 17:52:11
-LastEditTime: 2020-04-09 18:15:13
+LastEditTime: 2020-04-09 20:14:40
 @Description:
 '''
 
@@ -54,6 +54,7 @@ class PreprocessingWorkProcess(Process):
 
     def __generate_thumbnail(self):
         try:
+            logging.info("%s: generate thumbnail imageID----- %s, ." % (self.name, self.pending_image_id))
             Image.MAX_IMAGE_PIXELS = None
 
             fsize = os.path.getsize(self.pending_image_path) / float(1024 * 1024)
@@ -108,7 +109,7 @@ class PreprocessingWorkProcess(Process):
 
 
     def __generate_tile_file(self):
-
+        logging.info("%s: generate tile imageID----- %s, ." % (self.name, self.pending_image_id))
         try:
             if (self.max_zoom < 3):
                 '''
